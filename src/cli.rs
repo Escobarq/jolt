@@ -31,4 +31,6 @@ pub enum Commands {
     },
     /// Ejecuta el proyecto
     Run,
+    /// Ejecuta las pruebas unitarias del proyecto con JUnit 5 integrado
+    Test,
 }

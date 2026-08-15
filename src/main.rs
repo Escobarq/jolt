@@ -225,5 +225,50 @@ async fn main() {
                 Err(e) => eprintln!("❌ Error al leer jolt.toml: {}", e),
             }
         }
+        cli::Commands::Test => {
+            let manifest_path = Path::new("jolt.toml");
+            if !manifest_path.exists() {
+                eprintln!("❌ No se encontró 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
+                return;
+            }
+
+            match manifest::JoltManifest::load_from_file(manifest_path) {
+                Ok(manifest) => {
+                    let java_ver = manifest.project.java_version.as_deref().unwrap_or("21");
+                    let toolchain = match toolchain_manager.get_or_download_toolchain(java_ver).await {
+                        Ok(tc) => Some(tc),
+                        Err(e) => {
+                            eprintln!("⚠️  No se pudo aprovisionar JDK {}: {}. Usando JDK por defecto del sistema.", java_ver, e);
+                            None
+                        }
+                    };
+
+                    const JUNIT_GROUP: &str = "org.junit.platform";
+                    const JUNIT_ARTIFACT: &str = "junit-platform-console-standalone";
+                    const JUNIT_VERSION: &str = "1.10.2";
+
+                    if !cache_manager.has_jar(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION) {
+                        println!("📥 Aprovisionando JUnit 5 Platform Console Launcher ({}) a la caché...", JUNIT_VERSION);
+                        match maven_client.download_jar_with_classifier(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION, None).await {
+                            Ok(bytes) => {
+                                let _ = cache_manager.save_jar_with_classifier(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION, None, &bytes);
+                            }
+                            Err(e) => {
+                                eprintln!("❌ No se pudo descargar JUnit runner: {}", e);
+                                return;
+                            }
+                        }
+                    }
+
+                    let junit_jar_path = cache_manager.get_jar_path(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION);
+
+                    println!("🧪 Ejecutando suite de pruebas unitarias (JUnit 5)...");
+                    if let Err(e) = engine::BuildEngine::run_tests(Path::new("."), toolchain.as_ref(), &junit_jar_path) {
+                        eprintln!("❌ {}", e);
+                    }
+                }
+                Err(e) => eprintln!("❌ Error al leer jolt.toml: {}", e),
+            }
+        }
     }
 }
