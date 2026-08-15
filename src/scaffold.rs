@@ -12,6 +12,8 @@ pub fn init_project(name: Option<&str>) -> Result<(), Box<dyn std::error::Error>
 
     // Crear la estructura de carpetas
     fs::create_dir_all(base_dir.join("src/main/java"))?;
+    fs::create_dir_all(base_dir.join("src/main/resources"))?;
+    fs::create_dir_all(base_dir.join("src/test/java"))?;
     
     // Crear el archivo jolt.toml
     let toml_content = format!(

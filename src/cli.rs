@@ -23,8 +23,12 @@ pub enum Commands {
     },
     /// Resuelve dependencias e instala localmente
     Install,
-    /// Compila el proyecto
-    Build,
+    /// Compila y empaqueta el proyecto
+    Build {
+        /// Empaqueta todas las dependencias en un único Fat-JAR autónomo
+        #[arg(short, long)]
+        standalone: bool,
+    },
     /// Ejecuta el proyecto
     Run,
 }

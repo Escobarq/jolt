@@ -137,7 +137,7 @@ async fn main() {
                 Err(e) => eprintln!("❌ Error al leer jolt.toml: {}", e),
             }
         }
-        cli::Commands::Build => {
+        cli::Commands::Build { standalone } => {
             let manifest_path = Path::new("jolt.toml");
             if !manifest_path.exists() {
                 eprintln!("❌ No se encontró 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
@@ -155,16 +155,30 @@ async fn main() {
                         }
                     };
 
-                    println!("🔨 Compilando '{}' con Java {}...", manifest.project.name, java_ver);
-                    match engine::BuildEngine::build_jar(
-                        Path::new("."),
-                        &manifest.project.name,
-                        &manifest.project.version,
-                        "Main",
-                        toolchain.as_ref(),
-                    ) {
-                        Ok(jar_path) => println!("📦 JAR creado exitosamente en: {}", jar_path.display()),
-                        Err(e) => eprintln!("❌ {}", e),
+                    if *standalone {
+                        println!("📦 Empaquetando Fat-JAR autónomo para '{}'...", manifest.project.name);
+                        match engine::BuildEngine::build_standalone_jar(
+                            Path::new("."),
+                            &manifest.project.name,
+                            &manifest.project.version,
+                            "Main",
+                            toolchain.as_ref(),
+                        ) {
+                            Ok(jar_path) => println!("✨ ¡Fat-JAR creado exitosamente en: {}!", jar_path.display()),
+                            Err(e) => eprintln!("❌ Error al crear Fat-JAR: {}", e),
+                        }
+                    } else {
+                        println!("🔨 Compilando '{}' con Java {}...", manifest.project.name, java_ver);
+                        match engine::BuildEngine::build_jar(
+                            Path::new("."),
+                            &manifest.project.name,
+                            &manifest.project.version,
+                            "Main",
+                            toolchain.as_ref(),
+                        ) {
+                            Ok(jar_path) => println!("📦 JAR estándar creado en: {}", jar_path.display()),
+                            Err(e) => eprintln!("❌ {}", e),
+                        }
                     }
                 }
                 Err(e) => eprintln!("❌ Error al leer jolt.toml: {}", e),
