@@ -30,7 +30,11 @@ pub enum Commands {
         standalone: bool,
     },
     /// Ejecuta el proyecto
-    Run,
+    Run {
+        /// Observa cambios en el código fuente y reinicia la aplicación automáticamente (Hot Reload)
+        #[arg(short, long)]
+        watch: bool,
+    },
     /// Ejecuta las pruebas unitarias del proyecto con JUnit 5 integrado
     Test,
 }

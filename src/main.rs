@@ -199,7 +199,7 @@ async fn main() {
                 Err(e) => eprintln!("❌ Error al leer jolt.toml: {}", e),
             }
         }
-        cli::Commands::Run => {
+        cli::Commands::Run { watch } => {
             let manifest_path = Path::new("jolt.toml");
             if !manifest_path.exists() {
                 eprintln!("❌ No se encontró 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
@@ -217,9 +217,15 @@ async fn main() {
                         }
                     };
 
-                    println!("⚡ Compilando y ejecutando con Java {}...", java_ver);
-                    if let Err(e) = engine::BuildEngine::run(Path::new("."), "Main", toolchain.as_ref()) {
-                        eprintln!("❌ {}", e);
+                    if *watch {
+                        if let Err(e) = engine::BuildEngine::run_watch(Path::new("."), "Main", toolchain.as_ref()) {
+                            eprintln!("❌ {}", e);
+                        }
+                    } else {
+                        println!("⚡ Compilando y ejecutando con Java {}...", java_ver);
+                        if let Err(e) = engine::BuildEngine::run(Path::new("."), "Main", toolchain.as_ref()) {
+                            eprintln!("❌ {}", e);
+                        }
                     }
                 }
                 Err(e) => eprintln!("❌ Error al leer jolt.toml: {}", e),

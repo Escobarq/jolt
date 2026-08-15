@@ -26,6 +26,6 @@ public class Main {
         }
 
         String json = gson.toJson(data);
-        System.out.println("Salida JSON (Fat-JAR + Recursos): " + json);
+        System.out.println("🔥 ¡HOT RELOAD FUNCIONANDO AL INSTANTE!: " + json);
     }
 }
