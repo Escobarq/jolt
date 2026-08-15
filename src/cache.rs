@@ -28,22 +28,52 @@ impl CacheManager {
     }
 
     /// Retorna la ruta al archivo JAR en la caché global
+    #[allow(dead_code)]
     pub fn get_jar_path(&self, group_id: &str, artifact_id: &str, version: &str) -> PathBuf {
+        self.get_jar_path_with_classifier(group_id, artifact_id, version, None)
+    }
+
+    /// Retorna la ruta al archivo JAR con clasificador en la caché global
+    pub fn get_jar_path_with_classifier(
+        &self,
+        group_id: &str,
+        artifact_id: &str,
+        version: &str,
+        classifier: Option<&str>,
+    ) -> PathBuf {
         let group_path = group_id.replace('.', "/");
+        let file_name = match classifier {
+            Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
+            _ => format!("{}-{}.jar", artifact_id, version),
+        };
+
         self.cache_root
             .join("jars")
             .join(group_path)
             .join(artifact_id)
             .join(version)
-            .join(format!("{}-{}.jar", artifact_id, version))
+            .join(file_name)
     }
 
     /// Verifica si un JAR ya existe en la caché global
+    #[allow(dead_code)]
     pub fn has_jar(&self, group_id: &str, artifact_id: &str, version: &str) -> bool {
-        self.get_jar_path(group_id, artifact_id, version).exists()
+        self.has_jar_with_classifier(group_id, artifact_id, version, None)
+    }
+
+    /// Verifica si un JAR con clasificador ya existe en la caché global
+    pub fn has_jar_with_classifier(
+        &self,
+        group_id: &str,
+        artifact_id: &str,
+        version: &str,
+        classifier: Option<&str>,
+    ) -> bool {
+        self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier).exists()
     }
 
     /// Guarda los bytes del JAR en la caché global tras calcular su hash SHA-256
+    #[allow(dead_code)]
     pub fn save_jar(
         &self,
         group_id: &str,
@@ -51,7 +81,19 @@ impl CacheManager {
         version: &str,
         bytes: &[u8],
     ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
-        let jar_path = self.get_jar_path(group_id, artifact_id, version);
+        self.save_jar_with_classifier(group_id, artifact_id, version, None, bytes)
+    }
+
+    /// Guarda los bytes del JAR con clasificador en la caché global
+    pub fn save_jar_with_classifier(
+        &self,
+        group_id: &str,
+        artifact_id: &str,
+        version: &str,
+        classifier: Option<&str>,
+        bytes: &[u8],
+    ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+        let jar_path = self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
         if let Some(parent) = jar_path.parent() {
             fs::create_dir_all(parent)?;
         }
@@ -66,6 +108,7 @@ impl CacheManager {
     }
 
     /// Enlaza el JAR de la caché global al directorio local `.jolt/modules/` mediante Hardlink
+    #[allow(dead_code)]
     pub fn link_to_project(
         &self,
         project_dir: &Path,
@@ -73,7 +116,19 @@ impl CacheManager {
         artifact_id: &str,
         version: &str,
     ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
-        let cached_jar = self.get_jar_path(group_id, artifact_id, version);
+        self.link_to_project_with_classifier(project_dir, group_id, artifact_id, version, None)
+    }
+
+    /// Enlaza el JAR con clasificador de la caché global al directorio local `.jolt/modules/` mediante Hardlink
+    pub fn link_to_project_with_classifier(
+        &self,
+        project_dir: &Path,
+        group_id: &str,
+        artifact_id: &str,
+        version: &str,
+        classifier: Option<&str>,
+    ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+        let cached_jar = self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
         if !cached_jar.exists() {
             return Err(format!("El archivo JAR en caché no existe: {:?}", cached_jar).into());
         }
@@ -81,7 +136,12 @@ impl CacheManager {
         let modules_dir = project_dir.join(".jolt").join("modules");
         fs::create_dir_all(&modules_dir)?;
 
-        let target_link = modules_dir.join(format!("{}-{}.jar", artifact_id, version));
+        let file_name = match classifier {
+            Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
+            _ => format!("{}-{}.jar", artifact_id, version),
+        };
+
+        let target_link = modules_dir.join(file_name);
 
         if target_link.exists() {
             fs::remove_file(&target_link)?;

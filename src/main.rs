@@ -41,8 +41,9 @@ async fn main() {
 
             let group_id = parts[0];
             let artifact_id = parts[1];
+            let classifier = if parts.len() >= 4 { Some(parts[3]) } else { None };
 
-            let version = if parts.len() >= 3 {
+            let raw_version = if parts.len() >= 3 {
                 parts[2].to_string()
             } else {
                 println!("🔍 Buscando última versión para '{}:{}' en Maven Central...", group_id, artifact_id);
@@ -58,33 +59,43 @@ async fn main() {
                 }
             };
 
+            let version_value = if let Some(c) = classifier {
+                format!("{}:{}", raw_version, c)
+            } else {
+                raw_version.clone()
+            };
+
             let dep_key = format!("{}:{}", group_id, artifact_id);
-            match manifest::JoltManifest::add_dependency_to_file(manifest_path, &dep_key, &version) {
+            match manifest::JoltManifest::add_dependency_to_file(manifest_path, &dep_key, &version_value) {
                 Ok(_) => {
-                    println!("✅ Dependencia '{} = \"{}\"' añadida a jolt.toml", dep_key, version);
+                    println!("✅ Dependencia '{} = \"{}\"' añadida a jolt.toml", dep_key, version_value);
                     
                     // Descargar a caché global si no existe
-                    if !cache_manager.has_jar(group_id, artifact_id, &version) {
-                        println!("📥 Descargando {}-{}.jar a la caché global...", artifact_id, version);
-                        match maven_client.download_jar(group_id, artifact_id, &version).await {
+                    if !cache_manager.has_jar_with_classifier(group_id, artifact_id, &raw_version, classifier) {
+                        let label = match classifier {
+                            Some(c) => format!("{}-{}-{}.jar", artifact_id, raw_version, c),
+                            None => format!("{}-{}.jar", artifact_id, raw_version),
+                        };
+                        println!("📥 Descargando {} a la caché global...", label);
+                        match maven_client.download_jar_with_classifier(group_id, artifact_id, &raw_version, classifier).await {
                             Ok(bytes) => {
-                                if let Err(e) = cache_manager.save_jar(group_id, artifact_id, &version, &bytes) {
+                                if let Err(e) = cache_manager.save_jar_with_classifier(group_id, artifact_id, &raw_version, classifier, &bytes) {
                                     eprintln!("⚠️ Error al guardar en caché: {}", e);
                                 }
                             }
                             Err(e) => eprintln!("⚠️ Error al descargar binario JAR: {}", e),
                         }
                     } else {
-                        println!("⚡ Usando {}-{}.jar desde la caché global", artifact_id, version);
+                        println!("⚡ Usando {}-{} desde la caché global", artifact_id, raw_version);
                     }
 
                     // Enlazar al proyecto local
-                    if let Ok(linked) = cache_manager.link_to_project(Path::new("."), group_id, artifact_id, &version) {
+                    if let Ok(linked) = cache_manager.link_to_project_with_classifier(Path::new("."), group_id, artifact_id, &raw_version, classifier) {
                         println!("🔗 Enlazado a {}", linked.display());
                     }
 
                     // Mostrar árbol de dependencias transitivas
-                    match maven_client.fetch_dependency_tree(group_id, artifact_id, &version).await {
+                    match maven_client.fetch_dependency_tree(group_id, artifact_id, &raw_version).await {
                         Ok(tree) => {
                             if !tree.dependencies.is_empty() {
                                 println!("📦 Dependencias transitivas detectadas ({}):", tree.dependencies.len());
@@ -113,20 +124,24 @@ async fn main() {
                     let mut count = 0;
                     if let Some(deps) = manifest.dependencies {
                         println!("⚡ Sincronizando {} dependencias...", deps.len());
-                        for (dep_name, version) in deps {
+                        for (dep_name, version_spec) in deps {
                             let parts: Vec<&str> = dep_name.split(':').collect();
                             if parts.len() == 2 {
                                 let group_id = parts[0];
                                 let artifact_id = parts[1];
 
-                                if !cache_manager.has_jar(group_id, artifact_id, &version) {
-                                    println!("📥 Descargando {}:{}:{}...", group_id, artifact_id, version);
-                                    if let Ok(bytes) = maven_client.download_jar(group_id, artifact_id, &version).await {
-                                        let _ = cache_manager.save_jar(group_id, artifact_id, &version, &bytes);
+                                let ver_parts: Vec<&str> = version_spec.split(':').collect();
+                                let version = ver_parts[0];
+                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+
+                                if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
+                                    println!("📥 Descargando {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
+                                    if let Ok(bytes) = maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
+                                        let _ = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes);
                                     }
                                 }
 
-                                if let Ok(_) = cache_manager.link_to_project(Path::new("."), group_id, artifact_id, &version) {
+                                if let Ok(_) = cache_manager.link_to_project_with_classifier(Path::new("."), group_id, artifact_id, version, classifier) {
                                     count += 1;
                                 }
                             }

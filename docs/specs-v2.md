@@ -8,23 +8,15 @@ Este documento detalla la arquitectura y diseño técnico para las siguientes fu
 
 ---
 
-## 1. Módulo F: Fat-JAR / Standalone Bundler (`jolt build --standalone`)
+## 1. Módulo F: Fat-JAR / Standalone Bundler (`jolt build --standalone`) `[COMPLETADO Y ARCHIVADO ✅]`
+> **Estado:** Implementado y archivado en [`docs/archive/modulo-f-i-fatjar-resources.md`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/docs/archive/modulo-f-i-fatjar-resources.md).
+
 **Responsabilidad:** Generar un único archivo `.jar` ejecutable que contenga todas las clases del proyecto y todas las dependencias desempaquetadas, listo para ejecutarse en cualquier máquina con `java -jar app.jar`.
 
-### Diseño e Implementación:
-- **Crates requeridos:** `zip`, `std::fs`.
-- **Flujo de Ejecución:**
-  1. Compilar clases del proyecto a `target/classes/`.
-  2. Crear un archivo ZIP destino: `target/<nombre>-<version>-standalone.jar`.
-  3. Escribir `META-INF/MANIFEST.MF` con:
-     ```manifest
-     Manifest-Version: 1.0
-     Main-Class: Main
-     Created-By: Jolt 0.1.0
-     ```
-  4. Copiar todas las clases de `target/classes/` al JAR.
-  5. Iterar sobre cada `.jar` en `.jolt/modules/`, descomprimir sus entradas `.class` y recursos, e insertarlos en el JAR final.
-  6. **Filtrado de firmas de seguridad:** Ignorar archivos `META-INF/*.SF`, `META-INF/*.DSA`, `META-INF/*.RSA` para evitar errores de verificación de firma (`SecurityException: SHA-256 digest error`).
+### Tareas implementadas:
+- [x] Extracción recursiva de dependencias ZIP y copiado de clases.
+- [x] Filtrado de firmas de seguridad `META-INF/*.SF`, `*.DSA`, `*.RSA`.
+- [x] Generación de `META-INF/MANIFEST.MF` con `Main-Class`.
 
 ---
 
@@ -65,11 +57,14 @@ Este documento detalla la arquitectura y diseño técnico para las siguientes fu
 
 ---
 
-## 4. Módulo I: Gestor de Recursos Estáticos (`src/main/resources/`)
+## 4. Módulo I: Gestor de Recursos Estáticos (`src/main/resources/`) `[COMPLETADO Y ARCHIVADO ✅]`
+> **Estado:** Implementado y archivado en [`docs/archive/modulo-f-i-fatjar-resources.md`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/docs/archive/modulo-f-i-fatjar-resources.md).
+
 **Responsabilidad:** Copiar automáticamente recursos estáticos al classpath para aplicaciones con interfaces gráficas (JavaFX con archivos `.fxml`), servidores web (Spring Boot / Micronaut / Javalin con `.properties`, `.yaml`), y assets de juegos o utilidades.
 
-### Diseño e Implementación:
-- Durante la compilación, copiar recursivamente todos los archivos no-Java de `src/main/resources/` a `target/classes/`.
+### Tareas implementadas:
+- [x] Copia recursiva de `src/main/resources/` y `src/resources/` a `target/classes/`.
+- [x] Generación de carpeta en `jolt init`.
 
 ---
 

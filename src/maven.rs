@@ -122,25 +122,43 @@ impl MavenClient {
     }
 
     /// Descarga el binario JAR desde el repositorio Maven
+    #[allow(dead_code)]
     pub async fn download_jar(
         &self,
         group_id: &str,
         artifact_id: &str,
         version: &str,
     ) -> Result<Vec<u8>, Box<dyn Error + Send + Sync>> {
+        self.download_jar_with_classifier(group_id, artifact_id, version, None).await
+    }
+
+    /// Descarga el binario JAR con clasificador de plataforma opcional (ej. linux, mac, win)
+    pub async fn download_jar_with_classifier(
+        &self,
+        group_id: &str,
+        artifact_id: &str,
+        version: &str,
+        classifier: Option<&str>,
+    ) -> Result<Vec<u8>, Box<dyn Error + Send + Sync>> {
         let group_path = group_id.replace('.', "/");
+        let file_name = match classifier {
+            Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
+            _ => format!("{}-{}.jar", artifact_id, version),
+        };
+
         let url = format!(
-            "{}/{}/{}/{}/{}-{}.jar",
-            self.repo_base_url, group_path, artifact_id, version, artifact_id, version
+            "{}/{}/{}/{}/{}",
+            self.repo_base_url, group_path, artifact_id, version, file_name
         );
 
         let response = self.client.get(&url).send().await?;
         if !response.status().is_success() {
             return Err(format!(
-                "Error al descargar JAR para '{}:{}:{}' (Status: {})",
+                "Error al descargar JAR para '{}:{}:{}{:?}' (Status: {})",
                 group_id,
                 artifact_id,
                 version,
+                classifier,
                 response.status()
             )
             .into());
