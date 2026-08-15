@@ -1,0 +1,11 @@
+[project]
+name = "demo_app"
+version = "0.1.0"
+java_version = "21"
+
+[dependencies]
+"org.springframework.boot:spring-boot-starter-web" = "latest-mock"
+"com.google.code.gson:gson" = "2.14.0"
+"org.slf4j:slf4j-api" = "2.1.0-alpha1"
+
+[dev-dependencies]
