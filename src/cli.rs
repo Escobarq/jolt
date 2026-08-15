@@ -37,4 +37,6 @@ pub enum Commands {
     },
     /// Ejecuta las pruebas unitarias del proyecto con JUnit 5 integrado
     Test,
+    /// Diagnostica el entorno del sistema (Java, Rust, Caché) y la salud del proyecto actual
+    Check,
 }

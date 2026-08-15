@@ -1,4 +1,5 @@
 mod cache;
+mod checker;
 mod cli;
 mod engine;
 mod manifest;
@@ -274,6 +275,11 @@ async fn main() {
                     }
                 }
                 Err(e) => eprintln!("❌ Error al leer jolt.toml: {}", e),
+            }
+        }
+        cli::Commands::Check => {
+            if let Err(e) = checker::SystemChecker::run_check(Path::new("."), &cache_manager, &toolchain_manager).await {
+                eprintln!("❌ Error durante el diagnóstico: {}", e);
             }
         }
     }
