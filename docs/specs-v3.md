@@ -31,6 +31,7 @@ Este documento detalla la arquitectura y diseno tecnico para las siguientes func
   - `minimal`: Java estandar + JUnit 5.
   - `cli`: Picocli 4.7.6.
   - `javafx`: OpenJFX 21 + Launcher + CSS.
+  - `swing`: Java Swing con Look and Feel FlatLaf Dark.
   - `web`: Javalin 6.1.3 + REST API.
   - `spring`: Spring Boot 3.2.3 Web REST API + Actuator.
 

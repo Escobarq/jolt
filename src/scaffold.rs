@@ -5,6 +5,7 @@ pub const AVAILABLE_TEMPLATES: &[(&str, &str)] = &[
     ("minimal", "Proyecto estandar Java 21 con JUnit 5 integrado"),
     ("cli", "Aplicacion de linea de comandos con Picocli"),
     ("javafx", "Aplicacion con interfaz grafica moderna en JavaFX 21 y CSS"),
+    ("swing", "Aplicacion de escritorio Java Swing con Look & Feel moderno (FlatLaf)"),
     ("web", "Microservicio / API REST ligera con Javalin en puerto 7070"),
     ("spring", "Aplicacion web completa con Spring Boot 3.2 y REST Controller"),
 ];
@@ -21,7 +22,7 @@ pub fn init_project(name: Option<&str>, template: Option<&str>) -> Result<(), Bo
     let base_dir = Path::new(project_name);
     let tmpl = template.unwrap_or("minimal").to_lowercase();
 
-    let valid_templates = ["minimal", "cli", "javafx", "web", "spring", "spring-boot"];
+    let valid_templates = ["minimal", "cli", "javafx", "swing", "web", "spring", "spring-boot"];
     if !valid_templates.contains(&tmpl.as_str()) {
         println!("[ERROR] Plantilla '{}' no reconocida.", tmpl);
         print_available_templates();
@@ -166,6 +167,87 @@ public class App extends Application {
                 base_dir.join("src/main/resources/style.css"),
                 ".root { -fx-font-family: 'sans-serif'; -fx-background-color: #f8fafc; }\n",
             )?;
+        }
+        "swing" => {
+            let toml_content = format!(
+                r#"[project]
+name = "{}"
+version = "0.1.0"
+java_version = "21"
+
+[dependencies]
+"com.formdev:flatlaf" = "3.4.1"
+
+[dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
+"#,
+                project_name
+            );
+            fs::write(base_dir.join("jolt.toml"), toml_content)?;
+
+            let java_content = r#"import com.formdev.flatlaf.FlatDarkLaf;
+import javax.swing.*;
+import java.awt.*;
+
+public class Main {
+    private static int counter = 0;
+
+    public static void main(String[] args) {
+        // Look and Feel moderno oscuro de FlatLaf
+        FlatDarkLaf.setup();
+
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Jolt + Java Swing (FlatLaf)");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(450, 280);
+            frame.setLocationRelativeTo(null);
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
+            JLabel title = new JLabel("Aplicacion Java Swing");
+            title.setFont(new Font("SansSerif", Font.BOLD, 22));
+            title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel counterLabel = new JLabel("Clics realizados: 0");
+            counterLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+            counterLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JButton button = new JButton("Incrementar Contador");
+            button.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            button.addActionListener(e -> {
+                counter++;
+                counterLabel.setText("Clics realizados: " + counter);
+            });
+
+            panel.add(title);
+            panel.add(Box.createRigidArea(new Dimension(0, 20)));
+            panel.add(button);
+            panel.add(Box.createRigidArea(new Dimension(0, 15)));
+            panel.add(counterLabel);
+
+            frame.add(panel);
+            frame.setVisible(true);
+        });
+    }
+}
+"#;
+            fs::write(base_dir.join("src/main/java/Main.java"), java_content)?;
+            fs::write(base_dir.join("src/main/resources/app.properties"), "theme=dark\n")?;
+
+            let test_content = r#"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class SwingAppTest {
+    @Test
+    void testContext() {
+        assertTrue(true);
+    }
+}
+"#;
+            fs::write(base_dir.join("src/test/java/SwingAppTest.java"), test_content)?;
         }
         "web" => {
             let toml_content = format!(
