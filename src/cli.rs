@@ -15,9 +15,12 @@ pub enum Commands {
     Init {
         /// Nombre del proyecto a inicializar
         name: Option<String>,
-        /// Plantilla de inicio (minimal, cli, javafx, web)
+        /// Plantilla de inicio (minimal, cli, javafx, web, spring)
         #[arg(short, long)]
         template: Option<String>,
+        /// Muestra todas las plantillas disponibles
+        #[arg(short = 'l', long)]
+        list_templates: bool,
     },
     /// Añade una dependencia al proyecto actual
     Add {

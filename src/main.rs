@@ -24,7 +24,11 @@ async fn main() {
     let toolchain_manager = ToolchainManager::new();
 
     match &cli.command {
-        cli::Commands::Init { name, template } => {
+        cli::Commands::Init { name, template, list_templates } => {
+            if *list_templates {
+                scaffold::print_available_templates();
+                return;
+            }
             if let Err(e) = scaffold::init_project(name.as_deref(), template.as_deref()) {
                 eprintln!("[ERROR] Error al inicializar el proyecto: {}", e);
             }

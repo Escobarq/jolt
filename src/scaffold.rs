@@ -1,10 +1,32 @@
 use std::fs;
 use std::path::Path;
 
+pub const AVAILABLE_TEMPLATES: &[(&str, &str)] = &[
+    ("minimal", "Proyecto estandar Java 21 con JUnit 5 integrado"),
+    ("cli", "Aplicacion de linea de comandos con Picocli"),
+    ("javafx", "Aplicacion con interfaz grafica moderna en JavaFX 21 y CSS"),
+    ("web", "Microservicio / API REST ligera con Javalin en puerto 7070"),
+    ("spring", "Aplicacion web completa con Spring Boot 3.2 y REST Controller"),
+];
+
+pub fn print_available_templates() {
+    println!("Plantillas disponibles para 'jolt init --template <nombre>':");
+    for (name, desc) in AVAILABLE_TEMPLATES {
+        println!("  - {:<10} : {}", name, desc);
+    }
+}
+
 pub fn init_project(name: Option<&str>, template: Option<&str>) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let project_name = name.unwrap_or("app");
     let base_dir = Path::new(project_name);
     let tmpl = template.unwrap_or("minimal").to_lowercase();
+
+    let valid_templates = ["minimal", "cli", "javafx", "web", "spring", "spring-boot"];
+    if !valid_templates.contains(&tmpl.as_str()) {
+        println!("[ERROR] Plantilla '{}' no reconocida.", tmpl);
+        print_available_templates();
+        return Ok(());
+    }
 
     if base_dir.exists() {
         println!("[WARN] El directorio '{}' ya existe.", project_name);
@@ -28,6 +50,7 @@ java_version = "21"
 "info.picocli:picocli" = "4.7.6"
 
 [dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
 "#,
                 project_name
             );
@@ -45,7 +68,7 @@ public class Main implements Runnable {
     @Option(names = {"-u", "--user"}, description = "Nombre del usuario")
     private String user = "Desarrollador";
 
-    @Parameters(paramLabel = "<mensaje>", defaultValue = "¡Bienvenido a Jolt!", description = "Mensaje a mostrar")
+    @Parameters(paramLabel = "<mensaje>", defaultValue = "Bienvenido a Jolt!", description = "Mensaje a mostrar")
     private String message;
 
     @Override
@@ -60,6 +83,18 @@ public class Main implements Runnable {
 }
 "#;
             fs::write(base_dir.join("src/main/java/Main.java"), java_content)?;
+
+            let test_content = r#"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MainTest {
+    @Test
+    void testMainApp() {
+        assertEquals(2, 1 + 1);
+    }
+}
+"#;
+            fs::write(base_dir.join("src/test/java/MainTest.java"), test_content)?;
         }
         "javafx" => {
             let toml_content = format!(
@@ -75,6 +110,7 @@ java_version = "21"
 "org.openjfx:javafx-fxml" = "21.0.2:linux"
 
 [dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
 "#,
                 project_name
             );
@@ -126,7 +162,10 @@ public class App extends Application {
 }
 "#;
             fs::write(base_dir.join("src/main/java/Main.java"), main_content)?;
-            fs::write(base_dir.join("src/main/resources/style.css"), "/* Estilos JavaFX */\n")?;
+            fs::write(
+                base_dir.join("src/main/resources/style.css"),
+                ".root { -fx-font-family: 'sans-serif'; -fx-background-color: #f8fafc; }\n",
+            )?;
         }
         "web" => {
             let toml_content = format!(
@@ -140,6 +179,7 @@ java_version = "21"
 "org.slf4j:slf4j-simple" = "2.0.12"
 
 [dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
 "#,
                 project_name
             );
@@ -150,7 +190,7 @@ java_version = "21"
 public class Main {
     public static void main(String[] args) {
         var app = Javalin.create(/*config*/)
-            .get("/", ctx -> ctx.result("¡Servidor Web en ejecucion con Javalin y Jolt!"))
+            .get("/", ctx -> ctx.result("Servidor Web en ejecucion con Javalin y Jolt!"))
             .get("/health", ctx -> ctx.json("{\"status\":\"ok\",\"tool\":\"jolt\"}"))
             .start(7070);
 
@@ -159,7 +199,69 @@ public class Main {
 }
 "#;
             fs::write(base_dir.join("src/main/java/Main.java"), java_content)?;
-            fs::write(base_dir.join("src/main/resources/application.properties"), "server.port=7070\n")?;
+            fs::write(
+                base_dir.join("src/main/resources/application.properties"),
+                "server.port=7070\napp.env=development\n",
+            )?;
+        }
+        "spring" | "spring-boot" => {
+            let toml_content = format!(
+                r#"[project]
+name = "{}"
+version = "0.1.0"
+java_version = "21"
+
+[dependencies]
+"org.springframework.boot:spring-boot-starter-web" = "3.2.3"
+
+[dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
+"#,
+                project_name
+            );
+            fs::write(base_dir.join("jolt.toml"), toml_content)?;
+
+            let java_content = r#"import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+@RestController
+public class Main {
+
+    @GetMapping("/")
+    public String index() {
+        return "Hola desde Spring Boot con Jolt!";
+    }
+
+    @GetMapping("/api/status")
+    public String status() {
+        return "{\"status\":\"UP\",\"framework\":\"Spring Boot 3\",\"manager\":\"Jolt\"}";
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
+    }
+}
+"#;
+            fs::write(base_dir.join("src/main/java/Main.java"), java_content)?;
+            fs::write(
+                base_dir.join("src/main/resources/application.properties"),
+                "server.port=8080\nspring.application.name=jolt-spring-app\n",
+            )?;
+
+            let test_content = r#"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class SpringAppTest {
+    @Test
+    void testContext() {
+        assertTrue(true);
+    }
+}
+"#;
+            fs::write(base_dir.join("src/test/java/SpringAppTest.java"), test_content)?;
         }
         _ => {
             // Plantilla minimal por defecto
@@ -172,6 +274,7 @@ java_version = "21"
 [dependencies]
 
 [dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
 "#,
                 project_name
             );
