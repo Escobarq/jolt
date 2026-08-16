@@ -57,8 +57,13 @@ Este documento detalla la arquitectura y diseño técnico para las siguientes fu
 
 ---
 
-## Plan de Ejecución Propuesto:
-Podemos implementar estas funcionalidades en el siguiente orden:
-1. **Fase 2.1:** Gestor de Recursos (`src/main/resources/`) y Fat-JAR Bundler (`jolt build --standalone`).
-2. **Fase 2.2:** Soporte para Pruebas Unitarias (`jolt test`).
-3. **Fase 2.3:** Modo Watch (`jolt run --watch`).
+## 5. Módulo J: Diagnóstico de Entorno y Proyecto (`jolt check`) `[COMPLETADO Y ARCHIVADO ✅]`
+> **Estado:** Implementado y archivado en [`docs/archive/modulo-j-system-project-check.md`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/docs/archive/modulo-j-system-project-check.md).
+
+**Responsabilidad:** Diagnosticar la disponibilidad de herramientas del sistema (`java`, `javac`, `jar`, `rustc`, `cargo`), tamaño de caché global y validar la salud e integridad de dependencias de proyectos locales.
+
+### Tareas implementadas:
+- [x] Subcomando `jolt check` en `src/cli.rs`.
+- [x] Motor de inspección del sistema `src/checker.rs`.
+- [x] Validación contextual fuera y dentro de proyectos Jolt con consejos de sincronización.
+
