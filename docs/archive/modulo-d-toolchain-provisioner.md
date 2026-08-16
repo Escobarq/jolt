@@ -1,27 +1,25 @@
-# Archivo de Módulo D: Aprovisionador de Toolchains (Gestión de JDK)
+# Archivo de Modulo D: Aprovisionador de Toolchains (Gestion de JDK)
 
-- **Estado:** ✅ Completado y Verificado
+- **Estado:** Completado y Verificado
 - **Fecha de Archivo:** 2026-08-15
 - **Archivos Entregables:**
-  - [`src/toolchain.rs`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/src/toolchain.rs): Gestor de toolchains (`ToolchainManager`), detección de JDK del sistema, caché global en `~/.jolt/jdks/` y descargador/descompresor de Adoptium Temurin con `tar` y `flate2`.
-  - [`src/main.rs`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/src/main.rs): Integración con `jolt.toml` (`java_version`) para compilar y correr con el JDK adecuado.
+  - [`src/toolchain.rs`](../../src/toolchain.rs): Deteccion de JDK local del sistema y cliente de descarga Adoptium / Temurin API.
+  - [`src/main.rs`](../../src/main.rs): Resolucion automatica de Toolchain basada en el campo `java_version` de `jolt.toml`.
 
 ---
 
 ## Resumen de Tareas Cumplidas
 
-1. **Detección Inteligente de JDK**:
-   - `ToolchainManager::find_cached_jdk`: Búsqueda en `~/.jolt/jdks/<version>/`.
-   - `ToolchainManager::find_system_jdk`: Detección de la versión instalada en la máquina anfitriona.
-2. **Descarga y Extracción Automatizada (Adoptium API)**:
-   - `ToolchainManager::download_and_extract_jdk`: Consulta dinámica según arquitectura (`x64`, `aarch64`) y sistema operativo (`linux`, `mac`, `windows`), con descompresión `.tar.gz` a la caché global.
-3. **Integración con BuildEngine**:
-   - Compilación y ejecución garantizada bajo la versión de JDK indicada en el manifiesto.
+1. **Deteccion de JDK del Sistema**:
+   - `ToolchainManager::find_system_jdk`: Inspecciona el `PATH` para detectar ejecutables existentes de `javac` y `java` y parsear la version mayor.
+2. **Cliente API de Eclipse Adoptium**:
+   - `ToolchainManager::download_and_extract_jdk`: Descarga el release LTS correspondiente segun la arquitectura del procesador y sistema operativo.
+3. **Descompresion en Tarball (.tar.gz)**:
+   - Desempaquetado automatico hacia `~/.jolt/toolchains/jdk-<version>/`.
 
 ---
 
-## Verificación y Pruebas Realizadas
+## Verificacion y Pruebas Realizadas
 
-- Test unitario de detección de JDK en `src/toolchain.rs` (`test_find_system_jdk`) ejecutado con `cargo test`.
-- Pruebas en el proyecto `demo_app`:
-  - `jolt run` resolvió la versión declarada en `jolt.toml` (`java_version = "21"`) y compiló/ejecutó con éxito.
+- Test unitario `test_find_system_jdk` en `src/toolchain.rs` comprobando compatibilidad con OpenJDK 21.
+- Resultado: Soporte transparente para toolchains locales y provisionadas.

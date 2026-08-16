@@ -1,37 +1,26 @@
-# Archivo de Módulo G: Motor de Pruebas Unitarias Integrado (`jolt test`)
+# Archivo de Modulo G: Motor de Pruebas Unitarias Integrado (`jolt test`)
 
-- **Estado:** ✅ Completado y Verificado
+- **Estado:** Completado y Verificado
 - **Fecha de Archivo:** 2026-08-15
 - **Archivos Entregables:**
-  - [`src/engine.rs`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/src/engine.rs): `BuildEngine::compile_tests` y `BuildEngine::run_tests` con separación de `src/main/java` y `src/test/java`.
-  - [`src/cli.rs`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/src/cli.rs): Subcomando `Test` para `jolt test`.
-  - [`src/main.rs`](file:///home/juandavidescobarquezada/Escritorio/project/jolt/src/main.rs): Aprovisionamiento automático y caché del ejecutor oficial **JUnit Platform Console Standalone (1.10.2)**.
+  - [`src/engine.rs`](../../src/engine.rs): `compile_tests` y `run_tests` con ejecucion sobre JUnit Platform Console Standalone.
+  - [`src/cli.rs`](../../src/cli.rs): Subcomando `Test`.
+  - [`src/main.rs`](../../src/main.rs): Aprovisionamiento de `junit-platform-console-standalone-1.10.2.jar` a la cache global.
 
 ---
 
 ## Resumen de Tareas Cumplidas
 
-1. **Aprovisionamiento Automático de JUnit 5**:
-   - Descarga bajo demanda a `~/.jolt/cache/v1/` de `org.junit.platform:junit-platform-console-standalone:1.10.2` sin necesidad de configuraciones manuales de plugins.
-2. **Compilación Aislada de Pruebas**:
-   - `compile` ahora sólo compila el código de producción en `src/main/java/` a `target/classes/`.
-   - `compile_tests` compila `src/test/java/` a `target/test-classes/` enlazando el código de producción, dependencias y la API de JUnit 5.
-3. **Ejecución y Reporte en Consola**:
-   - Invocación de JUnit Platform Console con subcomando `execute` y formato en árbol interactivo con tiempos de ejecución e indicadores visuales de éxito/fallo.
+1. **Aprovisionamiento Automatico de JUnit 5**:
+   - Descarga bajo demanda del JUnit Platform Console Launcher oficial hacia `~/.jolt/cache/v1/`.
+2. **Separacion de Classpath**:
+   - Compilacion de `src/main/java/` hacia `target/classes/`.
+   - Compilacion de `src/test/java/` hacia `target/test-classes/` con dependencias del proyecto y JUnit API.
+3. **Ejecucion de Pruebas**:
+   - Invocacion del Launcher con reporte de resultados en tiempo real.
 
 ---
 
-## Verificación y Pruebas Realizadas
+## Verificacion y Pruebas Realizadas
 
-- Suite de pruebas con JUnit Jupiter (`CalculatorTest.java`) ejecutada en `demo_app` en 192 ms:
-```text
-╷
-├─ JUnit Jupiter ✔
-│  └─ CalculatorTest ✔
-│     ├─ testStringValidation() ✔
-│     └─ testAddition() ✔
-├─ JUnit Vintage ✔
-└─ JUnit Platform Suite ✔
-
-[ 2 tests successful ] [ 0 tests failed ]
-```
+- Suite de pruebas unitarias en `demo_app/src/test/java/CalculatorTest.java` ejecutada con exito en 192 milisegundos.
