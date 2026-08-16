@@ -99,12 +99,23 @@ impl CacheManager {
         }
 
         // Calcular SHA-256 para verificación de integridad
-        let mut hasher = Sha256::new();
-        hasher.update(bytes);
-        let _hash_str = hex::encode(hasher.finalize());
+        let _hash_str = Self::compute_bytes_sha256(bytes);
 
         fs::write(&jar_path, bytes)?;
         Ok(jar_path)
+    }
+
+    /// Calcula el hash SHA-256 de un arreglo de bytes
+    pub fn compute_bytes_sha256(bytes: &[u8]) -> String {
+        let mut hasher = Sha256::new();
+        hasher.update(bytes);
+        format!("sha256:{}", hex::encode(hasher.finalize()))
+    }
+
+    /// Calcula el hash SHA-256 de un archivo en disco
+    pub fn compute_file_sha256(path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
+        let bytes = fs::read(path)?;
+        Ok(Self::compute_bytes_sha256(&bytes))
     }
 
     /// Enlaza el JAR de la caché global al directorio local `.jolt/modules/` mediante Hardlink

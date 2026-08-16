@@ -15,14 +15,27 @@ pub enum Commands {
     Init {
         /// Nombre del proyecto a inicializar
         name: Option<String>,
+        /// Plantilla de inicio (minimal, cli, javafx, web)
+        #[arg(short, long)]
+        template: Option<String>,
     },
     /// Añade una dependencia al proyecto actual
     Add {
         /// La dependencia en formato groupId:artifactId
         dependency: String,
     },
+    /// Elimina una dependencia del proyecto
+    #[command(alias = "rm")]
+    Remove {
+        /// La dependencia en formato groupId:artifactId
+        dependency: String,
+    },
     /// Resuelve dependencias e instala localmente
-    Install,
+    Install {
+        /// Exige que las dependencias coincidan exactamente con jolt.lock (falla si hay discrepancias)
+        #[arg(long)]
+        locked: bool,
+    },
     /// Compila y empaqueta el proyecto
     Build {
         /// Empaqueta todas las dependencias en un único Fat-JAR autónomo

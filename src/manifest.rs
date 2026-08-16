@@ -44,6 +44,32 @@ impl JoltManifest {
         Ok(())
     }
 
+    /// Remueve una dependencia de jolt.toml conservando formato y comentarios
+    pub fn remove_dependency_from_file(manifest_path: &Path, group_artifact: &str) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+        let content = fs::read_to_string(manifest_path)?;
+        let mut doc = content.parse::<DocumentMut>()?;
+
+        let mut removed = false;
+
+        if let Some(Item::Table(deps)) = doc.get_mut("dependencies") {
+            if deps.remove(group_artifact).is_some() {
+                removed = true;
+            }
+        }
+
+        if let Some(Item::Table(dev_deps)) = doc.get_mut("dev-dependencies") {
+            if dev_deps.remove(group_artifact).is_some() {
+                removed = true;
+            }
+        }
+
+        if removed {
+            fs::write(manifest_path, doc.to_string())?;
+        }
+
+        Ok(removed)
+    }
+
     /// Carga y parsea el archivo jolt.toml
     pub fn load_from_file(manifest_path: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let content = fs::read_to_string(manifest_path)?;

@@ -2,6 +2,7 @@ mod cache;
 mod checker;
 mod cli;
 mod engine;
+mod lockfile;
 mod manifest;
 mod maven;
 mod scaffold;
@@ -9,7 +10,9 @@ mod toolchain;
 
 use cache::CacheManager;
 use clap::Parser;
+use lockfile::{JoltLock, LockedPackage};
 use maven::MavenClient;
+use std::fs;
 use std::path::Path;
 use toolchain::ToolchainManager;
 
@@ -21,8 +24,8 @@ async fn main() {
     let toolchain_manager = ToolchainManager::new();
 
     match &cli.command {
-        cli::Commands::Init { name } => {
-            if let Err(e) = scaffold::init_project(name.as_deref()) {
+        cli::Commands::Init { name, template } => {
+            if let Err(e) = scaffold::init_project(name.as_deref(), template.as_deref()) {
                 eprintln!("[ERROR] Error al inicializar el proyecto: {}", e);
             }
         }
@@ -70,7 +73,7 @@ async fn main() {
             match manifest::JoltManifest::add_dependency_to_file(manifest_path, &dep_key, &version_value) {
                 Ok(_) => {
                     println!("[OK] Dependencia '{} = \"{}\"' anadida a jolt.toml", dep_key, version_value);
-                    
+
                     // Descargar a caché global si no existe
                     if !cache_manager.has_jar_with_classifier(group_id, artifact_id, &raw_version, classifier) {
                         let label = match classifier {
@@ -95,13 +98,18 @@ async fn main() {
                         println!("[OK] Enlazado a {}", linked.display());
                     }
 
-                    // Mostrar árbol de dependencias transitivas
+                    // Actualizar jolt.lock
+                    let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, &raw_version, classifier);
+                    let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
+
+                    let mut transitive_names = Vec::new();
                     match maven_client.fetch_dependency_tree(group_id, artifact_id, &raw_version).await {
                         Ok(tree) => {
                             if !tree.dependencies.is_empty() {
                                 println!("[INFO] Dependencias transitivas detectadas ({}):", tree.dependencies.len());
-                                for child in tree.dependencies {
+                                for child in &tree.dependencies {
                                     println!("       └── {}:{} ({})", child.group_id, child.artifact_id, child.version);
+                                    transitive_names.push(format!("{}:{}", child.group_id, child.artifact_id));
                                 }
                             }
                         }
@@ -109,20 +117,118 @@ async fn main() {
                             eprintln!("[WARN] No se pudieron resolver las dependencias transitivas: {}", e);
                         }
                     }
+
+                    let lock_path = Path::new("jolt.lock");
+                    let mut lock = JoltLock::load_from_file(lock_path).unwrap_or_default();
+                    lock.add_or_update_package(LockedPackage {
+                        name: dep_key.clone(),
+                        version: version_value,
+                        checksum,
+                        dependencies: transitive_names,
+                    });
+                    if let Ok(_) = lock.save_to_file(lock_path) {
+                        println!("[OK] Lockfile 'jolt.lock' actualizado.");
+                    }
                 }
                 Err(e) => eprintln!("[ERROR] Error al actualizar jolt.toml: {}", e),
             }
         }
-        cli::Commands::Install => {
+        cli::Commands::Remove { dependency } => {
             let manifest_path = Path::new("jolt.toml");
             if !manifest_path.exists() {
                 eprintln!("[ERROR] No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
                 return;
             }
 
+            match manifest::JoltManifest::remove_dependency_from_file(manifest_path, dependency) {
+                Ok(removed) => {
+                    if removed {
+                        println!("[OK] Dependencia '{}' eliminada de jolt.toml", dependency);
+
+                        // Eliminar JAR correspondiente de .jolt/modules/
+                        let parts: Vec<&str> = dependency.split(':').collect();
+                        if parts.len() == 2 {
+                            let artifact_id = parts[1];
+                            let modules_dir = Path::new(".jolt").join("modules");
+                            if let Ok(entries) = fs::read_dir(&modules_dir) {
+                                for entry in entries.flatten() {
+                                    let filename = entry.file_name().to_string_lossy().to_string();
+                                    if filename.starts_with(artifact_id) && filename.ends_with(".jar") {
+                                        let _ = fs::remove_file(entry.path());
+                                        println!("[OK] Removido {}", entry.path().display());
+                                    }
+                                }
+                            }
+                        }
+
+                        // Actualizar jolt.lock
+                        let lock_path = Path::new("jolt.lock");
+                        if let Ok(mut lock) = JoltLock::load_from_file(lock_path) {
+                            if lock.remove_package(dependency) {
+                                let _ = lock.save_to_file(lock_path);
+                                println!("[OK] Lockfile 'jolt.lock' sincronizado.");
+                            }
+                        }
+                    } else {
+                        println!("[WARN] La dependencia '{}' no se encontro en jolt.toml", dependency);
+                    }
+                }
+                Err(e) => eprintln!("[ERROR] Error al modificar jolt.toml: {}", e),
+            }
+        }
+        cli::Commands::Install { locked } => {
+            let manifest_path = Path::new("jolt.toml");
+            if !manifest_path.exists() {
+                eprintln!("[ERROR] No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
+                return;
+            }
+
+            let lock_path = Path::new("jolt.lock");
+
+            if *locked {
+                if !lock_path.exists() {
+                    eprintln!("[ERROR] Modo --locked activo pero no existe 'jolt.lock'.");
+                    return;
+                }
+
+                match JoltLock::load_from_file(lock_path) {
+                    Ok(lock) => {
+                        println!("[INFO] Instalando {} dependencias fijadas desde jolt.lock...", lock.packages.len());
+                        let mut count = 0;
+                        for pkg in lock.packages {
+                            let parts: Vec<&str> = pkg.name.split(':').collect();
+                            if parts.len() == 2 {
+                                let group_id = parts[0];
+                                let artifact_id = parts[1];
+
+                                let ver_parts: Vec<&str> = pkg.version.split(':').collect();
+                                let version = ver_parts[0];
+                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+
+                                if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
+                                    println!("[INFO] Descargando fijado {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
+                                    if let Ok(bytes) = maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
+                                        let _ = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes);
+                                    }
+                                }
+
+                                if let Ok(_) = cache_manager.link_to_project_with_classifier(Path::new("."), group_id, artifact_id, version, classifier) {
+                                    count += 1;
+                                }
+                            }
+                        }
+                        println!("[OK] Instalacion determinista completada: {} dependencias vinculadas en .jolt/modules/", count);
+                    }
+                    Err(e) => eprintln!("[ERROR] Error al leer jolt.lock: {}", e),
+                }
+                return;
+            }
+
             match manifest::JoltManifest::load_from_file(manifest_path) {
                 Ok(manifest) => {
                     let mut count = 0;
+                    let mut lock = JoltLock::load_from_file(lock_path).unwrap_or_default();
+
                     if let Some(deps) = manifest.dependencies {
                         println!("[INFO] Sincronizando {} dependencias...", deps.len());
                         for (dep_name, version_spec) in deps {
@@ -144,11 +250,22 @@ async fn main() {
 
                                 if let Ok(_) = cache_manager.link_to_project_with_classifier(Path::new("."), group_id, artifact_id, version, classifier) {
                                     count += 1;
+
+                                    let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
+                                    let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
+
+                                    lock.add_or_update_package(LockedPackage {
+                                        name: dep_name.clone(),
+                                        version: version_spec.clone(),
+                                        checksum,
+                                        dependencies: vec![],
+                                    });
                                 }
                             }
                         }
                     }
-                    println!("[OK] Instalacion completa: {} dependencias vinculadas en .jolt/modules/", count);
+                    let _ = lock.save_to_file(lock_path);
+                    println!("[OK] Instalacion completa: {} dependencias vinculadas en .jolt/modules/ y guardadas en jolt.lock", count);
                 }
                 Err(e) => eprintln!("[ERROR] Error al leer jolt.toml: {}", e),
             }

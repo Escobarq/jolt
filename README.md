@@ -42,15 +42,18 @@ jolt check
 
 | Comando | Descripcion |
 |---|---|
-| `jolt init [nombre]` | Inicializa un nuevo proyecto Java con estructura estandar y `jolt.toml` |
-| `jolt add <groupId:artifactId[:version]>` | Anade una dependencia desde Maven Central y la enlaza |
+| `jolt init [nombre]` | Inicializa un nuevo proyecto Java (`minimal` por defecto) |
+| `jolt init [nombre] --template <cli\|javafx\|web>` | Inicializa un proyecto preconfigurado con plantillas de inicio |
+| `jolt add <groupId:artifactId[:version]>` | Anade una dependencia desde Maven Central, la enlaza y actualiza `jolt.lock` |
+| `jolt remove <groupId:artifactId>` (`rm`) | Elimina una dependencia de `jolt.toml`, remueve el `.jar` y actualiza `jolt.lock` |
 | `jolt install` | Sincroniza e instala todas las dependencias declaradas en `jolt.toml` |
+| `jolt install --locked` | Instalacion determinista y estricta para entornos CI/CD usando `jolt.lock` |
 | `jolt run` | Compila y ejecuta el proyecto en tiempo real |
-| `jolt run --watch` (`-w`) | Ejecuta la aplicacion con Hot Reload continuo |
+| `jolt run --watch` (`-w`) | Ejecuta la aplicacion con **Hot Reload** continuo al editar archivos |
 | `jolt build` | Compila el proyecto y genera un `.jar` estandar en `target/` |
-| `jolt build --standalone` (`-s`) | Genera un Fat-JAR autonomo con todas las dependencias embebidas |
-| `jolt test` | Ejecuta las pruebas unitarias en `src/test/java/` con JUnit 5 |
-| `jolt check` | Diagnostica el entorno del sistema y la salud del proyecto |
+| `jolt build --standalone` (`-s`) | Genera un **Fat-JAR autonomo** con todas las dependencias embebidas |
+| `jolt test` | Ejecuta las pruebas unitarias en `src/test/java/` con **JUnit 5** |
+| `jolt check` | Diagnostica el entorno del sistema y la salud de las dependencias |
 
 ---
 
@@ -97,6 +100,7 @@ mi_proyecto/
 ## Documentacion y Especificaciones
 - [Especificaciones Fase 1 (Core)](docs/specs.md)
 - [Especificaciones Fase 2 (Advanced)](docs/specs-v2.md)
+- [Especificaciones Fase 3 (Lockfile, Templates, Remove)](docs/specs-v3.md)
 - [Registro de Modulos Archivados](docs/archive/)
 
 ---
