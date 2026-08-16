@@ -2,4 +2,5 @@ target/
 **/target/
 **/.jolt/modules/
 **/.jolt/
+dist/
 
