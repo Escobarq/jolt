@@ -60,44 +60,44 @@ impl SystemChecker {
         _toolchain_manager: &crate::toolchain::ToolchainManager,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
         println!("============================================================");
-        println!("🩺 Jolt Doctor / Check - Diagnóstico de Entorno y Proyecto");
+        println!("Jolt Doctor / Check - Diagnostico de Entorno y Proyecto");
         println!("============================================================");
 
         // 1. Diagnóstico del Entorno Global del Sistema
-        println!("\n🔍 [1/2] Entorno Global del Sistema:");
+        println!("\n[1/2] Entorno Global del Sistema:");
 
         // Java Runtime
         if let Some(ver) = Self::get_command_version("java", "-version") {
-            println!("  ✔ Java Runtime (java):       {}", ver);
+            println!("  [OK]    Java Runtime (java):       {}", ver);
         } else {
-            println!("  ❌ Java Runtime (java):       No detectado en PATH");
+            println!("  [ERROR] Java Runtime (java):       No detectado en PATH");
         }
 
         // Java Compiler
         if let Some(ver) = Self::get_command_version("javac", "-version") {
-            println!("  ✔ Java Compiler (javac):     {}", ver);
+            println!("  [OK]    Java Compiler (javac):     {}", ver);
         } else {
-            println!("  ⚠️  Java Compiler (javac):     No detectado en PATH (Jolt auto-aprovisionará JDK si es necesario)");
+            println!("  [WARN]  Java Compiler (javac):     No detectado en PATH (Jolt auto-aprovisionara JDK)");
         }
 
         // Java Archiver
         if let Some(ver) = Self::get_command_version("jar", "--version") {
-            println!("  ✔ Java Archiver (jar):       {}", ver);
+            println!("  [OK]    Java Archiver (jar):       {}", ver);
         } else {
-            println!("  ⚠️  Java Archiver (jar):       No detectado en PATH");
+            println!("  [WARN]  Java Archiver (jar):       No detectado en PATH");
         }
 
         // Rust Toolchain
         if let Some(ver) = Self::get_command_version("rustc", "--version") {
-            println!("  ✔ Rust Compiler (rustc):     {}", ver);
+            println!("  [OK]    Rust Compiler (rustc):     {}", ver);
         } else {
-            println!("  ⚠️  Rust Compiler (rustc):     No instalado");
+            println!("  [WARN]  Rust Compiler (rustc):     No instalado");
         }
 
         if let Some(ver) = Self::get_command_version("cargo", "--version") {
-            println!("  ✔ Cargo Package Manager:     {}", ver);
+            println!("  [OK]    Cargo Package Manager:     {}", ver);
         } else {
-            println!("  ⚠️  Cargo Package Manager:     No instalado");
+            println!("  [WARN]  Cargo Package Manager:     No instalado");
         }
 
         // Caché Global de Jolt
@@ -106,13 +106,13 @@ impl SystemChecker {
             if jolt_cache.exists() {
                 let (count, bytes) = Self::get_dir_stats(&jolt_cache);
                 println!(
-                    "  ✔ Caché Global de Jolt:      {} ({} archivos en {})",
+                    "  [OK]    Cache Global de Jolt:      {} ({} archivos en {})",
                     jolt_cache.display(),
                     count,
                     Self::format_bytes(bytes)
                 );
             } else {
-                println!("  ℹ️  Caché Global de Jolt:      Aún no inicializada ({})", jolt_cache.display());
+                println!("  [INFO]  Cache Global de Jolt:      Aun no inicializada ({})", jolt_cache.display());
             }
 
             let jolt_toolchains = home.join(".jolt").join("toolchains");
@@ -126,29 +126,29 @@ impl SystemChecker {
                     }
                 }
                 if !toolchains.is_empty() {
-                    println!("  ✔ JDKs Aprovisionados:       {}", toolchains.join(", "));
+                    println!("  [OK]    JDKs Aprovisionados:       {}", toolchains.join(", "));
                 }
             }
         }
 
         // 2. Diagnóstico del Proyecto Actual
-        println!("\n📦 [2/2] Diagnóstico del Proyecto Actual:");
+        println!("\n[2/2] Diagnostico del Proyecto Actual:");
         let manifest_path = project_dir.join("jolt.toml");
 
         if !manifest_path.exists() {
-            println!("  ℹ️  No se detectó un archivo 'jolt.toml' en el directorio actual.");
-            println!("     Para crear un nuevo proyecto ejecuta: 'jolt init <nombre>'");
-            println!("\n✨ Diagnóstico completado: El entorno global está listo para operar.");
+            println!("  [INFO]  No se detecto un archivo 'jolt.toml' en el directorio actual.");
+            println!("          Para crear un nuevo proyecto ejecuta: 'jolt init <nombre>'");
+            println!("\n[OK] Diagnostico completado: El entorno global esta listo para operar.");
             return Ok(());
         }
 
         match crate::manifest::JoltManifest::load_from_file(&manifest_path) {
             Ok(manifest) => {
-                println!("  ✔ Manifiesto 'jolt.toml':    Válido");
-                println!("     • Proyecto:                {}", manifest.project.name);
-                println!("     • Versión:                 {}", manifest.project.version);
+                println!("  [OK]    Manifiesto 'jolt.toml':    Valido");
+                println!("          - Proyecto:                {}", manifest.project.name);
+                println!("          - Version:                 {}", manifest.project.version);
                 println!(
-                    "     • Java Requerido:          Java {}",
+                    "          - Java Requerido:          Java {}",
                     manifest.project.java_version.as_deref().unwrap_or("21")
                 );
 
@@ -161,20 +161,20 @@ impl SystemChecker {
                 let (res_count, _) = Self::get_dir_stats(&main_res);
                 let (test_count, _) = Self::get_dir_stats(&test_java);
 
-                println!("  📂 Estructura del Código:");
+                println!("  [INFO]  Estructura del Codigo:");
                 println!(
-                    "     • Código fuente:          {} ({} archivo(s) .java)",
-                    if main_java.exists() { "✔ src/main/java/" } else { "⚠️  src/main/java/ (no encontrado)" },
+                    "          - Codigo fuente:           {} ({} archivo(s) .java)",
+                    if main_java.exists() { "src/main/java/" } else { "src/main/java/ (no encontrado)" },
                     main_count
                 );
                 println!(
-                    "     • Recursos estáticos:     {} ({} archivo(s))",
-                    if main_res.exists() { "✔ src/main/resources/" } else { "ℹ️  src/main/resources/ (opcional)" },
+                    "          - Recursos estaticos:      {} ({} archivo(s))",
+                    if main_res.exists() { "src/main/resources/" } else { "src/main/resources/ (opcional)" },
                     res_count
                 );
                 println!(
-                    "     • Pruebas unitarias:      {} ({} archivo(s) de test)",
-                    if test_java.exists() { "✔ src/test/java/" } else { "ℹ️  src/test/java/ (opcional)" },
+                    "          - Pruebas unitarias:       {} ({} archivo(s) de test)",
+                    if test_java.exists() { "src/test/java/" } else { "src/test/java/ (opcional)" },
                     test_count
                 );
 
@@ -183,7 +183,7 @@ impl SystemChecker {
                 let mut ok_deps = 0;
 
                 if let Some(deps) = manifest.dependencies {
-                    println!("  📦 Estado de Dependencias ({} declaradas):", deps.len());
+                    println!("  [INFO]  Estado de Dependencias ({} declaradas):", deps.len());
                     for (dep_name, version_spec) in deps {
                         let parts: Vec<&str> = dep_name.split(':').collect();
                         if parts.len() == 2 {
@@ -199,27 +199,27 @@ impl SystemChecker {
 
                             let module_jar = project_dir.join(".jolt").join("modules").join(&file_name);
                             if module_jar.exists() {
-                                println!("     • ✔ {} = \"{}\" (Enlazado en .jolt/modules/)", dep_name, version_spec);
+                                println!("          [OK]    {} = \"{}\" (Enlazado)", dep_name, version_spec);
                                 ok_deps += 1;
                             } else {
-                                println!("     • ❌ {} = \"{}\" (No instalado localmente)", dep_name, version_spec);
+                                println!("          [ERROR] {} = \"{}\" (No instalado)", dep_name, version_spec);
                                 missing_deps.push(format!("{} = \"{}\"", dep_name, version_spec));
                             }
                         }
                     }
                 } else {
-                    println!("  📦 Estado de Dependencias:   Sin dependencias externas declaradas");
+                    println!("  [INFO]  Estado de Dependencias:    Sin dependencias externas declaradas");
                 }
 
                 if !missing_deps.is_empty() {
-                    println!("\n  ⚠️  Se encontraron {} dependencias sin sincronizar ({} listas).", missing_deps.len(), ok_deps);
-                    println!("     💡 Sugerencia: Ejecuta 'jolt install' para descargarlas y enlazarlas automáticamente.");
+                    println!("\n  [WARN]  Se encontraron {} dependencias sin sincronizar ({} listas).", missing_deps.len(), ok_deps);
+                    println!("          Sugerencia: Ejecuta 'jolt install' para descargarlas y enlazarlas.");
                 } else {
-                    println!("\n✨ ¡Proyecto saludable con {} dependencia(s) sincronizadas! Listo para compilar ('jolt build') o ejecutar ('jolt run').", ok_deps);
+                    println!("\n[OK] Proyecto saludable con {} dependencia(s) sincronizadas.", ok_deps);
                 }
             }
             Err(e) => {
-                println!("  ❌ Error de sintaxis en 'jolt.toml': {}", e);
+                println!("  [ERROR] Error de sintaxis en 'jolt.toml': {}", e);
             }
         }
 

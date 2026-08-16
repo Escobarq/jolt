@@ -6,7 +6,7 @@ pub fn init_project(name: Option<&str>) -> Result<(), Box<dyn std::error::Error>
     let base_dir = Path::new(project_name);
 
     if base_dir.exists() {
-        println!("⚠️ El directorio '{}' ya existe.", project_name);
+        println!("[WARN] El directorio '{}' ya existe.", project_name);
         return Ok(());
     }
 
@@ -32,13 +32,13 @@ java_version = "21"
     // Crear Main.java básico
     let java_content = r#"public class Main {
     public static void main(String[] args) {
-        System.out.println("¡Hola desde Jolt ⚡️!");
+        System.out.println("Hola desde Jolt!");
     }
 }
 "#;
     fs::write(base_dir.join("src/main/java/Main.java"), java_content)?;
 
-    println!("✅ Proyecto '{}' inicializado correctamente.", project_name);
+    println!("[OK] Proyecto '{}' inicializado correctamente.", project_name);
 
     Ok(())
 }

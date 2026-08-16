@@ -211,17 +211,17 @@ impl BuildEngine {
         main_class: &str,
         toolchain: Option<&crate::toolchain::Toolchain>,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
-        println!("👀 Modo Watch activado. Observando cambios en 'src/' y 'jolt.toml'...");
+        println!("[INFO] Modo Watch activado. Observando cambios en 'src/' y 'jolt.toml'...");
 
         // Compilación inicial
         if let Err(e) = Self::compile(project_dir, toolchain) {
-            eprintln!("❌ Error de compilación inicial:\n{}", e);
+            eprintln!("[ERROR] Error de compilacion inicial:\n{}", e);
         }
 
         let mut current_child = match Self::spawn_process(project_dir, main_class, toolchain) {
             Ok(child) => Some(child),
             Err(e) => {
-                eprintln!("⚠️ No se pudo iniciar el proceso Java inicial: {}", e);
+                eprintln!("[WARN] No se pudo iniciar el proceso Java inicial: {}", e);
                 None
             }
         };
@@ -251,7 +251,7 @@ impl BuildEngine {
 
                     if should_reload && last_reload.elapsed() >= debounce_duration {
                         last_reload = Instant::now();
-                        println!("\n⚡ Cambio detectado en archivos. Recompilando...");
+                        println!("\n[INFO] Cambio detectado en archivos. Recompilando...");
 
                         // Matar proceso anterior si sigue activo
                         if let Some(mut child) = current_child.take() {
@@ -262,20 +262,20 @@ impl BuildEngine {
                         // Recompilar
                         match Self::compile(project_dir, toolchain) {
                             Ok(_) => {
-                                println!("🚀 Reiniciando aplicación...");
+                                println!("[INFO] Reiniciando aplicacion...");
                                 match Self::spawn_process(project_dir, main_class, toolchain) {
                                     Ok(child) => current_child = Some(child),
-                                    Err(e) => eprintln!("❌ Error al reiniciar: {}", e),
+                                    Err(e) => eprintln!("[ERROR] Error al reiniciar: {}", e),
                                 }
                             }
                             Err(e) => {
-                                eprintln!("❌ Error de compilación:\n{}", e);
-                                eprintln!("⏳ Esperando correcciones para reintentar...");
+                                eprintln!("[ERROR] Error de compilacion:\n{}", e);
+                                eprintln!("[INFO] Esperando correcciones para reintentar...");
                             }
                         }
                     }
                 }
-                Ok(Err(e)) => eprintln!("⚠️ Error en observador de archivos: {:?}", e),
+                Ok(Err(e)) => eprintln!("[WARN] Error en observador de archivos: {:?}", e),
                 Err(_) => break,
             }
         }
