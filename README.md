@@ -45,6 +45,7 @@ jolt check
 | `jolt init [nombre]` | Inicializa un nuevo proyecto Java (`minimal` por defecto) |
 | `jolt init [nombre] --template <cli\|javafx\|web\|spring>` | Inicializa un proyecto preconfigurado con plantillas de inicio |
 | `jolt init --list-templates` (`-l`) | Muestra la lista de todas las plantillas disponibles con descripcion |
+| `jolt search <query>` (`find`) | Busca librerias en Maven Central y genera el comando para anadirlas |
 | `jolt add <groupId:artifactId[:version]>` | Anade una dependencia desde Maven Central, la enlaza y actualiza `jolt.lock` |
 | `jolt remove <groupId:artifactId>` (`rm`) | Elimina una dependencia de `jolt.toml`, remueve el `.jar` y actualiza `jolt.lock` |
 | `jolt install` | Sincroniza e instala todas las dependencias declaradas en `jolt.toml` |

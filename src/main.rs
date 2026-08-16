@@ -137,6 +137,31 @@ async fn main() {
                 Err(e) => eprintln!("[ERROR] Error al actualizar jolt.toml: {}", e),
             }
         }
+        cli::Commands::Search { query, limit } => {
+            println!("[INFO] Buscando '{}' en Maven Central...", query);
+            match maven_client.search_packages(query, *limit).await {
+                Ok(results) => {
+                    if results.is_empty() {
+                        println!("[WARN] No se encontraron paquetes que coincidan con '{}'.", query);
+                        return;
+                    }
+
+                    println!("\nResultados encontrados ({}):", results.len());
+                    println!("============================================================");
+                    for item in results {
+                        let full_name = format!("{}:{}", item.group_id, item.artifact_id);
+                        let pkg_type = item.package_type.as_deref().unwrap_or("jar");
+                        println!("• {:<40} (v{}, {})", full_name, item.version, pkg_type);
+                        println!("  Comando: jolt add {}:{}", full_name, item.version);
+                        println!();
+                    }
+                    println!("Sugerencia: Copia y ejecuta cualquiera de los comandos anteriores para anadir la libreria.");
+                }
+                Err(e) => {
+                    eprintln!("[ERROR] Error al consultar Maven Central: {}", e);
+                }
+            }
+        }
         cli::Commands::Remove { dependency } => {
             let manifest_path = Path::new("jolt.toml");
             if !manifest_path.exists() {

@@ -18,6 +18,15 @@ pub struct DependencyNode {
     pub dependencies: Vec<DependencyNode>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SearchResultItem {
+    pub group_id: String,
+    pub artifact_id: String,
+    pub version: String,
+    pub package_type: Option<String>,
+    pub version_count: Option<u32>,
+}
+
 #[derive(Deserialize, Debug)]
 struct MavenSearchResponse {
     response: MavenSearchDocs,
@@ -25,15 +34,24 @@ struct MavenSearchResponse {
 
 #[derive(Deserialize, Debug)]
 struct MavenSearchDocs {
+    #[serde(default)]
     docs: Vec<MavenDoc>,
 }
 
 #[derive(Deserialize, Debug)]
 struct MavenDoc {
+    #[serde(default)]
+    g: Option<String>,
+    #[serde(default)]
+    a: Option<String>,
     #[serde(rename = "latestVersion", default)]
     latest_version: Option<String>,
     #[serde(default)]
     v: Option<String>,
+    #[serde(default)]
+    p: Option<String>,
+    #[serde(rename = "versionCount", default)]
+    version_count: Option<u32>,
 }
 
 #[derive(Clone)]
@@ -90,6 +108,37 @@ impl MavenClient {
             group_id, artifact_id
         )
         .into())
+    }
+
+    /// Busca paquetes en Maven Central basados en una consulta de texto libre
+    pub async fn search_packages(
+        &self,
+        query: &str,
+        limit: usize,
+    ) -> Result<Vec<SearchResultItem>, Box<dyn Error + Send + Sync>> {
+        let clean_query = query.trim().replace(' ', "+");
+        let url = format!(
+            "{}?q={}&rows={}&wt=json",
+            self.search_base_url, clean_query, limit
+        );
+
+        let resp: MavenSearchResponse = self.client.get(&url).send().await?.json().await?;
+
+        let mut results = Vec::new();
+        for doc in resp.response.docs {
+            if let (Some(group_id), Some(artifact_id)) = (doc.g, doc.a) {
+                let version = doc.latest_version.or(doc.v).unwrap_or_else(|| "latest".to_string());
+                results.push(SearchResultItem {
+                    group_id,
+                    artifact_id,
+                    version,
+                    package_type: doc.p,
+                    version_count: doc.version_count,
+                });
+            }
+        }
+
+        Ok(results)
     }
 
     /// Obtiene el contenido del archivo POM desde el repositorio Maven

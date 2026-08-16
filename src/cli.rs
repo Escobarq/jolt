@@ -27,6 +27,15 @@ pub enum Commands {
         /// La dependencia en formato groupId:artifactId
         dependency: String,
     },
+    /// Busca dependencias y librerias en Maven Central
+    #[command(alias = "find")]
+    Search {
+        /// Termino de busqueda (nombre de libreria, grupo o descripcion)
+        query: String,
+        /// Cantidad maxima de resultados a mostrar (por defecto: 10)
+        #[arg(short, long, default_value = "10")]
+        limit: usize,
+    },
     /// Elimina una dependencia del proyecto
     #[command(alias = "rm")]
     Remove {

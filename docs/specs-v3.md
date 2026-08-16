@@ -46,3 +46,16 @@ Este documento detalla la arquitectura y diseno tecnico para las siguientes func
 - [x] Subcomando `Remove` (alias `rm`) en `src/cli.rs`.
 - [x] Limpieza automatica de `.jar` en `.jolt/modules/`.
 - [x] Sincronizacion del lockfile `jolt.lock`.
+
+---
+
+## 4. Modulo N: Buscador de Dependencias en Maven Central (`jolt search`) `[COMPLETADO Y ARCHIVADO]`
+> **Estado:** Implementado y archivado en [`docs/archive/modulo-n-search.md`](modulo-n-search.md).
+
+**Responsabilidad:** Consultar el API de Maven Central para descubrir librerias y dependencias por palabras clave, facilitando su instalacion con comandos preformateados.
+
+### Tareas implementadas:
+- [x] Consulta REST a `search.maven.org` en `src/maven.rs`.
+- [x] Subcomando `Search` (alias `find`) con soporte para `--limit` en `src/cli.rs`.
+- [x] Formateo de salida interactiva con comandos directos `jolt add`.
+
