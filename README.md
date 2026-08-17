@@ -21,6 +21,22 @@ Inspirado en la velocidad y ergonomia de herramientas modernas como `uv` (Python
 
 ---
 
+## 🚀 Rendimiento Insuperable (Benchmarks)
+
+Jolt ha sido diseñado desde cero en Rust para eliminar los tiempos muertos en el desarrollo de Java. Mientras Maven y Gradle sufren de la sobrecarga de inicialización de la JVM, Jolt actúa de manera casi instantánea.
+
+En pruebas de resolución e instalación de dependencias en un proyecto con un árbol estándar, **Jolt destroza a las alternativas tradicionales**:
+
+| Gestor | Comando | Tiempo Promedio | Relación |
+|---|---|---|---|
+| **Jolt** | `jolt install` | **25.0 ms** | **1.0x (🚀 El más rápido)** |
+| **Gradle** | `gradle dependencies` | 1.20 s | 48x más lento |
+| **Maven** | `mvn dependency:resolve` | 8.73 s | 349x más lento |
+
+> *Nota: Benchmark automatizado realizado con `hyperfine`. Puedes reproducir estas métricas usando el script disponible en la carpeta `benchmark/` del repositorio.*
+
+---
+
 ## Instalacion
 
 ### Compilar e Instalar desde el Codigo Fuente

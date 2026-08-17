@@ -1,0 +1,9 @@
+[project]
+name = "jolt-test"
+version = "0.1.0"
+java_version = "21"
+
+[dependencies]
+"com.google.code.gson:gson" = "2.10.1"
+"org.slf4j:slf4j-api" = "2.0.7"
+"com.fasterxml.jackson.core:jackson-databind" = "2.15.2"
