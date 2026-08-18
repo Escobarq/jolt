@@ -1,0 +1,10 @@
+[project]
+name = "{{project_name}}"
+version = "0.1.0"
+java_version = "21"
+
+[dependencies]
+"info.picocli:picocli" = "4.7.6"
+
+[dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"

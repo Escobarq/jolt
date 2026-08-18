@@ -1,0 +1,9 @@
+[project]
+name = "{{project_name}}"
+version = "0.1.0"
+java_version = "21"
+
+[dependencies]
+
+[dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
