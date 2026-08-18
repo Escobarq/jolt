@@ -58,18 +58,19 @@ jolt check
 
 | Comando | Descripcion |
 |---|---|
-| `jolt init [nombre]` | Inicializa un nuevo proyecto Java (`minimal` por defecto) |
+| `jolt init` | Inicializa interactivamente un nuevo proyecto Java (menú con flechas) |
 | `jolt init [nombre] --template <cli\|javafx\|swing\|web\|spring>` | Inicializa un proyecto preconfigurado con plantillas de inicio |
 | `jolt init --list-templates` (`-l`) | Muestra la lista de todas las plantillas disponibles con descripcion |
 | `jolt search <query>` (`find`) | Busca librerias en Maven Central y genera el comando para anadirlas |
-| `jolt add <groupId:artifactId[:version]>` | Anade una dependencia desde Maven Central, la enlaza y actualiza `jolt.lock` |
+| `jolt add <groupId:artifactId[:version]>` | Anade una dependencia desde Maven Central a `dependencies` |
+| `jolt add <groupId:artifactId[:version]> --dev` (`-D`) | Anade una libreria a las dependencias de desarrollo (`dev-dependencies`) |
 | `jolt remove <groupId:artifactId>` (`rm`) | Elimina una dependencia de `jolt.toml`, remueve el `.jar` y actualiza `jolt.lock` |
-| `jolt install` | Sincroniza e instala todas las dependencias declaradas en `jolt.toml` |
+| `jolt install` | Sincroniza e instala dependencias (`modules/` y `dev-modules/`) y configura el IDE |
 | `jolt install --locked` | Instalacion determinista y estricta para entornos CI/CD usando `jolt.lock` |
 | `jolt run` | Compila y ejecuta el proyecto en tiempo real |
 | `jolt run --watch` (`-w`) | Ejecuta la aplicacion con **Hot Reload** continuo al editar archivos |
 | `jolt build` | Compila el proyecto y genera un `.jar` estandar en `target/` |
-| `jolt build --standalone` (`-s`) | Genera un **Fat-JAR autonomo** con todas las dependencias embebidas |
+| `jolt build --standalone` (`-s`) | Genera un **Fat-JAR autonomo** (solo con dependencias de produccion) |
 | `jolt test` | Ejecuta las pruebas unitarias en `src/test/java/` con **JUnit 5** |
 | `jolt check` | Diagnostica el entorno del sistema y la salud de las dependencias |
 
@@ -99,8 +100,11 @@ java_version = "21"
 ```text
 mi_proyecto/
 ├── jolt.toml                  # Configuracion del proyecto y dependencias
+├── .vscode/
+│   └── settings.json          # Resolucion automatica de JARs para editores (VS Code/Cursor)
 ├── .jolt/
-│   └── modules/               # Enlaces a los JARs en la cache global
+│   ├── modules/               # Enlaces a los JARs de produccion (empaquetados en Fat-JAR)
+│   └── dev-modules/           # Enlaces a librerias de desarrollo y testing (JUnit, etc.)
 ├── src/
 │   ├── main/
 │   │   ├── java/              # Codigo fuente Java principal (Main.java, etc.)
@@ -108,9 +112,9 @@ mi_proyecto/
 │   └── test/
 │       └── java/              # Pruebas unitarias JUnit 5 (*Test.java)
 └── target/
-    ├── classes/               # Bytecode compilado
-    ├── test-classes/          # Bytecode de pruebas compilado
-    └── mi_proyecto-0.1.0.jar  # JAR resultante
+    ├── classes/               # Bytecode compilado de la aplicacion
+    ├── test-classes/          # Bytecode compilado de las pruebas unitarias
+    └── mi_aplicacion-0.1.0.jar
 ```
 
 ---

@@ -57,7 +57,7 @@ impl BuildEngine {
         }
     }
 
-    /// Construye el classpath a partir de `.jolt/modules/` y directorios adicionales
+    /// Construye el classpath a partir de `.jolt/modules/` y directorios adicionales (solo dependencias de producción)
     pub fn build_classpath(project_dir: &Path, include_classes: bool) -> String {
         let mut parts = Vec::new();
 
@@ -75,6 +75,39 @@ impl BuildEngine {
                     let path = entry.path();
                     if path.extension().and_then(|s| s.to_str()) == Some("jar") {
                         parts.push(path.to_string_lossy().to_string());
+                    }
+                }
+            }
+        }
+
+        let separator = if cfg!(windows) { ";" } else { ":" };
+        parts.join(separator)
+    }
+
+    /// Construye el classpath para pruebas incluyendo `.jolt/modules/` (producción) y `.jolt/dev-modules/` (testing/desarrollo)
+    pub fn build_test_classpath(project_dir: &Path, include_classes: bool) -> String {
+        let mut parts = Vec::new();
+
+        if include_classes {
+            let classes_dir = project_dir.join("target").join("classes");
+            if classes_dir.exists() {
+                parts.push(classes_dir.to_string_lossy().to_string());
+            }
+        }
+
+        let search_dirs = [
+            project_dir.join(".jolt").join("modules"),
+            project_dir.join(".jolt").join("dev-modules"),
+        ];
+
+        for dir in &search_dirs {
+            if dir.is_dir() {
+                if let Ok(entries) = fs::read_dir(dir) {
+                    for entry in entries.flatten() {
+                        let path = entry.path();
+                        if path.extension().and_then(|s| s.to_str()) == Some("jar") {
+                            parts.push(path.to_string_lossy().to_string());
+                        }
                     }
                 }
             }
@@ -348,7 +381,7 @@ impl BuildEngine {
         // 1. Escribir META-INF/MANIFEST.MF
         zip.start_file("META-INF/MANIFEST.MF", options)?;
         let manifest_content = format!(
-            "Manifest-Version: 1.0\r\nMain-Class: {}\r\nCreated-By: Jolt 0.1.0\r\n\r\n",
+            "Manifest-Version: 1.0\r\nMain-Class: {}\r\nCreated-By: Jolt 0.2.0\r\n\r\n",
             main_class
         );
         zip.write_all(manifest_content.as_bytes())?;
@@ -380,7 +413,7 @@ impl BuildEngine {
             }
         }
 
-        // 3. Extraer y fusionar cada dependencia .jar en .jolt/modules/
+        // 3. Extraer y fusionar cada dependencia .jar en .jolt/modules/ (solo producción)
         let modules_dir = project_dir.join(".jolt").join("modules");
         if modules_dir.is_dir() {
             if let Ok(entries) = fs::read_dir(&modules_dir) {
@@ -452,8 +485,8 @@ impl BuildEngine {
         let target_test_classes = project_dir.join("target").join("test-classes");
         fs::create_dir_all(&target_test_classes)?;
 
-        // Classpath para tests: target/classes + dependencias + junit_jar
-        let base_cp = Self::build_classpath(project_dir, true);
+        // Classpath para tests: target/classes + dependencias prod + dev-dependencies + junit_jar
+        let base_cp = Self::build_test_classpath(project_dir, true);
         let separator = if cfg!(windows) { ";" } else { ":" };
         let test_cp = if base_cp.is_empty() {
             junit_jar.to_string_lossy().to_string()
@@ -493,7 +526,7 @@ impl BuildEngine {
 
         let target_classes = project_dir.join("target").join("classes");
         let target_test_classes = project_dir.join("target").join("test-classes");
-        let base_cp = Self::build_classpath(project_dir, false);
+        let base_cp = Self::build_test_classpath(project_dir, false);
 
         let separator = if cfg!(windows) { ";" } else { ":" };
         let mut scan_cp = format!("{}{}{}", target_test_classes.display(), separator, target_classes.display());
@@ -544,4 +577,32 @@ mod tests {
 
         let _ = fs::remove_dir_all(&temp_dir);
     }
+
+    #[test]
+    fn test_build_classpath_separation() {
+        let temp_dir = std::env::temp_dir().join("jolt_test_engine_cp");
+        let _ = fs::remove_dir_all(&temp_dir);
+        let prod_modules = temp_dir.join(".jolt").join("modules");
+        let dev_modules = temp_dir.join(".jolt").join("dev-modules");
+        let classes_dir = temp_dir.join("target").join("classes");
+
+        fs::create_dir_all(&prod_modules).unwrap();
+        fs::create_dir_all(&dev_modules).unwrap();
+        fs::create_dir_all(&classes_dir).unwrap();
+
+        fs::write(prod_modules.join("gson-2.14.0.jar"), b"dummy").unwrap();
+        fs::write(dev_modules.join("junit-jupiter-api-5.10.2.jar"), b"dummy").unwrap();
+
+        let prod_cp = BuildEngine::build_classpath(&temp_dir, false);
+        assert!(prod_cp.contains("gson-2.14.0.jar"));
+        assert!(!prod_cp.contains("junit-jupiter-api-5.10.2.jar"));
+
+        let test_cp = BuildEngine::build_test_classpath(&temp_dir, true);
+        assert!(test_cp.contains("classes"));
+        assert!(test_cp.contains("gson-2.14.0.jar"));
+        assert!(test_cp.contains("junit-jupiter-api-5.10.2.jar"));
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
 }
+

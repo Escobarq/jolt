@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(name = "jolt")]
-#[command(version = "0.1.0")]
+#[command(version = "0.2.0")]
 #[command(about = "Gestor de paquetes y proyectos Java ultrarrápido", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
@@ -24,8 +24,11 @@ pub enum Commands {
     },
     /// Añade una dependencia al proyecto actual
     Add {
-        /// La dependencia en formato groupId:artifactId
+        /// La dependencia en formato groupId:artifactId[:version]
         dependency: String,
+        /// Añade la dependencia a las dependencias de desarrollo (dev-dependencies)
+        #[arg(short = 'D', long = "dev")]
+        dev: bool,
     },
     /// Busca dependencias y librerias en Maven Central
     #[command(alias = "find")]

@@ -70,7 +70,7 @@ impl Default for MavenClient {
 impl MavenClient {
     pub fn new() -> Self {
         let client = reqwest::Client::builder()
-            .user_agent("jolt-package-manager/0.1.0")
+            .user_agent("jolt-package-manager/0.2.0")
             .build()
             .unwrap_or_default();
 

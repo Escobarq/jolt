@@ -130,10 +130,11 @@ impl CacheManager {
         self.link_to_project_with_classifier(project_dir, group_id, artifact_id, version, None)
     }
 
-    /// Enlaza el JAR con clasificador de la caché global al directorio local `.jolt/modules/` mediante Hardlink
-    pub fn link_to_project_with_classifier(
+    /// Enlaza el JAR con clasificador de la caché global al subdirectorio especificado dentro de `.jolt/` (ej: "modules" o "dev-modules") mediante Hardlink
+    pub fn link_to_project_dir_with_classifier(
         &self,
         project_dir: &Path,
+        subfolder: &str,
         group_id: &str,
         artifact_id: &str,
         version: &str,
@@ -144,15 +145,15 @@ impl CacheManager {
             return Err(format!("El archivo JAR en caché no existe: {:?}", cached_jar).into());
         }
 
-        let modules_dir = project_dir.join(".jolt").join("modules");
-        fs::create_dir_all(&modules_dir)?;
+        let target_dir = project_dir.join(".jolt").join(subfolder);
+        fs::create_dir_all(&target_dir)?;
 
         let file_name = match classifier {
             Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
             _ => format!("{}-{}.jar", artifact_id, version),
         };
 
-        let target_link = modules_dir.join(file_name);
+        let target_link = target_dir.join(file_name);
 
         if target_link.exists() {
             fs::remove_file(&target_link)?;
@@ -164,6 +165,18 @@ impl CacheManager {
         }
 
         Ok(target_link)
+    }
+
+    /// Enlaza el JAR con clasificador de la caché global al directorio local `.jolt/modules/` mediante Hardlink
+    pub fn link_to_project_with_classifier(
+        &self,
+        project_dir: &Path,
+        group_id: &str,
+        artifact_id: &str,
+        version: &str,
+        classifier: Option<&str>,
+    ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+        self.link_to_project_dir_with_classifier(project_dir, "modules", group_id, artifact_id, version, classifier)
     }
 }
 

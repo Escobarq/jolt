@@ -28,15 +28,22 @@ impl JoltManifest {
     }
 
     /// Añade o actualiza una dependencia en el archivo jolt.toml conservando formato y comentarios
-    pub fn add_dependency_to_file(manifest_path: &Path, group_artifact: &str, version: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn add_dependency_to_file(
+        manifest_path: &Path,
+        group_artifact: &str,
+        version: &str,
+        is_dev: bool,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let content = fs::read_to_string(manifest_path)?;
         let mut doc = content.parse::<DocumentMut>()?;
 
-        if !doc.contains_key("dependencies") {
-            doc["dependencies"] = Item::Table(toml_edit::Table::new());
+        let table_key = if is_dev { "dev-dependencies" } else { "dependencies" };
+
+        if !doc.contains_key(table_key) {
+            doc[table_key] = Item::Table(toml_edit::Table::new());
         }
 
-        if let Item::Table(ref mut deps) = doc["dependencies"] {
+        if let Item::Table(ref mut deps) = doc[table_key] {
             deps[group_artifact] = value(version);
         }
 
@@ -128,4 +135,40 @@ mod tests {
         assert!(manifest.dependencies.is_none());
         assert!(manifest.dev_dependencies.is_none());
     }
+
+    #[test]
+    fn test_add_and_remove_dev_dependency() {
+        let temp_dir = std::env::temp_dir().join("jolt_manifest_test");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+        let manifest_file = temp_dir.join("jolt.toml");
+
+        let initial_toml = r#"[project]
+name = "test-pkg"
+version = "0.1.0"
+"#;
+        fs::write(&manifest_file, initial_toml).unwrap();
+
+        // Add regular dependency
+        JoltManifest::add_dependency_to_file(&manifest_file, "com.google.guava:guava", "33.0.0-jre", false).unwrap();
+        // Add dev dependency
+        JoltManifest::add_dependency_to_file(&manifest_file, "org.junit.jupiter:junit-jupiter-api", "5.10.2", true).unwrap();
+
+        let manifest = JoltManifest::load_from_file(&manifest_file).unwrap();
+        let deps = manifest.dependencies.expect("expected dependencies");
+        assert_eq!(deps.get("com.google.guava:guava").unwrap(), "33.0.0-jre");
+
+        let dev_deps = manifest.dev_dependencies.expect("expected dev-dependencies");
+        assert_eq!(dev_deps.get("org.junit.jupiter:junit-jupiter-api").unwrap(), "5.10.2");
+
+        // Remove dev dependency
+        let removed = JoltManifest::remove_dependency_from_file(&manifest_file, "org.junit.jupiter:junit-jupiter-api").unwrap();
+        assert!(removed);
+
+        let manifest_after = JoltManifest::load_from_file(&manifest_file).unwrap();
+        assert!(manifest_after.dev_dependencies.as_ref().map(|d| d.is_empty()).unwrap_or(true));
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
 }
+

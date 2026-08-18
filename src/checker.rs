@@ -183,7 +183,7 @@ impl SystemChecker {
                 let mut ok_deps = 0;
 
                 if let Some(deps) = manifest.dependencies {
-                    println!("  [INFO]  Estado de Dependencias ({} declaradas):", deps.len());
+                    println!("  [INFO]  Dependencias de Produccion ({} declaradas):", deps.len());
                     for (dep_name, version_spec) in deps {
                         let parts: Vec<&str> = dep_name.split(':').collect();
                         if parts.len() == 2 {
@@ -208,7 +208,36 @@ impl SystemChecker {
                         }
                     }
                 } else {
-                    println!("  [INFO]  Estado de Dependencias:    Sin dependencias externas declaradas");
+                    println!("  [INFO]  Dependencias de Produccion: Sin dependencias declaradas");
+                }
+
+                if let Some(dev_deps) = manifest.dev_dependencies {
+                    println!("  [INFO]  Dependencias de Desarrollo ({} declaradas):", dev_deps.len());
+                    for (dep_name, version_spec) in dev_deps {
+                        let parts: Vec<&str> = dep_name.split(':').collect();
+                        if parts.len() == 2 {
+                            let artifact_id = parts[1];
+                            let ver_parts: Vec<&str> = version_spec.split(':').collect();
+                            let ver = ver_parts[0];
+                            let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+
+                            let file_name = match classifier {
+                                Some(c) => format!("{}-{}-{}.jar", artifact_id, ver, c),
+                                None => format!("{}-{}.jar", artifact_id, ver),
+                            };
+
+                            let module_jar = project_dir.join(".jolt").join("dev-modules").join(&file_name);
+                            if module_jar.exists() {
+                                println!("          [OK]    {} = \"{}\" (Enlazado en dev-modules)", dep_name, version_spec);
+                                ok_deps += 1;
+                            } else {
+                                println!("          [ERROR] {} = \"{}\" (No instalado en dev-modules)", dep_name, version_spec);
+                                missing_deps.push(format!("{} = \"{}\" (dev)", dep_name, version_spec));
+                            }
+                        }
+                    }
+                } else {
+                    println!("  [INFO]  Dependencias de Desarrollo: Sin dependencias declaradas");
                 }
 
                 if !missing_deps.is_empty() {

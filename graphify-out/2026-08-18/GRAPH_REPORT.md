@@ -1,18 +1,12 @@
 # Graph Report - jolt  (2026-08-18)
 
 ## Corpus Check
-- 56 files · ~15,489 words
-- Verdict: corpus is large enough that graph structure adds value.
+- Corpus is ~14,583 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 291 nodes · 552 edges · 47 communities (14 shown, 33 thin omitted)
+- 285 nodes · 524 edges · 47 communities (14 shown, 33 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
-
-## Graph Freshness
-- Built from commit: `5657b5db`
-- Run `git rev-parse HEAD` and compare to check if the graph is stale.
-- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Maven Resolver Component
@@ -63,14 +57,14 @@
 - Jolt Root Repo
 
 ## God Nodes (most connected - your core abstractions)
-1. `CacheManager` - 19 edges
+1. `CacheManager` - 18 edges
 2. `Toolchain` - 15 edges
 3. `ToolchainManager` - 14 edges
-4. `BuildEngine` - 13 edges
-5. `MavenClient` - 13 edges
+4. `MavenClient` - 13 edges
+5. `BuildEngine` - 12 edges
 6. `JoltLock` - 10 edges
 7. `JoltManifest` - 9 edges
-8. `init_project()` - 9 edges
+8. `init_project()` - 8 edges
 9. `Main` - 6 edges
 10. `SystemChecker` - 5 edges
 
@@ -99,16 +93,16 @@ Cohesion: 0.21
 Nodes (19): Dependency, DependencyNode, MavenClient, MavenDoc, MavenSearchDocs, MavenSearchResponse, Box, Client (+11 more)
 
 ### Community 1 - "Build & Run Engine"
-Cohesion: 0.28
-Nodes (16): Child, BuildEngine, Box, Error, Option, Path, PathBuf, Result (+8 more)
+Cohesion: 0.30
+Nodes (15): Child, BuildEngine, Box, Error, Option, Path, PathBuf, Result (+7 more)
 
 ### Community 2 - "Cache Storage Management"
-Cohesion: 0.23
+Cohesion: 0.22
 Nodes (13): CacheManager, Box, Default, Error, Option, Path, PathBuf, Result (+5 more)
 
 ### Community 3 - "Manifest Configuration"
 Cohesion: 0.17
-Nodes (17): Main, HashMap, java.util.HashMap, JoltManifest, Project, Box, Error, Option (+9 more)
+Nodes (16): Main, HashMap, java.util.HashMap, JoltManifest, Project, Box, Error, Option (+8 more)
 
 ### Community 4 - "Lockfile Management"
 Cohesion: 0.16
@@ -131,8 +125,8 @@ Cohesion: 0.24
 Nodes (6): javafx.application.Application, App, Override, javafx.stage.Stage, App, Override
 
 ### Community 9 - "CLI Scaffolding Scaffold"
-Cohesion: 0.27
-Nodes (10): ensure_ide_configuration(), init_project(), print_available_templates(), Box, Error, Option, Path, Result (+2 more)
+Cohesion: 0.25
+Nodes (8): init_project(), print_available_templates(), Box, Error, Option, Result, Send, Sync
 
 ### Community 10 - "Spring Boot Templates"
 Cohesion: 0.39
@@ -147,7 +141,7 @@ Cohesion: 0.50
 Nodes (4): Cli, Commands, Option, String
 
 ## Knowledge Gaps
-- **41 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `AGENTS Graphify Usage`, `GEMINI Graphify Usage` (+36 more)
+- **41 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `Graphify Rules`, `Graphify Workflow` (+36 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **33 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -157,8 +151,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `ToolchainManager` connect `Toolchain Provisioning` to `Lockfile Management`, `System Check Components`?**
   _High betweenness centrality (0.081) - this node is a cross-community bridge._
 - **Why does `CacheManager` connect `Cache Storage Management` to `Lockfile Management`, `System Check Components`?**
-  _High betweenness centrality (0.065) - this node is a cross-community bridge._
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
 - **Why does `Toolchain` connect `Build & Run Engine` to `Toolchain Provisioning`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+  _High betweenness centrality (0.050) - this node is a cross-community bridge._
 - **What connects `jolt`, `com.example:maven-test`, `run_benchmark.sh script` to the rest of the system?**
   _41 weakly-connected nodes found - possible documentation gaps or missing edges._

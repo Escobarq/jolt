@@ -30,7 +30,7 @@ impl ToolchainManager {
         let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
         let jdks_root = home.join(".jolt").join("jdks");
         let client = reqwest::Client::builder()
-            .user_agent("jolt-package-manager/0.1.0")
+            .user_agent("jolt-package-manager/0.2.0")
             .build()
             .unwrap_or_default();
         Self { jdks_root, client }
@@ -40,7 +40,7 @@ impl ToolchainManager {
     #[allow(dead_code)]
     pub fn with_root(root: PathBuf) -> Self {
         let client = reqwest::Client::builder()
-            .user_agent("jolt-package-manager/0.1.0")
+            .user_agent("jolt-package-manager/0.2.0")
             .build()
             .unwrap_or_default();
         Self {
