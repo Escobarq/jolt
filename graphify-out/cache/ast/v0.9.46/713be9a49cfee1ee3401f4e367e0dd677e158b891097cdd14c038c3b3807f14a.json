@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_benchmark_gradle_test_build_gradle", "label": "build.gradle", "file_type": "code", "source_file": "benchmark/gradle-test/build.gradle", "source_location": "L1"}], "edges": [], "raw_calls": []}
