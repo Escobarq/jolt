@@ -1,6 +1,41 @@
+# ── Rust / Cargo ──────────────────────────────────────────────
 target/
 **/target/
-**/.jolt/modules/
+Cargo.lock.bak
+
+# ── Jolt runtime artifacts ────────────────────────────────────
 **/.jolt/
 dist/
 
+# ── Proyectos de demo / sandbox locales ───────────────────────
+demo_app/
+javafx_demo/
+*_sandbox/
+test_*/
+
+# ── Herramientas de AI / editores ─────────────────────────────
+.gemini/
+.opencode/
+.cursor/
+.aider*
+*.aider
+
+# ── VS Code (solo ignorar si no quieres commitear settings) ───
+# Descomenta si no quieres subir configuración de editor:
+# .vscode/
+
+# ── IntelliJ / JetBrains ──────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ── macOS ──────────────────────────────────────────────────────
+.DS_Store
+**/.DS_Store
+
+# ── Logs y temporales ─────────────────────────────────────────
+*.log
+*.tmp
+*.swp
+*~
