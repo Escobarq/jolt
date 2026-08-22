@@ -381,9 +381,11 @@ impl BuildEngine {
         // 1. Escribir META-INF/MANIFEST.MF
         zip.start_file("META-INF/MANIFEST.MF", options)?;
         let manifest_content = format!(
-            "Manifest-Version: 1.0\r\nMain-Class: {}\r\nCreated-By: Jolt 0.2.0\r\n\r\n",
-            main_class
+            "Manifest-Version: 1.0\r\nMain-Class: {}\r\nCreated-By: Jolt {}\r\n\r\n",
+            main_class,
+            env!("CARGO_PKG_VERSION")
         );
+
         zip.write_all(manifest_content.as_bytes())?;
         added_entries.insert("META-INF/MANIFEST.MF".to_string());
         added_entries.insert("META-INF/".to_string());

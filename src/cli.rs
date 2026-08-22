@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(name = "jolt")]
-#[command(version = "0.2.0")]
+#[command(version)]
 #[command(about = "Gestor de paquetes y proyectos Java ultrarrápido", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
