@@ -240,9 +240,22 @@ impl SystemChecker {
                     println!("  [INFO]  Dependencias de Desarrollo: Sin dependencias declaradas");
                 }
 
+                // Verificación de configuración de IDE / VS Code
+                let vscode_settings = project_dir.join(".vscode").join("settings.json");
+                let eclipse_project = project_dir.join(".project");
+                let eclipse_classpath = project_dir.join(".classpath");
+
+                println!("  [INFO]  Integracion con Editor / IDE:");
+                if vscode_settings.exists() && eclipse_classpath.exists() && eclipse_project.exists() {
+                    println!("          [OK]    VS Code y Java Language Server (.vscode/, .classpath, .project)");
+                } else {
+                    println!("          [WARN]  Configuracion de IDE incompleta o ausente");
+                    println!("                  Sugerencia: Ejecuta 'jolt sync' para autoconfigurar VS Code y Language Server.");
+                }
+
                 if !missing_deps.is_empty() {
                     println!("\n  [WARN]  Se encontraron {} dependencias sin sincronizar ({} listas).", missing_deps.len(), ok_deps);
-                    println!("          Sugerencia: Ejecuta 'jolt install' para descargarlas y enlazarlas.");
+                    println!("          Sugerencia: Ejecuta 'jolt sync' para descargarlas y sincronizar el IDE.");
                 } else {
                     println!("\n[OK] Proyecto saludable con {} dependencia(s) sincronizadas.", ok_deps);
                 }
@@ -253,6 +266,7 @@ impl SystemChecker {
         }
 
         Ok(())
+
     }
 }
 

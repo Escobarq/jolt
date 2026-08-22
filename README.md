@@ -67,12 +67,13 @@ jolt check
 | `jolt remove <groupId:artifactId>` (`rm`) | Elimina una dependencia de `jolt.toml`, remueve el `.jar` y actualiza `jolt.lock` |
 | `jolt install` | Sincroniza e instala dependencias (`modules/` y `dev-modules/`) y configura el IDE |
 | `jolt install --locked` | Instalacion determinista y estricta para entornos CI/CD usando `jolt.lock` |
+| `jolt sync` | Sincroniza dependencias declaradas y regenera autoconfiguración de IDE (VS Code / Eclipse / Cursor) |
 | `jolt run` | Compila y ejecuta el proyecto en tiempo real |
 | `jolt run --watch` (`-w`) | Ejecuta la aplicacion con **Hot Reload** continuo al editar archivos |
 | `jolt build` | Compila el proyecto y genera un `.jar` estandar en `target/` |
 | `jolt build --standalone` (`-s`) | Genera un **Fat-JAR autonomo** (solo con dependencias de produccion) |
 | `jolt test` | Ejecuta las pruebas unitarias en `src/test/java/` con **JUnit 5** |
-| `jolt check` | Diagnostica el entorno del sistema y la salud de las dependencias |
+| `jolt check` | Diagnostica el entorno del sistema y la salud de las dependencias e IDE |
 
 ---
 
@@ -100,8 +101,13 @@ java_version = "21"
 ```text
 mi_proyecto/
 ├── jolt.toml                  # Configuracion del proyecto y dependencias
+├── jolt.lock                  # Arbol determinista de dependencias con hashes SHA-256
 ├── .vscode/
-│   └── settings.json          # Resolucion automatica de JARs para editores (VS Code/Cursor)
+│   ├── settings.json          # Soporte TOML, sourcePaths y referencedLibraries para VS Code / Cursor
+│   └── extensions.json        # Recomendaciones de extensiones para Java y TOML
+├── .project                   # Descriptor de proyecto para Eclipse / Java Language Server
+├── .classpath                 # Enlace directo de fuentes y bibliotecas JAR al Language Server
+├── .gitignore                 # Exclusion de target/ y binarios generados
 ├── .jolt/
 │   ├── modules/               # Enlaces a los JARs de produccion (empaquetados en Fat-JAR)
 │   └── dev-modules/           # Enlaces a librerias de desarrollo y testing (JUnit, etc.)

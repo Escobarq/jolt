@@ -65,6 +65,9 @@ pub enum Commands {
     },
     /// Ejecuta las pruebas unitarias del proyecto con JUnit 5 integrado
     Test,
+    /// Sincroniza dependencias del proyecto y regenera la configuración para VS Code / IDEs
+    Sync,
     /// Diagnostica el entorno del sistema (Java, Rust, Caché) y la salud del proyecto actual
     Check,
 }
+

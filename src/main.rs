@@ -106,7 +106,7 @@ async fn main() {
                     }
 
                     // Asegurar configuración del editor/IDE
-                    let _ = scaffold::ensure_ide_configuration(Path::new("."));
+                    let _ = scaffold::ensure_ide_configuration(Path::new("."), None);
 
                     // Actualizar jolt.lock
                     let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, &raw_version, classifier);
@@ -201,7 +201,7 @@ async fn main() {
                             }
                         }
 
-                        // Actualizar jolt.lock
+                        // Actualizar jolt.lock y configuración IDE
                         let lock_path = Path::new("jolt.lock");
                         if let Ok(mut lock) = JoltLock::load_from_file(lock_path) {
                             if lock.remove_package(dependency) {
@@ -209,6 +209,7 @@ async fn main() {
                                 println!("[OK] Lockfile 'jolt.lock' sincronizado.");
                             }
                         }
+                        let _ = scaffold::ensure_ide_configuration(Path::new("."), None);
                     } else {
                         println!("[WARN] La dependencia '{}' no se encontro en jolt.toml", dependency);
                     }
@@ -223,8 +224,9 @@ async fn main() {
                 return;
             }
 
-            let _ = scaffold::ensure_ide_configuration(Path::new("."));
+            let _ = scaffold::ensure_ide_configuration(Path::new("."), None);
             let lock_path = Path::new("jolt.lock");
+
 
             if *locked {
                 if !lock_path.exists() {
@@ -359,6 +361,7 @@ async fn main() {
                     }
 
                     let _ = lock.save_to_file(lock_path);
+                    let _ = scaffold::ensure_ide_configuration(Path::new("."), None);
                     println!("[OK] Instalacion completa: {} en .jolt/modules/ y {} en .jolt/dev-modules/ (guardadas en jolt.lock)", prod_count, dev_count);
                 }
                 Err(e) => eprintln!("[ERROR] Error al leer jolt.toml: {}", e),
@@ -488,6 +491,174 @@ async fn main() {
                 Err(e) => eprintln!("[ERROR] Error al leer jolt.toml: {}", e),
             }
         }
+        cli::Commands::Sync => {
+            let manifest_path = Path::new("jolt.toml");
+            if !manifest_path.exists() {
+                eprintln!("[ERROR] No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
+                return;
+            }
+
+            println!("[INFO] Sincronizando dependencias y regenerando entorno IDE...");
+
+            match manifest::JoltManifest::load_from_file(manifest_path) {
+                Ok(manifest) => {
+                    let lock_path = Path::new("jolt.lock");
+                    let mut lock = JoltLock::load_from_file(lock_path).unwrap_or_default();
+                    let mut prod_count = 0;
+                    let mut dev_count = 0;
+
+                    let mut active_prod_jars = std::collections::HashSet::new();
+                    let mut active_dev_jars = std::collections::HashSet::new();
+
+                    // 1. Sincronizar dependencias de producción (modules/)
+                    if let Some(deps) = &manifest.dependencies {
+                        for (dep_name, version_spec) in deps {
+                            let parts: Vec<&str> = dep_name.split(':').collect();
+                            if parts.len() == 2 {
+                                let group_id = parts[0];
+                                let artifact_id = parts[1];
+
+                                let ver_parts: Vec<&str> = version_spec.split(':').collect();
+                                let version = ver_parts[0];
+                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+
+                                let file_name = match classifier {
+                                    Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
+                                    _ => format!("{}-{}.jar", artifact_id, version),
+                                };
+                                active_prod_jars.insert(file_name.clone());
+
+                                if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
+                                    println!("[INFO] Descargando {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
+                                    match maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
+                                        Ok(bytes) => {
+                                            if let Err(e) = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes) {
+                                                eprintln!("[WARN] Error al guardar en cache: {}", e);
+                                            }
+                                        }
+                                        Err(e) => eprintln!("[WARN] Error al descargar {}: {}", dep_name, e),
+                                    }
+                                }
+
+                                if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(Path::new("."), "modules", group_id, artifact_id, version, classifier) {
+                                    prod_count += 1;
+
+                                    let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
+                                    let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
+
+                                    lock.add_or_update_package(LockedPackage {
+                                        name: dep_name.clone(),
+                                        version: version_spec.clone(),
+                                        checksum,
+                                        dependencies: vec![],
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // 2. Sincronizar dependencias de desarrollo (dev-modules/)
+                    if let Some(dev_deps) = &manifest.dev_dependencies {
+                        for (dep_name, version_spec) in dev_deps {
+                            let parts: Vec<&str> = dep_name.split(':').collect();
+                            if parts.len() == 2 {
+                                let group_id = parts[0];
+                                let artifact_id = parts[1];
+
+                                let ver_parts: Vec<&str> = version_spec.split(':').collect();
+                                let version = ver_parts[0];
+                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+
+                                let file_name = match classifier {
+                                    Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
+                                    _ => format!("{}-{}.jar", artifact_id, version),
+                                };
+                                active_dev_jars.insert(file_name.clone());
+
+                                if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
+                                    println!("[INFO] Descargando dev {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
+                                    match maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
+                                        Ok(bytes) => {
+                                            if let Err(e) = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes) {
+                                                eprintln!("[WARN] Error al guardar en cache: {}", e);
+                                            }
+                                        }
+                                        Err(e) => eprintln!("[WARN] Error al descargar dev {}: {}", dep_name, e),
+                                    }
+                                }
+
+                                if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(Path::new("."), "dev-modules", group_id, artifact_id, version, classifier) {
+                                    dev_count += 1;
+
+                                    let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
+                                    let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
+
+                                    lock.add_or_update_package(LockedPackage {
+                                        name: dep_name.clone(),
+                                        version: version_spec.clone(),
+                                        checksum,
+                                        dependencies: vec![],
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. Limpiar JARs huérfanos en .jolt/modules y .jolt/dev-modules
+                    let modules_dir = Path::new(".jolt").join("modules");
+                    if modules_dir.is_dir() {
+                        if let Ok(entries) = fs::read_dir(&modules_dir) {
+                            for entry in entries.flatten() {
+                                let fname = entry.file_name().to_string_lossy().to_string();
+                                if fname.ends_with(".jar") && !active_prod_jars.contains(&fname) {
+                                    let _ = fs::remove_file(entry.path());
+                                }
+                            }
+                        }
+                    }
+                    let dev_modules_dir = Path::new(".jolt").join("dev-modules");
+                    if dev_modules_dir.is_dir() {
+                        if let Ok(entries) = fs::read_dir(&dev_modules_dir) {
+                            for entry in entries.flatten() {
+                                let fname = entry.file_name().to_string_lossy().to_string();
+                                if fname.ends_with(".jar") && !active_dev_jars.contains(&fname) {
+                                    let _ = fs::remove_file(entry.path());
+                                }
+                            }
+                        }
+                    }
+
+                    // 4. Limpiar entradas huérfanas en lockfile
+                    let mut declared_all = std::collections::HashSet::new();
+                    if let Some(deps) = &manifest.dependencies {
+                        for k in deps.keys() {
+                            declared_all.insert(k.clone());
+                        }
+                    }
+                    if let Some(dev_deps) = &manifest.dev_dependencies {
+                        for k in dev_deps.keys() {
+                            declared_all.insert(k.clone());
+                        }
+                    }
+
+                    lock.packages.retain(|pkg| declared_all.contains(&pkg.name));
+                    let _ = lock.save_to_file(lock_path);
+
+
+                    // 5. Generar / actualizar toda la configuración de IDE
+                    if let Err(e) = scaffold::ensure_ide_configuration(Path::new("."), Some(&manifest.project.name)) {
+                        eprintln!("[WARN] No se pudo generar la configuracion de IDE completa: {}", e);
+                    }
+
+                    println!("[OK] Sincronizacion completada para '{}':", manifest.project.name);
+                    println!("     • {} dependencias en .jolt/modules/", prod_count);
+                    println!("     • {} dependencias en .jolt/dev-modules/", dev_count);
+                    println!("     • Lockfile 'jolt.lock' actualizado.");
+                    println!("     • Soporte VS Code (.vscode/settings.json, .vscode/extensions.json) y Language Server (.classpath, .project) configurados.");
+                }
+                Err(e) => eprintln!("[ERROR] Error al leer jolt.toml: {}", e),
+            }
+        }
         cli::Commands::Check => {
             if let Err(e) = checker::SystemChecker::run_check(Path::new("."), &cache_manager, &toolchain_manager).await {
                 eprintln!("[ERROR] Error durante el diagnostico: {}", e);
@@ -495,3 +666,4 @@ async fn main() {
         }
     }
 }
+

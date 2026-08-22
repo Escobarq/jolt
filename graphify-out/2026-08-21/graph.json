@@ -59,6 +59,32 @@
     {
       "label": "Main",
       "file_type": "code",
+      "source_file": "javafx_demo/src/main/java/Main.java",
+      "source_location": "L1",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "javafx_demo_src_main_java_main_main",
+      "community": 13,
+      "community_name": "Main Class Entrypoint",
+      "norm_label": "main"
+    },
+    {
+      "label": "Main",
+      "file_type": "code",
+      "source_file": "templates/javafx/src/main/java/Main.java",
+      "source_location": "L1",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "templates_javafx_src_main_java_main_main",
+      "community": 15,
+      "community_name": "Java Main Entrypoint 1",
+      "norm_label": "main"
+    },
+    {
+      "label": "Main",
+      "file_type": "code",
       "source_file": "templates/minimal/src/main/java/Main.java",
       "source_location": "L1",
       "_callable": true,
@@ -96,6 +122,32 @@
       "norm_label": "main"
     },
     {
+      "label": "Main",
+      "file_type": "code",
+      "source_file": "demo_app/src/main/java/Main.java",
+      "source_location": "L7",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "demo_app_src_main_java_main_main",
+      "community": 3,
+      "community_name": "Manifest Configuration",
+      "norm_label": "main"
+    },
+    {
+      "label": "CalculatorTest",
+      "file_type": "code",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L5",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "demo_app_src_test_java_calculatortest_calculatortest",
+      "community": 6,
+      "community_name": "Unit Test Components",
+      "norm_label": "calculatortest"
+    },
+    {
       "label": "MainTest",
       "file_type": "code",
       "source_file": "templates/cli/src/test/java/MainTest.java",
@@ -105,7 +157,7 @@
       "_origin": "ast",
       "id": "templates_cli_src_test_java_maintest_maintest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "maintest"
     },
     {
@@ -118,7 +170,7 @@
       "_origin": "ast",
       "id": "templates_minimal_src_test_java_apptest_apptest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "apptest"
     },
     {
@@ -131,7 +183,7 @@
       "_origin": "ast",
       "id": "templates_spring_src_test_java_springapptest_springapptest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "springapptest"
     },
     {
@@ -144,8 +196,21 @@
       "_origin": "ast",
       "id": "templates_swing_src_test_java_swingapptest_swingapptest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "swingapptest"
+    },
+    {
+      "label": "App",
+      "file_type": "code",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L9",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "javafx_demo_src_main_java_app_app",
+      "community": 8,
+      "community_name": "JavaFX Demo Apps",
+      "norm_label": "app"
     },
     {
       "label": "App",
@@ -157,21 +222,8 @@
       "_origin": "ast",
       "id": "templates_javafx_src_main_java_app_app",
       "community": 8,
-      "community_name": "App",
+      "community_name": "JavaFX Demo Apps",
       "norm_label": "app"
-    },
-    {
-      "label": "Main",
-      "file_type": "code",
-      "source_file": "templates/javafx/src/main/java/Main.java",
-      "source_location": "L1",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "templates_javafx_src_main_java_main_main",
-      "community": 8,
-      "community_name": "App",
-      "norm_label": "main"
     },
     {
       "label": ".index()",
@@ -236,6 +288,42 @@
     {
       "label": ".main()",
       "file_type": "code",
+      "source_file": "javafx_demo/src/main/java/Main.java",
+      "source_location": "L2",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "javafx_demo_src_main_java_main_main_main",
+      "community": 13,
+      "community_name": "Main Class Entrypoint",
+      "norm_label": ".main()"
+    },
+    {
+      "label": "GraphifyPlugin()",
+      "file_type": "code",
+      "source_file": ".opencode/plugins/graphify.js",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "opencode_plugins_graphify_graphifyplugin",
+      "community": 14,
+      "community_name": "Graphify Plugin Settings",
+      "norm_label": "graphifyplugin()"
+    },
+    {
+      "label": ".main()",
+      "file_type": "code",
+      "source_file": "templates/javafx/src/main/java/Main.java",
+      "source_location": "L2",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "templates_javafx_src_main_java_main_main_main",
+      "community": 15,
+      "community_name": "Java Main Entrypoint 1",
+      "norm_label": ".main()"
+    },
+    {
+      "label": ".main()",
+      "file_type": "code",
       "source_file": "templates/minimal/src/main/java/Main.java",
       "source_location": "L2",
       "_callable": true,
@@ -270,6 +358,42 @@
       "norm_label": ".main()"
     },
     {
+      "label": ".main()",
+      "file_type": "code",
+      "source_file": "demo_app/src/main/java/Main.java",
+      "source_location": "L8",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "demo_app_src_main_java_main_main_main",
+      "community": 3,
+      "community_name": "Manifest Configuration",
+      "norm_label": ".main()"
+    },
+    {
+      "label": ".testAddition()",
+      "file_type": "code",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L7",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "demo_app_src_test_java_calculatortest_calculatortest_testaddition",
+      "community": 6,
+      "community_name": "Unit Test Components",
+      "norm_label": ".testaddition()"
+    },
+    {
+      "label": ".testStringValidation()",
+      "file_type": "code",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "demo_app_src_test_java_calculatortest_calculatortest_teststringvalidation",
+      "community": 6,
+      "community_name": "Unit Test Components",
+      "norm_label": ".teststringvalidation()"
+    },
+    {
       "label": ".testMainApp()",
       "file_type": "code",
       "source_file": "templates/cli/src/test/java/MainTest.java",
@@ -278,7 +402,7 @@
       "_origin": "ast",
       "id": "templates_cli_src_test_java_maintest_maintest_testmainapp",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": ".testmainapp()"
     },
     {
@@ -290,7 +414,7 @@
       "_origin": "ast",
       "id": "templates_minimal_src_test_java_apptest_apptest_testbasic",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": ".testbasic()"
     },
     {
@@ -302,7 +426,7 @@
       "_origin": "ast",
       "id": "templates_spring_src_test_java_springapptest_springapptest_testcontext",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": ".testcontext()"
     },
     {
@@ -314,8 +438,32 @@
       "_origin": "ast",
       "id": "templates_swing_src_test_java_swingapptest_swingapptest_testcontext",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": ".testcontext()"
+    },
+    {
+      "label": ".main()",
+      "file_type": "code",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L43",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "javafx_demo_src_main_java_app_app_main",
+      "community": 8,
+      "community_name": "JavaFX Demo Apps",
+      "norm_label": ".main()"
+    },
+    {
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L12",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "javafx_demo_src_main_java_app_app_start",
+      "community": 8,
+      "community_name": "JavaFX Demo Apps",
+      "norm_label": ".start()"
     },
     {
       "label": ".main()",
@@ -326,7 +474,7 @@
       "_origin": "ast",
       "id": "templates_javafx_src_main_java_app_app_main",
       "community": 8,
-      "community_name": "App",
+      "community_name": "JavaFX Demo Apps",
       "norm_label": ".main()"
     },
     {
@@ -338,20 +486,8 @@
       "_origin": "ast",
       "id": "templates_javafx_src_main_java_app_app_start",
       "community": 8,
-      "community_name": "App",
+      "community_name": "JavaFX Demo Apps",
       "norm_label": ".start()"
-    },
-    {
-      "label": ".main()",
-      "file_type": "code",
-      "source_file": "templates/javafx/src/main/java/Main.java",
-      "source_location": "L2",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "templates_javafx_src_main_java_main_main_main",
-      "community": 8,
-      "community_name": "App",
-      "norm_label": ".main()"
     },
     {
       "label": "maven.rs",
@@ -1124,88 +1260,48 @@
       "norm_label": "string"
     },
     {
-      "label": "modulo-p-ide-sync.md",
-      "file_type": "document",
-      "node_kind": "page",
-      "source_file": "docs/archive/modulo-p-ide-sync.md",
+      "label": "javafx_demo/src/main/java/Main.java",
+      "file_type": "code",
+      "source_file": "javafx_demo/src/main/java/Main.java",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "docs_archive_modulo_p_ide_sync",
+      "id": "javafx_demo_src_main_java_main",
       "community": 13,
-      "community_name": "Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java",
-      "norm_label": "modulo-p-ide-sync.md"
+      "community_name": "Main Class Entrypoint",
+      "norm_label": "javafx_demo/src/main/java/main.java"
     },
     {
-      "label": "Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": "docs/archive/modulo-p-ide-sync.md",
+      "label": "graphify.js",
+      "file_type": "code",
+      "source_file": ".opencode/plugins/graphify.js",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "docs_archive_modulo_p_ide_sync_modulo_p_comando_jolt_sync_y_autoconfiguracion_de_vs_code_e_ides_java",
-      "community": 13,
-      "community_name": "Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java",
-      "norm_label": "modulo p: comando `jolt sync` y autoconfiguracion de vs code e ides java"
-    },
-    {
-      "label": "Problema Resuelto",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": "docs/archive/modulo-p-ide-sync.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "docs_archive_modulo_p_ide_sync_problema_resuelto",
-      "community": 13,
-      "community_name": "Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java",
-      "norm_label": "problema resuelto"
-    },
-    {
-      "label": "Soluci\u00f3n T\u00e9cnica Implementada",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": "docs/archive/modulo-p-ide-sync.md",
-      "source_location": "L9",
-      "_origin": "ast",
-      "id": "docs_archive_modulo_p_ide_sync_soluci\u00f3n_t\u00e9cnica_implementada",
-      "community": 13,
-      "community_name": "Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java",
-      "norm_label": "solucion tecnica implementada"
-    },
-    {
-      "label": "modulo-o-dev-dependencies-interactive-init.md",
-      "file_type": "document",
-      "node_kind": "page",
-      "source_file": "docs/archive/modulo-o-dev-dependencies-interactive-init.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "docs_archive_modulo_o_dev_dependencies_interactive_init",
+      "id": "opencode_plugins_graphify",
       "community": 14,
-      "community_name": "Archivo de Modulo O: Gestion de Dev-Dependencies, Menu Interactivo y Soporte IDE (v0.2.0)",
-      "norm_label": "modulo-o-dev-dependencies-interactive-init.md"
+      "community_name": "Graphify Plugin Settings",
+      "norm_label": "graphify.js"
     },
     {
-      "label": "Archivo de Modulo O: Gestion de Dev-Dependencies, Menu Interactivo y Soporte IDE (v0.2.0)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": "docs/archive/modulo-o-dev-dependencies-interactive-init.md",
+      "label": "IMPORTANT: keep the reminder string free of backticks and $(...) constructs.",
+      "file_type": "rationale",
+      "source_file": ".opencode/plugins/graphify.js",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "opencode_plugins_graphify_rationale_4",
+      "community": 14,
+      "community_name": "Graphify Plugin Settings",
+      "norm_label": "important: keep the reminder string free of backticks and $(...) constructs."
+    },
+    {
+      "label": "javafx/src/main/java/Main.java",
+      "file_type": "code",
+      "source_file": "templates/javafx/src/main/java/Main.java",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "docs_archive_modulo_o_dev_dependencies_interactive_init_archivo_de_modulo_o_gestion_de_dev_dependencies_menu_interactivo_y_soporte_ide_v0_2_0",
-      "community": 14,
-      "community_name": "Archivo de Modulo O: Gestion de Dev-Dependencies, Menu Interactivo y Soporte IDE (v0.2.0)",
-      "norm_label": "archivo de modulo o: gestion de dev-dependencies, menu interactivo y soporte ide (v0.2.0)"
-    },
-    {
-      "label": "Resumen de Tareas Cumplidas",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": "docs/archive/modulo-o-dev-dependencies-interactive-init.md",
-      "source_location": "L16",
-      "_origin": "ast",
-      "id": "docs_archive_modulo_o_dev_dependencies_interactive_init_resumen_de_tareas_cumplidas",
-      "community": 14,
-      "community_name": "Archivo de Modulo O: Gestion de Dev-Dependencies, Menu Interactivo y Soporte IDE (v0.2.0)",
-      "norm_label": "resumen de tareas cumplidas"
+      "id": "templates_javafx_src_main_java_main",
+      "community": 15,
+      "community_name": "Java Main Entrypoint 1",
+      "norm_label": "javafx/src/main/java/main.java"
     },
     {
       "label": "minimal/src/main/java/Main.java",
@@ -1579,6 +1675,17 @@
       "norm_label": "run_benchmark.sh script"
     },
     {
+      "label": "demo_app/src/main/java/Main.java",
+      "file_type": "code",
+      "source_file": "demo_app/src/main/java/Main.java",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "demo_app_src_main_java_main",
+      "community": 3,
+      "community_name": "Manifest Configuration",
+      "norm_label": "demo_app/src/main/java/main.java"
+    },
+    {
       "label": "HashMap",
       "file_type": "code",
       "source_file": "",
@@ -1586,8 +1693,19 @@
       "_origin": "ast",
       "id": "hashmap",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "hashmap"
+    },
+    {
+      "label": "java.util.HashMap",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "java_util_hashmap",
+      "community": 3,
+      "community_name": "Manifest Configuration",
+      "norm_label": "java.util.hashmap"
     },
     {
       "label": "manifest.rs",
@@ -1597,7 +1715,7 @@
       "_origin": "ast",
       "id": "src_manifest",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "manifest.rs"
     },
     {
@@ -1608,7 +1726,7 @@
       "_origin": "ast",
       "id": "src_manifest_joltmanifest",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "joltmanifest"
     },
     {
@@ -1619,7 +1737,7 @@
       "_origin": "ast",
       "id": "src_manifest_joltmanifest_add_dependency_to_file",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": ".add_dependency_to_file()"
     },
     {
@@ -1630,7 +1748,7 @@
       "_origin": "ast",
       "id": "src_manifest_joltmanifest_load_from_file",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": ".load_from_file()"
     },
     {
@@ -1641,7 +1759,7 @@
       "_origin": "ast",
       "id": "src_manifest_joltmanifest_parse",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": ".parse()"
     },
     {
@@ -1652,7 +1770,7 @@
       "_origin": "ast",
       "id": "src_manifest_joltmanifest_remove_dependency_from_file",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": ".remove_dependency_from_file()"
     },
     {
@@ -1663,7 +1781,7 @@
       "_origin": "ast",
       "id": "src_manifest_project",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "project"
     },
     {
@@ -1674,7 +1792,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_box",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "box"
     },
     {
@@ -1685,7 +1803,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_error",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "error"
     },
     {
@@ -1696,7 +1814,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_option",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "option"
     },
     {
@@ -1707,7 +1825,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_path",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "path"
     },
     {
@@ -1718,7 +1836,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_result",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "result"
     },
     {
@@ -1729,7 +1847,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_self",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "self"
     },
     {
@@ -1740,7 +1858,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_send",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "send"
     },
     {
@@ -1751,7 +1869,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_string",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "string"
     },
     {
@@ -1762,7 +1880,7 @@
       "_origin": "ast",
       "id": "src_manifest_rs_sync",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "sync"
     },
     {
@@ -1773,7 +1891,7 @@
       "_origin": "ast",
       "id": "src_manifest_test_add_and_remove_dev_dependency",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "test_add_and_remove_dev_dependency()"
     },
     {
@@ -1784,7 +1902,7 @@
       "_origin": "ast",
       "id": "src_manifest_test_parse_basic_manifest",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "test_parse_basic_manifest()"
     },
     {
@@ -1795,7 +1913,7 @@
       "_origin": "ast",
       "id": "src_manifest_test_parse_manifest_without_dependencies",
       "community": 3,
-      "community_name": "JoltManifest",
+      "community_name": "Manifest Configuration",
       "norm_label": "test_parse_manifest_without_dependencies()"
     },
     {
@@ -2322,6 +2440,17 @@
       "norm_label": ".with_root()"
     },
     {
+      "label": "CalculatorTest.java",
+      "file_type": "code",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "demo_app_src_test_java_calculatortest",
+      "community": 6,
+      "community_name": "Unit Test Components",
+      "norm_label": "calculatortest.java"
+    },
+    {
       "label": "org.junit.jupiter.api.Test",
       "file_type": "code",
       "source_file": "",
@@ -2329,7 +2458,7 @@
       "_origin": "ast",
       "id": "org_junit_jupiter_api_test",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "org.junit.jupiter.api.test"
     },
     {
@@ -2340,7 +2469,7 @@
       "_origin": "ast",
       "id": "templates_cli_src_test_java_maintest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "maintest.java"
     },
     {
@@ -2351,7 +2480,7 @@
       "_origin": "ast",
       "id": "templates_minimal_src_test_java_apptest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "apptest.java"
     },
     {
@@ -2362,7 +2491,7 @@
       "_origin": "ast",
       "id": "templates_spring_src_test_java_springapptest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "springapptest.java"
     },
     {
@@ -2373,7 +2502,7 @@
       "_origin": "ast",
       "id": "templates_swing_src_test_java_swingapptest",
       "community": 6,
-      "community_name": "org.junit.jupiter.api.Test",
+      "community_name": "Unit Test Components",
       "norm_label": "swingapptest.java"
     },
     {
@@ -2545,7 +2674,7 @@
       "label": "test_format_bytes()",
       "file_type": "code",
       "source_file": "src/checker.rs",
-      "source_location": "L278",
+      "source_location": "L264",
       "_origin": "ast",
       "id": "src_checker_test_format_bytes",
       "community": 7,
@@ -2560,8 +2689,30 @@
       "_origin": "ast",
       "id": "javafx_application_application",
       "community": 8,
-      "community_name": "App",
+      "community_name": "JavaFX Demo Apps",
       "norm_label": "javafx.application.application"
+    },
+    {
+      "label": "javafx_demo/src/main/java/App.java",
+      "file_type": "code",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "javafx_demo_src_main_java_app",
+      "community": 8,
+      "community_name": "JavaFX Demo Apps",
+      "norm_label": "javafx_demo/src/main/java/app.java"
+    },
+    {
+      "label": "Override",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "javafx_demo_src_main_java_app_java_override",
+      "community": 8,
+      "community_name": "JavaFX Demo Apps",
+      "norm_label": "override"
     },
     {
       "label": "javafx.stage.Stage",
@@ -2571,19 +2722,19 @@
       "_origin": "ast",
       "id": "javafx_stage_stage",
       "community": 8,
-      "community_name": "App",
+      "community_name": "JavaFX Demo Apps",
       "norm_label": "javafx.stage.stage"
     },
     {
-      "label": "App.java",
+      "label": "javafx/src/main/java/App.java",
       "file_type": "code",
       "source_file": "templates/javafx/src/main/java/App.java",
       "source_location": "L1",
       "_origin": "ast",
       "id": "templates_javafx_src_main_java_app",
       "community": 8,
-      "community_name": "App",
-      "norm_label": "app.java"
+      "community_name": "JavaFX Demo Apps",
+      "norm_label": "javafx/src/main/java/app.java"
     },
     {
       "label": "Override",
@@ -2593,19 +2744,8 @@
       "_origin": "ast",
       "id": "templates_javafx_src_main_java_app_java_override",
       "community": 8,
-      "community_name": "App",
+      "community_name": "JavaFX Demo Apps",
       "norm_label": "override"
-    },
-    {
-      "label": "javafx/src/main/java/Main.java",
-      "file_type": "code",
-      "source_file": "templates/javafx/src/main/java/Main.java",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "templates_javafx_src_main_java_main",
-      "community": 8,
-      "community_name": "App",
-      "norm_label": "javafx/src/main/java/main.java"
     },
     {
       "label": "scaffold.rs",
@@ -2615,40 +2755,40 @@
       "_origin": "ast",
       "id": "src_scaffold",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "scaffold.rs"
     },
     {
       "label": "ensure_ide_configuration()",
       "file_type": "code",
       "source_file": "src/scaffold.rs",
-      "source_location": "L24",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "src_scaffold_ensure_ide_configuration",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "ensure_ide_configuration()"
     },
     {
       "label": "init_project()",
       "file_type": "code",
       "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "src_scaffold_init_project",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "init_project()"
     },
     {
       "label": "print_available_templates()",
       "file_type": "code",
       "source_file": "src/scaffold.rs",
-      "source_location": "L16",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "src_scaffold_print_available_templates",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "print_available_templates()"
     },
     {
@@ -2659,7 +2799,7 @@
       "_origin": "ast",
       "id": "src_scaffold_rs_box",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "box"
     },
     {
@@ -2670,7 +2810,7 @@
       "_origin": "ast",
       "id": "src_scaffold_rs_error",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "error"
     },
     {
@@ -2681,7 +2821,7 @@
       "_origin": "ast",
       "id": "src_scaffold_rs_option",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "option"
     },
     {
@@ -2692,7 +2832,7 @@
       "_origin": "ast",
       "id": "src_scaffold_rs_path",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "path"
     },
     {
@@ -2703,7 +2843,7 @@
       "_origin": "ast",
       "id": "src_scaffold_rs_result",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "result"
     },
     {
@@ -2714,7 +2854,7 @@
       "_origin": "ast",
       "id": "src_scaffold_rs_send",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "send"
     },
     {
@@ -2725,19 +2865,8 @@
       "_origin": "ast",
       "id": "src_scaffold_rs_sync",
       "community": 9,
-      "community_name": "ensure_ide_configuration",
+      "community_name": "CLI Scaffolding Scaffold",
       "norm_label": "sync"
-    },
-    {
-      "label": "test_ensure_ide_configuration_creates_files()",
-      "file_type": "code",
-      "source_file": "src/scaffold.rs",
-      "source_location": "L385",
-      "_origin": "ast",
-      "id": "src_scaffold_test_ensure_ide_configuration_creates_files",
-      "community": 9,
-      "community_name": "ensure_ide_configuration",
-      "norm_label": "test_ensure_ide_configuration_creates_files()"
     },
     {
       "label": "AGENTS Graphify Usage",
@@ -3326,6 +3455,42 @@
     }
   ],
   "links": [
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "attribute",
+      "_origin": "ast",
+      "source": "demo_app_src_test_java_calculatortest_calculatortest_testaddition",
+      "target": "org_junit_jupiter_api_test",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "attribute",
+      "_origin": "ast",
+      "source": "demo_app_src_test_java_calculatortest_calculatortest_teststringvalidation",
+      "target": "org_junit_jupiter_api_test",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "attribute",
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_app_app_start",
+      "target": "javafx_demo_src_main_java_app_java_override",
+      "confidence_score": 1.0
+    },
     {
       "relation": "references",
       "confidence": "EXTRACTED",
@@ -4075,7 +4240,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L314",
+      "source_location": "L83",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_scaffold_init_project",
@@ -4087,22 +4252,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L329",
+      "source_location": "L98",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_scaffold_init_project",
-      "target": "src_scaffold_ensure_ide_configuration",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/scaffold.rs",
-      "source_location": "L392",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_scaffold_test_ensure_ide_configuration_creates_files",
       "target": "src_scaffold_ensure_ide_configuration",
       "confidence_score": 1.0
     },
@@ -4237,18 +4390,6 @@
       "source": "templates_cli_src_main_java_main_main_main",
       "target": "templates_cli_src_main_java_main_main",
       "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "templates/javafx/src/main/java/Main.java",
-      "source_location": "L3",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "templates_javafx_src_main_java_main_main_main",
-      "target": "templates_javafx_src_main_java_app_app_main"
     },
     {
       "relation": "references",
@@ -6330,19 +6471,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L24",
-      "weight": 1.0,
-      "context": "generic_arg",
-      "_origin": "ast",
-      "source": "src_scaffold_ensure_ide_configuration",
-      "target": "src_scaffold_rs_box",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "src/scaffold.rs",
-      "source_location": "L24",
+      "source_location": "L23",
       "weight": 1.0,
       "context": "generic_arg",
       "_origin": "ast",
@@ -6354,31 +6483,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L24",
-      "weight": 1.0,
-      "context": "generic_arg",
-      "_origin": "ast",
-      "source": "src_scaffold_ensure_ide_configuration",
-      "target": "src_scaffold_rs_send",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "src/scaffold.rs",
-      "source_location": "L24",
-      "weight": 1.0,
-      "context": "generic_arg",
-      "_origin": "ast",
-      "source": "src_scaffold_ensure_ide_configuration",
-      "target": "src_scaffold_rs_sync",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "weight": 1.0,
       "context": "generic_arg",
       "_origin": "ast",
@@ -6390,7 +6495,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "weight": 1.0,
       "context": "generic_arg",
       "_origin": "ast",
@@ -6402,7 +6507,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "weight": 1.0,
       "context": "generic_arg",
       "_origin": "ast",
@@ -6414,7 +6519,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "weight": 1.0,
       "context": "generic_arg",
       "_origin": "ast",
@@ -6576,6 +6681,54 @@
       "_origin": "ast",
       "source": "src_toolchain_toolchainmanager_get_or_download_toolchain",
       "target": "src_toolchain_toolchain",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "demo_app/src/main/java/Main.java",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "demo_app_src_main_java_main",
+      "target": "java_util_hashmap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "demo_app_src_test_java_calculatortest",
+      "target": "org_junit_jupiter_api_test",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_app",
+      "target": "javafx_application_application",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_app",
+      "target": "javafx_stage_stage",
       "confidence_score": 1.0
     },
     {
@@ -6894,7 +7047,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L5",
+      "source_location": "L4",
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
@@ -6936,6 +7089,18 @@
       "_origin": "ast",
       "source": "src_toolchain",
       "target": "command",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_app_app_start",
+      "target": "javafx_stage_stage",
       "confidence_score": 1.0
     },
     {
@@ -7434,19 +7599,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L24",
-      "weight": 1.0,
-      "context": "parameter_type",
-      "_origin": "ast",
-      "source": "src_scaffold_ensure_ide_configuration",
-      "target": "src_scaffold_rs_option",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "src/scaffold.rs",
-      "source_location": "L24",
+      "source_location": "L23",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -7458,7 +7611,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -8022,7 +8175,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L24",
+      "source_location": "L23",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -8034,7 +8187,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -8152,56 +8305,56 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/archive/modulo-o-dev-dependencies-interactive-init.md",
-      "source_location": "L1",
+      "source_file": "demo_app/src/main/java/Main.java",
+      "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "docs_archive_modulo_o_dev_dependencies_interactive_init",
-      "target": "docs_archive_modulo_o_dev_dependencies_interactive_init_archivo_de_modulo_o_gestion_de_dev_dependencies_menu_interactivo_y_soporte_ide_v0_2_0",
+      "source": "demo_app_src_main_java_main",
+      "target": "demo_app_src_main_java_main_main",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/archive/modulo-o-dev-dependencies-interactive-init.md",
-      "source_location": "L16",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "docs_archive_modulo_o_dev_dependencies_interactive_init_archivo_de_modulo_o_gestion_de_dev_dependencies_menu_interactivo_y_soporte_ide_v0_2_0",
-      "target": "docs_archive_modulo_o_dev_dependencies_interactive_init_resumen_de_tareas_cumplidas",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/archive/modulo-p-ide-sync.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "docs_archive_modulo_p_ide_sync",
-      "target": "docs_archive_modulo_p_ide_sync_modulo_p_comando_jolt_sync_y_autoconfiguracion_de_vs_code_e_ides_java",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/archive/modulo-p-ide-sync.md",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
       "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "docs_archive_modulo_p_ide_sync_modulo_p_comando_jolt_sync_y_autoconfiguracion_de_vs_code_e_ides_java",
-      "target": "docs_archive_modulo_p_ide_sync_problema_resuelto",
+      "source": "demo_app_src_test_java_calculatortest",
+      "target": "demo_app_src_test_java_calculatortest_calculatortest",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/archive/modulo-p-ide-sync.md",
+      "source_file": "javafx_demo/src/main/java/App.java",
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "docs_archive_modulo_p_ide_sync_modulo_p_comando_jolt_sync_y_autoconfiguracion_de_vs_code_e_ides_java",
-      "target": "docs_archive_modulo_p_ide_sync_soluci\u00f3n_t\u00e9cnica_implementada",
+      "source": "javafx_demo_src_main_java_app",
+      "target": "javafx_demo_src_main_java_app_app",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/Main.java",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_main",
+      "target": "javafx_demo_src_main_java_main_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".opencode/plugins/graphify.js",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "opencode_plugins_graphify",
+      "target": "opencode_plugins_graphify_graphifyplugin",
       "confidence_score": 1.0
     },
     {
@@ -8230,7 +8383,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/checker.rs",
-      "source_location": "L278",
+      "source_location": "L264",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_checker",
@@ -8494,7 +8647,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_scaffold",
@@ -8505,7 +8658,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L24",
+      "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_scaffold",
@@ -8516,22 +8669,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/scaffold.rs",
-      "source_location": "L271",
+      "source_location": "L40",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_scaffold",
       "target": "src_scaffold_init_project",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/scaffold.rs",
-      "source_location": "L385",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_scaffold",
-      "target": "src_scaffold_test_ensure_ide_configuration_creates_files",
       "confidence_score": 1.0
     },
     {
@@ -8735,12 +8877,89 @@
     {
       "relation": "inherits",
       "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_app_app",
+      "target": "javafx_application_application",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
       "source_file": "templates/javafx/src/main/java/App.java",
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
       "source": "templates_javafx_src_main_java_app_app",
       "target": "javafx_application_application",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "demo_app/src/main/java/Main.java",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "demo_app_src_main_java_main_main",
+      "target": "demo_app_src_main_java_main_main_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "demo_app_src_test_java_calculatortest_calculatortest",
+      "target": "demo_app_src_test_java_calculatortest_calculatortest_teststringvalidation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "demo_app/src/test/java/CalculatorTest.java",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "demo_app_src_test_java_calculatortest_calculatortest",
+      "target": "demo_app_src_test_java_calculatortest_calculatortest_testaddition",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_app_app",
+      "target": "javafx_demo_src_main_java_app_app_start",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/App.java",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_app_app",
+      "target": "javafx_demo_src_main_java_app_app_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "javafx_demo/src/main/java/Main.java",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "javafx_demo_src_main_java_main_main",
+      "target": "javafx_demo_src_main_java_main_main_main",
       "confidence_score": 1.0
     },
     {
@@ -9525,6 +9744,29 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": ".opencode/plugins/graphify.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "opencode_plugins_graphify_rationale_4",
+      "target": "opencode_plugins_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "demo_app/src/main/java/Main.java",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "demo_app_src_main_java_main_main_main",
+      "target": "hashmap"
+    },
+    {
       "relation": "cites",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -9716,5 +9958,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "e4e6030ebe7ec18d3fdfd7fe128f4bfbcbb1af8f"
+  "built_at_commit": "5657b5dba82681977a9ccf15207fa35404c7b271"
 }

@@ -60,3 +60,18 @@ Este documento detalla la arquitectura y diseno tecnico para las siguientes func
 - [x] Subcomando `Search` (alias `find`) con soporte para `--limit` en `src/cli.rs`.
 - [x] Formateo de salida interactiva con comandos directos `jolt add`.
 
+---
+
+## 5. Modulo P: Comando `jolt sync` y Autoconfiguracion de IDEs (`jolt sync`) `[COMPLETADO Y ARCHIVADO]`
+> **Estado:** Implementado y archivado en [`docs/archive/modulo-p-ide-sync.md`](modulo-p-ide-sync.md).
+
+**Responsabilidad:** Regenerar y sincronizar automáticamente las asociaciones de archivos TOML y los descriptores del Language Server para VS Code, Cursor y Eclipse (.vscode/settings.json, .vscode/extensions.json, .project, .classpath) para activar autocompletado y sugerencias de código Java en tiempo real.
+
+### Tareas implementadas:
+- [x] Subcomando `Sync` en `src/cli.rs`.
+- [x] Generador multi-IDE en `src/scaffold.rs` (`ensure_ide_configuration`).
+- [x] Asociación de archivos TOML y configuración de `java.project.referencedLibraries` y `java.project.sourcePaths`.
+- [x] Descriptores de Java Language Server `.project` y `.classpath`.
+- [x] Auditoría en `jolt check`.
+
+
