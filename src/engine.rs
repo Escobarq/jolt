@@ -557,6 +557,284 @@ impl BuildEngine {
 
         Ok(())
     }
+
+    /// Detecta automáticamente la clase principal analizando el código fuente en `src/`
+    pub fn detect_main_class(project_dir: &Path) -> Option<String> {
+        let src_dirs = [
+            project_dir.join("src").join("main").join("java"),
+            project_dir.join("src").join("main"),
+            project_dir.join("src"),
+        ];
+
+        let test_dir = project_dir.join("src").join("test");
+
+        for dir in &src_dirs {
+            if dir.is_dir() {
+                let java_files = Self::collect_java_files(dir);
+                for file_path in java_files {
+                    if file_path.starts_with(&test_dir) {
+                        continue;
+                    }
+
+                    if let Ok(content) = fs::read_to_string(&file_path) {
+                        if content.contains("static void main") {
+                            let mut package_name: Option<String> = None;
+                            let mut class_name: Option<String> = None;
+
+                            for line in content.lines() {
+                                let trimmed = line.trim();
+                                if trimmed.starts_with("package ") && trimmed.ends_with(';') {
+                                    package_name = Some(
+                                        trimmed[8..trimmed.len() - 1].trim().to_string()
+                                    );
+                                }
+                                if class_name.is_none() {
+                                    if let Some(pos) = trimmed.find("class ") {
+                                        if !trimmed.starts_with("//") && !trimmed.starts_with("/*") && !trimmed.starts_with('*') {
+                                            let after_class = trimmed[pos + 6..].trim();
+                                            let name = after_class
+                                                .split(|c: char| !c.is_alphanumeric() && c != '_')
+                                                .next()
+                                                .unwrap_or("");
+                                            if !name.is_empty() {
+                                                class_name = Some(name.to_string());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            let resolved_class = class_name.or_else(|| {
+                                file_path.file_stem().and_then(|s| s.to_str()).map(|s| s.to_string())
+                            });
+
+                            if let Some(cls) = resolved_class {
+                                if let Some(pkg) = package_name {
+                                    return Some(format!("{}.{}", pkg, cls));
+                                } else {
+                                    return Some(cls);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    /// Empaqueta la aplicación como un ejecutable binario autónomo o instalador usando jpackage
+    pub fn package_native_app(
+        project_dir: &Path,
+        manifest: &crate::manifest::JoltManifest,
+        cli_type: Option<&str>,
+        cli_dest: Option<&str>,
+        cli_name: Option<&str>,
+        cli_app_version: Option<&str>,
+        cli_main_class: Option<&str>,
+        cli_icon: Option<&str>,
+        cli_java_options: Option<&str>,
+        verbose: bool,
+        toolchain: Option<&crate::toolchain::Toolchain>,
+    ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+        // 1. Determinar clase principal
+        let main_class = cli_main_class
+            .map(|s| s.to_string())
+            .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.clone()))
+            .or_else(|| manifest.project.main_class.clone())
+            .or_else(|| Self::detect_main_class(project_dir))
+            .unwrap_or_else(|| "Main".to_string());
+
+        // 2. Determinar nombre de la aplicación / binario
+        let raw_app_name = cli_name
+            .map(|s| s.to_string())
+            .or_else(|| manifest.package.as_ref().and_then(|p| p.name.clone()))
+            .unwrap_or_else(|| manifest.project.name.clone());
+
+        let app_name = Path::new(&raw_app_name)
+            .file_name()
+            .and_then(|f| f.to_str())
+            .unwrap_or(&raw_app_name)
+            .replace(['/', '\\', ' ', ':'], "_");
+
+        // 3. Determinar y sanitizar versión de la aplicación para jpackage (debe ser dígitos y puntos, ej. 1.0.0)
+        let raw_version = cli_app_version
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| manifest.project.version.clone());
+
+        let sanitized_version: String = {
+            let base = raw_version.split('-').next().unwrap_or("1.0.0").trim();
+            let cleaned: String = base.chars().filter(|c| c.is_ascii_digit() || *c == '.').collect();
+            if cleaned.is_empty() {
+                "1.0.0".to_string()
+            } else {
+                cleaned
+            }
+        };
+
+        // 4. Determinar tipo de paquete
+        let pkg_type = cli_type
+            .map(|s| s.to_string())
+            .or_else(|| manifest.package.as_ref().and_then(|p| p.r#type.clone()))
+            .unwrap_or_else(|| "app-image".to_string())
+            .to_lowercase();
+
+        // Validar tipo de paquete según el sistema operativo
+        let valid_types = if cfg!(target_os = "linux") {
+            vec!["app-image", "deb", "rpm"]
+        } else if cfg!(target_os = "windows") {
+            vec!["app-image", "msi", "exe"]
+        } else if cfg!(target_os = "macos") {
+            vec!["app-image", "dmg", "pkg"]
+        } else {
+            vec!["app-image"]
+        };
+
+        if !valid_types.contains(&pkg_type.as_str()) {
+            return Err(format!(
+                "Tipo de paquete '{}' no soportado en esta plataforma ({:?}). Opciones válidas: {}",
+                pkg_type,
+                std::env::consts::OS,
+                valid_types.join(", ")
+            ).into());
+        }
+
+        // 5. Determinar directorio de destino
+        let dest_rel = cli_dest
+            .map(|s| s.to_string())
+            .or_else(|| manifest.package.as_ref().and_then(|p| p.dest.clone()))
+            .unwrap_or_else(|| "dist".to_string());
+        let dest_dir = project_dir.join(&dest_rel);
+        fs::create_dir_all(&dest_dir)?;
+
+        // Limpiar directorio previo de la aplicación si ya existía para permitir sobreescritura
+        let target_app_dir = dest_dir.join(&app_name);
+        if target_app_dir.exists() {
+            let _ = fs::remove_dir_all(&target_app_dir);
+        }
+
+        // 6. Preparar staging Fat-JAR en target/package_input/app.jar
+        let package_input_dir = project_dir.join("target").join("package_input");
+        if package_input_dir.exists() {
+            let _ = fs::remove_dir_all(&package_input_dir);
+        }
+        fs::create_dir_all(&package_input_dir)?;
+
+        let standalone_jar = Self::build_standalone_jar(
+            project_dir,
+            &app_name,
+            &sanitized_version,
+            &main_class,
+            toolchain,
+        )?;
+
+        let staged_jar_path = package_input_dir.join("app.jar");
+        fs::copy(&standalone_jar, &staged_jar_path)?;
+
+        // 7. Configurar comando jpackage
+        let jpackage_bin = toolchain
+            .map(|t| t.jpackage_bin.as_path())
+            .unwrap_or_else(|| Path::new("jpackage"));
+
+        let mut cmd = Command::new(jpackage_bin);
+        cmd.arg("--input").arg(&package_input_dir)
+            .arg("--main-jar").arg("app.jar")
+            .arg("--main-class").arg(&main_class)
+            .arg("--name").arg(&app_name)
+            .arg("--app-version").arg(&sanitized_version)
+            .arg("--dest").arg(&dest_dir)
+            .arg("--type").arg(&pkg_type);
+
+        // Metadatos adicionales desde [package]
+        if let Some(pkg_cfg) = &manifest.package {
+            if let Some(vendor) = &pkg_cfg.vendor {
+                cmd.arg("--vendor").arg(vendor);
+            }
+            if let Some(desc) = &pkg_cfg.description {
+                cmd.arg("--description").arg(desc);
+            }
+            if let Some(copyright) = &pkg_cfg.copyright {
+                cmd.arg("--copyright").arg(copyright);
+            }
+            if let Some(opts) = &pkg_cfg.java_options {
+                for opt in opts {
+                    cmd.arg("--java-options").arg(opt);
+                }
+            }
+        }
+
+        // JVM options desde CLI
+        if let Some(cli_opts) = cli_java_options {
+            for opt in cli_opts.split_whitespace() {
+                cmd.arg("--java-options").arg(opt);
+            }
+        }
+
+        // Ícono
+        let icon_path = cli_icon
+            .map(|s| project_dir.join(s))
+            .or_else(|| manifest.package.as_ref().and_then(|p| p.icon.as_ref().map(|s| project_dir.join(s))));
+
+        if let Some(icon) = icon_path {
+            if icon.exists() {
+                cmd.arg("--icon").arg(&icon);
+            } else {
+                eprintln!("[WARN] Archivo de icono '{}' no encontrado, omitiendo.", icon.display());
+            }
+        }
+
+        if verbose {
+            cmd.arg("--verbose");
+        }
+
+        println!("[INFO] Empaquetando aplicación con jpackage (tipo: '{}', clase principal: '{}')...", pkg_type, main_class);
+
+        let output = if verbose {
+            let s = cmd.status()?;
+            if s.success() {
+                Ok(())
+            } else {
+                Err(format!("jpackage falló con código: {:?}", s.code()))
+            }
+        } else {
+            let out = cmd.output()?;
+            if out.status.success() {
+                Ok(())
+            } else {
+                let err_str = String::from_utf8_lossy(&out.stderr);
+                let out_str = String::from_utf8_lossy(&out.stdout);
+                let full_msg = if !err_str.trim().is_empty() {
+                    err_str.to_string()
+                } else {
+                    out_str.to_string()
+                };
+                Err(format!("Error en jpackage:\n{}", full_msg))
+            }
+        };
+
+        if let Err(e) = output {
+            let _ = fs::remove_dir_all(&package_input_dir);
+            return Err(e.into());
+        }
+
+        // Limpiar staging
+        let _ = fs::remove_dir_all(&package_input_dir);
+
+        // 8. Determinar ruta resultante para el usuario
+        let output_path = if pkg_type == "app-image" {
+            if cfg!(target_os = "windows") {
+                dest_dir.join(&app_name).join(format!("{}.exe", app_name))
+            } else if cfg!(target_os = "macos") {
+                dest_dir.join(format!("{}.app", app_name))
+            } else {
+                dest_dir.join(&app_name).join("bin").join(&app_name)
+            }
+        } else {
+            dest_dir.clone()
+        };
+
+        Ok(output_path)
+    }
 }
 
 #[cfg(test)]
@@ -603,6 +881,30 @@ mod tests {
         assert!(test_cp.contains("classes"));
         assert!(test_cp.contains("gson-2.14.0.jar"));
         assert!(test_cp.contains("junit-jupiter-api-5.10.2.jar"));
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_detect_main_class() {
+        let temp_dir = std::env::temp_dir().join("jolt_test_detect_main");
+        let _ = fs::remove_dir_all(&temp_dir);
+        let src_dir = temp_dir.join("src").join("main").join("java").join("com").join("example");
+        fs::create_dir_all(&src_dir).unwrap();
+
+        let java_code = r#"
+        package com.example;
+
+        public class MyAwesomeApp {
+            public static void main(String[] args) {
+                System.out.println("Hello World");
+            }
+        }
+        "#;
+        fs::write(src_dir.join("MyAwesomeApp.java"), java_code).unwrap();
+
+        let detected = BuildEngine::detect_main_class(&temp_dir);
+        assert_eq!(detected, Some("com.example.MyAwesomeApp".to_string()));
 
         let _ = fs::remove_dir_all(&temp_dir);
     }

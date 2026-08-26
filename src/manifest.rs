@@ -5,20 +5,35 @@ use std::fs;
 use std::path::Path;
 use toml_edit::{DocumentMut, value, Item};
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct JoltManifest {
     pub project: Project,
+    pub package: Option<PackageConfig>,
     #[serde(default)]
     pub dependencies: Option<HashMap<String, String>>,
     #[serde(rename = "dev-dependencies", default)]
     pub dev_dependencies: Option<HashMap<String, String>>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Project {
     pub name: String,
     pub version: String,
     pub java_version: Option<String>,
+    pub main_class: Option<String>,
+}
+
+#[derive(Debug, Deserialize, PartialEq, Clone, Default)]
+pub struct PackageConfig {
+    pub r#type: Option<String>,
+    pub name: Option<String>,
+    pub main_class: Option<String>,
+    pub icon: Option<String>,
+    pub vendor: Option<String>,
+    pub description: Option<String>,
+    pub copyright: Option<String>,
+    pub dest: Option<String>,
+    pub java_options: Option<Vec<String>>,
 }
 
 impl JoltManifest {
@@ -169,6 +184,41 @@ version = "0.1.0"
         assert!(manifest_after.dev_dependencies.as_ref().map(|d| d.is_empty()).unwrap_or(true));
 
         let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_parse_manifest_with_package_config() {
+        let toml_content = r#"
+        [project]
+        name = "desktop-app"
+        version = "1.2.0"
+        java_version = "21"
+        main_class = "com.example.Main"
+
+        [package]
+        type = "app-image"
+        name = "DesktopApp"
+        vendor = "Acme Corp"
+        description = "A native desktop app"
+        icon = "src/main/resources/icon.png"
+        dest = "dist"
+        java_options = ["-Xmx512m", "-Dfile.encoding=UTF-8"]
+        "#;
+
+        let manifest = JoltManifest::parse(toml_content).expect("Failed to parse toml");
+        assert_eq!(manifest.project.name, "desktop-app");
+        assert_eq!(manifest.project.main_class, Some("com.example.Main".to_string()));
+
+        let pkg = manifest.package.expect("Expected package configuration");
+        assert_eq!(pkg.r#type, Some("app-image".to_string()));
+        assert_eq!(pkg.name, Some("DesktopApp".to_string()));
+        assert_eq!(pkg.vendor, Some("Acme Corp".to_string()));
+        assert_eq!(pkg.description, Some("A native desktop app".to_string()));
+        assert_eq!(pkg.dest, Some("dist".to_string()));
+        assert_eq!(
+            pkg.java_options,
+            Some(vec!["-Xmx512m".to_string(), "-Dfile.encoding=UTF-8".to_string()])
+        );
     }
 }
 

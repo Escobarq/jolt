@@ -14,10 +14,11 @@ Inspirado en la velocidad y ergonomia de herramientas modernas como `uv` (Python
 - **Cache Global y Deduplicacion con Hardlinks:** Almacenamiento unico en `~/.jolt/cache/v1/` y enlaces a nivel de inodo en el sistema de archivos (`.jolt/modules/`).
 - **Aprovisionamiento Automatico de Toolchains:** Deteccion de JDKs instalados y descarga bajo demanda de distribuciones OpenJDK Temurin (LTS).
 - **Fat-JAR / Standalone Bundler (`jolt build --standalone`):** Empaquetado de aplicacion y dependencias en un unico archivo `.jar` ejecutable con filtrado de firmas de seguridad.
+- **Empaquetado Binario Nativo Multiplataforma (`jolt package`):** Creacion directa de lanzadores binarios autonomos ejecutables e instaladores de sistema (`app-image`, `deb`, `rpm`, `msi`, `exe`, `dmg`, `pkg`) con runtime optimizado mediante `jpackage`.
 - **Suite de Pruebas Unitarias Integrada (`jolt test`):** Ejecucion nativa de pruebas con JUnit 5 Platform Console Launcher.
 - **Modo Observador / Hot Reload (`jolt run --watch`):** Recompilacion y reinicio automatico de la aplicacion al detectar cambios en el codigo.
 - **Gestion de Recursos Estaticos:** Copia automatica de archivos desde `src/main/resources/` (`.fxml` de JavaFX, `.properties`, `.yaml`, `.json`, `.css`).
-- **Diagnostico de Entorno y Proyecto (`jolt check`):** Auditoria del estado de herramientas (`java`, `javac`, `jar`, `rustc`, `cargo`), cache y dependencias.
+- **Diagnostico de Entorno y Proyecto (`jolt check`):** Auditoria del estado de herramientas (`java`, `javac`, `jar`, `jpackage`, `rustc`, `cargo`), cache y dependencias.
 
 ---
 
@@ -72,8 +73,34 @@ jolt check
 | `jolt run --watch` (`-w`) | Ejecuta la aplicacion con **Hot Reload** continuo al editar archivos |
 | `jolt build` | Compila el proyecto y genera un `.jar` estandar en `target/` |
 | `jolt build --standalone` (`-s`) | Genera un **Fat-JAR autonomo** (solo con dependencias de produccion) |
+| `jolt build --package` (`-p`) | Genera directamente un **lanzador binario nativo** en `dist/` |
+| `jolt package` (`pkg`, `bundle`) | Empaqueta la app en binario nativo o instalador (`app-image`, `deb`, `rpm`, `msi`, `exe`, `dmg`, `pkg`) |
 | `jolt test` | Ejecuta las pruebas unitarias en `src/test/java/` con **JUnit 5** |
 | `jolt check` | Diagnostica el entorno del sistema y la salud de las dependencias e IDE |
+
+---
+
+## Empaquetado Binario Nativo con `jpackage`
+
+Jolt permite generar binarios ejecutables e instaladores nativos listos para producción para Linux, Windows y macOS sin requerir Java instalado en la máquina del usuario final:
+
+```bash
+# Crear un lanzador binario portable con runtime integrado (app-image en dist/)
+jolt package
+
+# Ejecutar directamente el binario generado
+./dist/mi_aplicacion/bin/mi_aplicacion       # Linux
+./dist/mi_aplicacion/mi_aplicacion.exe       # Windows
+open ./dist/mi_aplicacion.app                # macOS
+
+# Generar instalador nativo (.deb, .rpm, .msi, .exe, .dmg, .pkg)
+jolt package --type deb
+jolt package --type msi
+jolt package --type dmg
+
+# Personalizar el empaquetado por CLI
+jolt package --name "MiApp" --dest "release" --icon "assets/icon.png" --java-options "-Xmx512m"
+```
 
 ---
 
@@ -84,6 +111,16 @@ jolt check
 name = "mi_aplicacion"
 version = "0.1.0"
 java_version = "21"
+main_class = "com.ejemplo.Main" # Opcional (Jolt la auto-detecta si se omite)
+
+[package]
+type = "app-image"              # app-image, deb, rpm, msi, exe, dmg, pkg
+name = "mi-lanzador"            # Nombre opcional personalizado del binario
+vendor = "Mi Empresa"
+description = "Lanzador nativo de alta velocidad"
+icon = "src/main/resources/icon.png"
+dest = "dist"
+java_options = ["-Xmx512m", "-Dfile.encoding=UTF-8"]
 
 [dependencies]
 "com.google.code.gson:gson" = "2.14.0"
@@ -117,10 +154,14 @@ mi_proyecto/
 │   │   └── resources/         # Archivos estaticos (.properties, .fxml, .css)
 │   └── test/
 │       └── java/              # Pruebas unitarias JUnit 5 (*Test.java)
-└── target/
-    ├── classes/               # Bytecode compilado de la aplicacion
-    ├── test-classes/          # Bytecode compilado de las pruebas unitarias
-    └── mi_aplicacion-0.1.0.jar
+├── target/
+│   ├── classes/               # Bytecode compilado de la aplicacion
+│   ├── test-classes/          # Bytecode compilado de las pruebas unitarias
+│   └── mi_aplicacion-0.1.0.jar
+└── dist/
+    └── mi_aplicacion/
+        ├── bin/mi_aplicacion  # Lanzador binario nativo ejecutable
+        └── lib/               # Runtime JVM embebido y librerías
 ```
 
 ---
@@ -129,6 +170,7 @@ mi_proyecto/
 - [Especificaciones Fase 1 (Core)](docs/specs.md)
 - [Especificaciones Fase 2 (Advanced)](docs/specs-v2.md)
 - [Especificaciones Fase 3 (Lockfile, Templates, Remove)](docs/specs-v3.md)
+- [Especificaciones Fase 4 (jpackage, Native Packaging)](docs/specs-v4.md)
 - [Registro de Modulos Archivados](docs/archive/)
 
 ---

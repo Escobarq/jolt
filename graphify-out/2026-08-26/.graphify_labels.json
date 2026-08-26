@@ -1,6 +1,6 @@
 {
   "0": "Maven Resolver Component",
-  "1": ".compile",
+  "1": "Build & Run Engine",
   "2": "Cache Storage Management",
   "3": "JoltManifest",
   "4": "Lockfile Management",
@@ -14,7 +14,6 @@
   "12": "CLI Interfaces",
   "13": "Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java",
   "14": "Archivo de Modulo O: Gestion de Dev-Dependencies, Menu Interactivo y Soporte IDE (v0.2.0)",
-  "15": "1. Modulo Q: Empaquetado Binario Nativo Multiplataforma (`jolt package`)",
   "16": "Java Main Entrypoint 2",
   "17": "Java Main Entrypoint 3",
   "18": "Java Main Entrypoint 4",

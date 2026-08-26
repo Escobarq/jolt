@@ -56,6 +56,44 @@ pub enum Commands {
         /// Empaqueta todas las dependencias en un único Fat-JAR autónomo
         #[arg(short, long)]
         standalone: bool,
+        /// Empaqueta la aplicación en un lanzador binario nativo (alias de 'jolt package')
+        #[arg(short = 'p', long = "package")]
+        package: bool,
+    },
+    /// Empaqueta la aplicación en un binario nativo o instalador autocontenido usando jpackage
+    #[command(alias = "pkg", alias = "bundle")]
+    Package {
+        /// Tipo de paquete (app-image, deb, rpm, msi, exe, dmg, pkg). Por defecto: app-image
+        #[arg(short = 't', long = "type")]
+        r#type: Option<String>,
+
+        /// Directorio de salida para el binario generado (por defecto: dist/)
+        #[arg(short = 'o', long = "output", alias = "dest")]
+        dest: Option<String>,
+
+        /// Nombre del binario/lanzador nativo (por defecto: nombre del proyecto)
+        #[arg(short = 'n', long = "name")]
+        name: Option<String>,
+
+        /// Versión de la aplicación (por defecto: versión en jolt.toml)
+        #[arg(short = 'v', long = "app-version")]
+        app_version: Option<String>,
+
+        /// Clase principal con método main (ej: com.example.Main o Main)
+        #[arg(short = 'm', long = "main-class")]
+        main_class: Option<String>,
+
+        /// Ruta al archivo de ícono (.png en Linux, .ico en Windows, .icns en macOS)
+        #[arg(short = 'i', long = "icon")]
+        icon: Option<String>,
+
+        /// Opciones adicionales para la JVM (ej: "-Xmx512m -Dfile.encoding=UTF-8")
+        #[arg(long = "java-options")]
+        java_options: Option<String>,
+
+        /// Muestra la salida detallada del proceso jpackage
+        #[arg(long)]
+        verbose: bool,
     },
     /// Ejecuta el proyecto
     Run {

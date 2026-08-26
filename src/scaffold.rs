@@ -274,16 +274,21 @@ pub fn init_project(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let is_interactive = std::io::stdin().is_terminal();
 
-    // 1. Resolver el nombre del proyecto
-    let project_name = if let Some(n) = name {
-        n.to_string()
+    // 1. Resolver el nombre del proyecto y directorio base
+    let (base_dir, project_name) = if let Some(n) = name {
+        let p = Path::new(n);
+        let base_name = p.file_name().and_then(|f| f.to_str()).unwrap_or(n);
+        (p.to_path_buf(), base_name.to_string())
     } else if is_interactive {
-        Input::with_theme(&ColorfulTheme::default())
+        let input_name = Input::with_theme(&ColorfulTheme::default())
             .with_prompt("Nombre del proyecto")
             .default("app".to_string())
-            .interact_text()?
+            .interact_text()?;
+        let p = Path::new(&input_name);
+        let base_name = p.file_name().and_then(|f| f.to_str()).unwrap_or(&input_name);
+        (p.to_path_buf(), base_name.to_string())
     } else {
-        "app".to_string()
+        (std::path::PathBuf::from("app"), "app".to_string())
     };
 
     // 2. Resolver la plantilla
@@ -306,8 +311,6 @@ pub fn init_project(
         "minimal".to_string()
     };
 
-    let base_dir = Path::new(&project_name);
-
     let valid_templates = ["minimal", "cli", "javafx", "swing", "web", "spring", "spring-boot"];
     if !valid_templates.contains(&tmpl.as_str()) {
         println!("[ERROR] Plantilla '{}' no reconocida.", tmpl);
@@ -326,7 +329,7 @@ pub fn init_project(
     fs::create_dir_all(base_dir.join("src/test/java"))?;
 
     // Configurar IDE para detección automática de dependencias y soporte TOML
-    let _ = ensure_ide_configuration(base_dir, Some(&project_name));
+    let _ = ensure_ide_configuration(&base_dir, Some(&project_name));
 
     match tmpl.as_str() {
         "cli" => {

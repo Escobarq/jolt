@@ -1,22 +1,22 @@
-# Graph Report - jolt  (2026-08-26)
+# Graph Report - jolt  (2026-08-21)
 
 ## Corpus Check
-- 52 files · ~19,123 words
+- 51 files · ~17,085 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 291 nodes · 573 edges · 47 communities (16 shown, 31 thin omitted)
+- 280 nodes · 542 edges · 46 communities (15 shown, 31 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.95)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4089278f`
+- Built from commit: `b1d36c9f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Maven Resolver Component
-- .compile
+- Build & Run Engine
 - Cache Storage Management
 - JoltManifest
 - Lockfile Management
@@ -30,7 +30,6 @@
 - CLI Interfaces
 - Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java
 - Archivo de Modulo O: Gestion de Dev-Dependencies, Menu Interactivo y Soporte IDE (v0.2.0)
-- 1. Modulo Q: Empaquetado Binario Nativo Multiplataforma (`jolt package`)
 - Java Main Entrypoint 2
 - Java Main Entrypoint 3
 - Java Main Entrypoint 4
@@ -64,13 +63,13 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `CacheManager` - 19 edges
-2. `Toolchain` - 16 edges
-3. `BuildEngine` - 15 edges
-4. `ToolchainManager` - 14 edges
+2. `Toolchain` - 15 edges
+3. `ToolchainManager` - 14 edges
+4. `BuildEngine` - 13 edges
 5. `MavenClient` - 13 edges
-6. `JoltManifest` - 11 edges
-7. `JoltLock` - 10 edges
-8. `ensure_ide_configuration()` - 10 edges
+6. `JoltLock` - 10 edges
+7. `ensure_ide_configuration()` - 10 edges
+8. `JoltManifest` - 9 edges
 9. `init_project()` - 9 edges
 10. `Main` - 6 edges
 
@@ -92,23 +91,23 @@
 ## Hyperedges (group relationships)
 - **Jolt Modules** — docs_archive_modulo_a_cli_scaffolding_modulo_a, docs_archive_modulo_b_maven_resolver_modulo_b, docs_archive_modulo_c_cache_storage_modulo_c, docs_archive_modulo_d_toolchain_provisioner_modulo_d, docs_archive_modulo_e_build_run_engine_modulo_e, docs_archive_modulo_f_i_fatjar_resources_modulo_f, docs_archive_modulo_f_i_fatjar_resources_modulo_i, docs_archive_modulo_g_unit_testing_modulo_g, docs_archive_modulo_h_watch_mode_modulo_h, docs_archive_modulo_j_system_project_check_modulo_j, docs_archive_modulo_k_lockfile_modulo_k, docs_archive_modulo_l_templates_modulo_l, docs_archive_modulo_m_remove_dependency_modulo_m, docs_archive_modulo_n_search_modulo_n [EXTRACTED 1.00]
 
-## Communities (47 total, 31 thin omitted)
+## Communities (46 total, 31 thin omitted)
 
 ### Community 0 - "Maven Resolver Component"
 Cohesion: 0.21
 Nodes (19): Dependency, DependencyNode, MavenClient, MavenDoc, MavenSearchDocs, MavenSearchResponse, Box, Client (+11 more)
 
-### Community 1 - ".compile"
-Cohesion: 0.27
-Nodes (17): Child, BuildEngine, Box, Error, Option, Path, PathBuf, Result (+9 more)
+### Community 1 - "Build & Run Engine"
+Cohesion: 0.28
+Nodes (16): Child, BuildEngine, Box, Error, Option, Path, PathBuf, Result (+8 more)
 
 ### Community 2 - "Cache Storage Management"
 Cohesion: 0.23
 Nodes (13): CacheManager, Box, Default, Error, Option, Path, PathBuf, Result (+5 more)
 
 ### Community 3 - "JoltManifest"
-Cohesion: 0.20
-Nodes (18): HashMap, JoltManifest, PackageConfig, Project, Box, Error, Option, Path (+10 more)
+Cohesion: 0.23
+Nodes (15): HashMap, JoltManifest, Project, Box, Error, Option, Path, Result (+7 more)
 
 ### Community 4 - "Lockfile Management"
 Cohesion: 0.16
@@ -150,12 +149,8 @@ Nodes (4): Cli, Commands, Option, String
 Cohesion: 0.50
 Nodes (3): Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java, Problema Resuelto, Solución Técnica Implementada
 
-### Community 15 - "1. Modulo Q: Empaquetado Binario Nativo Multiplataforma (`jolt package`)"
-Cohesion: 0.40
-Nodes (4): 1. Modulo Q: Empaquetado Binario Nativo Multiplataforma (`jolt package`), Capacidades:, Jolt - Especificaciones Tecnicas Fase 4, Tareas implementadas:
-
 ## Knowledge Gaps
-- **46 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `Resumen de Tareas Cumplidas`, `Problema Resuelto` (+41 more)
+- **44 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `Resumen de Tareas Cumplidas`, `Problema Resuelto` (+39 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **31 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -163,10 +158,10 @@ Nodes (4): 1. Modulo Q: Empaquetado Binario Nativo Multiplataforma (`jolt packag
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `ToolchainManager` connect `Toolchain Provisioning` to `Lockfile Management`, `System Check Components`?**
-  _High betweenness centrality (0.120) - this node is a cross-community bridge._
-- **Why does `Toolchain` connect `.compile` to `Toolchain Provisioning`?**
-  _High betweenness centrality (0.103) - this node is a cross-community bridge._
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Why does `CacheManager` connect `Cache Storage Management` to `Lockfile Management`, `System Check Components`?**
-  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+- **Why does `Toolchain` connect `Build & Run Engine` to `Toolchain Provisioning`?**
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **What connects `jolt`, `com.example:maven-test`, `run_benchmark.sh script` to the rest of the system?**
-  _46 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _44 weakly-connected nodes found - possible documentation gaps or missing edges._

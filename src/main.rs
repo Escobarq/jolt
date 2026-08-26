@@ -367,7 +367,7 @@ async fn main() {
                 Err(e) => eprintln!("[ERROR] Error al leer jolt.toml: {}", e),
             }
         }
-        cli::Commands::Build { standalone } => {
+        cli::Commands::Build { standalone, package } => {
             let manifest_path = Path::new("jolt.toml");
             if !manifest_path.exists() {
                 eprintln!("[ERROR] No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
@@ -385,13 +385,40 @@ async fn main() {
                         }
                     };
 
-                    if *standalone {
+                    let main_class = manifest.project.main_class
+                        .as_deref()
+                        .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.as_deref()))
+                        .map(|s| s.to_string())
+                        .or_else(|| engine::BuildEngine::detect_main_class(Path::new(".")))
+                        .unwrap_or_else(|| "Main".to_string());
+
+                    if *package {
+                        match engine::BuildEngine::package_native_app(
+                            Path::new("."),
+                            &manifest,
+                            None,
+                            None,
+                            None,
+                            None,
+                            Some(&main_class),
+                            None,
+                            None,
+                            false,
+                            toolchain.as_ref(),
+                        ) {
+                            Ok(output_path) => {
+                                println!("[OK] Paquete / Lanzador binario nativo generado exitosamente en: {}", output_path.display());
+                                println!("[TIP] Puedes ejecutar la aplicacion directamente con: {}", output_path.display());
+                            }
+                            Err(e) => eprintln!("[ERROR] Error al empaquetar con jpackage: {}", e),
+                        }
+                    } else if *standalone {
                         println!("[INFO] Empaquetando Fat-JAR autonomo para '{}'...", manifest.project.name);
                         match engine::BuildEngine::build_standalone_jar(
                             Path::new("."),
                             &manifest.project.name,
                             &manifest.project.version,
-                            "Main",
+                            &main_class,
                             toolchain.as_ref(),
                         ) {
                             Ok(jar_path) => println!("[OK] Fat-JAR creado exitosamente en: {}", jar_path.display()),
@@ -403,12 +430,64 @@ async fn main() {
                             Path::new("."),
                             &manifest.project.name,
                             &manifest.project.version,
-                            "Main",
+                            &main_class,
                             toolchain.as_ref(),
                         ) {
                             Ok(jar_path) => println!("[OK] JAR estandar creado en: {}", jar_path.display()),
                             Err(e) => eprintln!("[ERROR] {}", e),
                         }
+                    }
+                }
+                Err(e) => eprintln!("[ERROR] Error al leer jolt.toml: {}", e),
+            }
+        }
+        cli::Commands::Package {
+            r#type,
+            dest,
+            name,
+            app_version,
+            main_class,
+            icon,
+            java_options,
+            verbose,
+        } => {
+            let manifest_path = Path::new("jolt.toml");
+            if !manifest_path.exists() {
+                eprintln!("[ERROR] No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto.");
+                return;
+            }
+
+            match manifest::JoltManifest::load_from_file(manifest_path) {
+                Ok(manifest) => {
+                    let java_ver = manifest.project.java_version.as_deref().unwrap_or("21");
+                    let toolchain = match toolchain_manager.get_or_download_toolchain(java_ver).await {
+                        Ok(tc) => Some(tc),
+                        Err(e) => {
+                            eprintln!("[WARN] No se pudo aprovisionar JDK {}: {}. Usando JDK por defecto del sistema.", java_ver, e);
+                            None
+                        }
+                    };
+
+                    match engine::BuildEngine::package_native_app(
+                        Path::new("."),
+                        &manifest,
+                        r#type.as_deref(),
+                        dest.as_deref(),
+                        name.as_deref(),
+                        app_version.as_deref(),
+                        main_class.as_deref(),
+                        icon.as_deref(),
+                        java_options.as_deref(),
+                        *verbose,
+                        toolchain.as_ref(),
+                    ) {
+                        Ok(output_path) => {
+                            println!("[OK] Paquete / Lanzador binario nativo generado exitosamente en: {}", output_path.display());
+                            if output_path.is_file() || output_path.join("bin").exists() {
+                                println!("[TIP] Puedes ejecutar la aplicacion directamente con: {}", output_path.display());
+                            }
+                        }
+                        Err(e) => eprintln!("[ERROR] Error al empaquetar con jpackage: {}", e),
                     }
                 }
                 Err(e) => eprintln!("[ERROR] Error al leer jolt.toml: {}", e),
@@ -432,13 +511,20 @@ async fn main() {
                         }
                     };
 
+                    let main_class = manifest.project.main_class
+                        .as_deref()
+                        .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.as_deref()))
+                        .map(|s| s.to_string())
+                        .or_else(|| engine::BuildEngine::detect_main_class(Path::new(".")))
+                        .unwrap_or_else(|| "Main".to_string());
+
                     if *watch {
-                        if let Err(e) = engine::BuildEngine::run_watch(Path::new("."), "Main", toolchain.as_ref()) {
+                        if let Err(e) = engine::BuildEngine::run_watch(Path::new("."), &main_class, toolchain.as_ref()) {
                             eprintln!("[ERROR] {}", e);
                         }
                     } else {
                         println!("[INFO] Compilando y ejecutando con Java {}...", java_ver);
-                        if let Err(e) = engine::BuildEngine::run(Path::new("."), "Main", toolchain.as_ref()) {
+                        if let Err(e) = engine::BuildEngine::run(Path::new("."), &main_class, toolchain.as_ref()) {
                             eprintln!("[ERROR] {}", e);
                         }
                     }

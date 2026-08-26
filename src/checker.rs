@@ -87,6 +87,22 @@ impl SystemChecker {
             println!("  [WARN]  Java Archiver (jar):       No detectado en PATH");
         }
 
+        // Java Packager (jpackage)
+        if let Some(ver) = Self::get_command_version("jpackage", "--version") {
+            let formats = if cfg!(target_os = "linux") {
+                "app-image, deb, rpm"
+            } else if cfg!(target_os = "windows") {
+                "app-image, msi, exe"
+            } else if cfg!(target_os = "macos") {
+                "app-image, dmg, pkg"
+            } else {
+                "app-image"
+            };
+            println!("  [OK]    Java Packager (jpackage):  {} (Formatos soportados: {})", ver, formats);
+        } else {
+            println!("  [WARN]  Java Packager (jpackage):  No detectado en PATH (requiere JDK 14+)");
+        }
+
         // Rust Toolchain
         if let Some(ver) = Self::get_command_version("rustc", "--version") {
             println!("  [OK]    Rust Compiler (rustc):     {}", ver);

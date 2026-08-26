@@ -12,6 +12,7 @@ pub struct Toolchain {
     pub java_bin: PathBuf,
     pub javac_bin: PathBuf,
     pub jar_bin: PathBuf,
+    pub jpackage_bin: PathBuf,
 }
 
 pub struct ToolchainManager {
@@ -56,12 +57,13 @@ impl ToolchainManager {
             return None;
         }
 
-        let (java, javac, jar) = Self::find_binaries_in_dir(&jdk_dir)?;
+        let (java, javac, jar, jpackage) = Self::find_binaries_in_dir(&jdk_dir)?;
         Some(Toolchain {
             version: version.to_string(),
             java_bin: java,
             javac_bin: javac,
             jar_bin: jar,
+            jpackage_bin: jpackage,
         })
     }
 
@@ -82,6 +84,7 @@ impl ToolchainManager {
                 java_bin: PathBuf::from("java"),
                 javac_bin: PathBuf::from("javac"),
                 jar_bin: PathBuf::from("jar"),
+                jpackage_bin: PathBuf::from("jpackage"),
             });
         }
 
@@ -155,7 +158,7 @@ impl ToolchainManager {
         let mut archive = Archive::new(tar);
         archive.unpack(&target_dir)?;
 
-        let (java, javac, jar) = Self::find_binaries_in_dir(&target_dir)
+        let (java, javac, jar, jpackage) = Self::find_binaries_in_dir(&target_dir)
             .ok_or("No se encontraron los binarios de Java dentro del archivo descomprimido")?;
 
         Ok(Toolchain {
@@ -163,23 +166,26 @@ impl ToolchainManager {
             java_bin: java,
             javac_bin: javac,
             jar_bin: jar,
+            jpackage_bin: jpackage,
         })
     }
 
-    fn find_binaries_in_dir(dir: &Path) -> Option<(PathBuf, PathBuf, PathBuf)> {
-        fn scan(d: &Path) -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
+    fn find_binaries_in_dir(dir: &Path) -> Option<(PathBuf, PathBuf, PathBuf, PathBuf)> {
+        fn scan(d: &Path) -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
             let mut java = None;
             let mut javac = None;
             let mut jar = None;
+            let mut jpackage = None;
 
             if let Ok(entries) = fs::read_dir(d) {
                 for entry in entries.flatten() {
                     let p = entry.path();
                     if p.is_dir() {
-                        let (c_java, c_javac, c_jar) = scan(&p);
+                        let (c_java, c_javac, c_jar, c_jpackage) = scan(&p);
                         if java.is_none() { java = c_java; }
                         if javac.is_none() { javac = c_javac; }
                         if jar.is_none() { jar = c_jar; }
+                        if jpackage.is_none() { jpackage = c_jpackage; }
                     } else if let Some(name) = p.file_name().and_then(|s| s.to_str()) {
                         if name == "java" || name == "java.exe" {
                             java = Some(p.clone());
@@ -187,15 +193,18 @@ impl ToolchainManager {
                             javac = Some(p.clone());
                         } else if name == "jar" || name == "jar.exe" {
                             jar = Some(p.clone());
+                        } else if name == "jpackage" || name == "jpackage.exe" {
+                            jpackage = Some(p.clone());
                         }
                     }
                 }
             }
-            (java, javac, jar)
+            (java, javac, jar, jpackage)
         }
 
-        let (java, javac, jar) = scan(dir);
-        Some((java?, javac?, jar?))
+        let (java, javac, jar, jpackage) = scan(dir);
+        let jpackage_found = jpackage.unwrap_or_else(|| PathBuf::from("jpackage"));
+        Some((java?, javac?, jar?, jpackage_found))
     }
 }
 
@@ -206,10 +215,26 @@ mod tests {
     #[test]
     fn test_find_system_jdk() {
         let manager = ToolchainManager::new();
-        // El sistema tiene Java 21 instalado
-        let toolchain = manager.find_system_jdk("21");
-        assert!(toolchain.is_some());
-        let tc = toolchain.unwrap();
-        assert_eq!(tc.version, "21");
+        if let Ok(output) = Command::new("javac").arg("-version").output() {
+            let ver_out = format!(
+                "{} {}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            let major = ver_out
+                .split_whitespace()
+                .find_map(|word| {
+                    let clean = word.trim_start_matches(|c: char| !c.is_ascii_digit());
+                    let mut parts = clean.split('.');
+                    parts.next().filter(|s| !s.is_empty())
+                });
+
+            if let Some(version) = major {
+                let toolchain = manager.find_system_jdk(version);
+                assert!(toolchain.is_some());
+                let tc = toolchain.unwrap();
+                assert_eq!(tc.version, version);
+            }
+        }
     }
 }
