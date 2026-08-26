@@ -39,3 +39,5 @@ test_*/
 *.tmp
 *.swp
 *~
+*.tar.gz
+*.zip

@@ -160,12 +160,46 @@ impl SystemChecker {
 
         match crate::manifest::JoltManifest::load_from_file(&manifest_path) {
             Ok(manifest) => {
+                if manifest.is_workspace() {
+                    let members = manifest.workspace.as_ref().map(|w| &w.members).cloned().unwrap_or_default();
+                    println!("  [OK]    Manifiesto 'jolt.toml':    Workspace Monorepo Valido");
+                    println!("          - Miembros Registrados:    {} submodulo(s)", members.len());
+                    for m in &members {
+                        let member_dir = project_dir.join(m);
+                        let member_manifest = member_dir.join("jolt.toml");
+                        if member_manifest.exists() {
+                            if let Ok(sub_m) = crate::manifest::JoltManifest::load_from_file(&member_manifest) {
+                                let proj_name = sub_m.project.as_ref().map(|p| p.name.as_str()).unwrap_or(m.as_str());
+                                let pkg = sub_m.project.as_ref().and_then(|p| p.package.as_deref()).unwrap_or("(paquete raiz)");
+                                println!("            └── [OK] {} (paquete: {}) en {}", proj_name, pkg, m);
+                            } else {
+                                println!("            └── [ERROR] {} (error en jolt.toml)", m);
+                            }
+                        } else {
+                            println!("            └── [WARN] {} (directorio o jolt.toml no encontrado)", m);
+                        }
+                    }
+                    println!("\n[OK] Diagnostico del Workspace completado.");
+                    return Ok(());
+                }
+
+                let proj = match &manifest.project {
+                    Some(p) => p,
+                    None => {
+                        println!("  [WARN] Manifiesto sin seccion [project] ni [workspace]");
+                        return Ok(());
+                    }
+                };
+
                 println!("  [OK]    Manifiesto 'jolt.toml':    Valido");
-                println!("          - Proyecto:                {}", manifest.project.name);
-                println!("          - Version:                 {}", manifest.project.version);
+                println!("          - Proyecto:                {}", proj.name);
+                println!("          - Version:                 {}", proj.version);
+                if let Some(ref pkg) = proj.package {
+                    println!("          - Paquete Java:            {}", pkg);
+                }
                 println!(
                     "          - Java Requerido:          Java {}",
-                    manifest.project.java_version.as_deref().unwrap_or("21")
+                    proj.java_version.as_deref().unwrap_or("21")
                 );
 
                 // Estructura de directorios
@@ -200,26 +234,41 @@ impl SystemChecker {
 
                 if let Some(deps) = manifest.dependencies {
                     println!("  [INFO]  Dependencias de Produccion ({} declaradas):", deps.len());
-                    for (dep_name, version_spec) in deps {
-                        let parts: Vec<&str> = dep_name.split(':').collect();
-                        if parts.len() == 2 {
-                            let artifact_id = parts[1];
-                            let ver_parts: Vec<&str> = version_spec.split(':').collect();
-                            let ver = ver_parts[0];
-                            let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
-
-                            let file_name = match classifier {
-                                Some(c) => format!("{}-{}-{}.jar", artifact_id, ver, c),
-                                None => format!("{}-{}.jar", artifact_id, ver),
-                            };
-
-                            let module_jar = project_dir.join(".jolt").join("modules").join(&file_name);
-                            if module_jar.exists() {
-                                println!("          [OK]    {} = \"{}\" (Enlazado)", dep_name, version_spec);
+                    for (dep_name, spec) in deps {
+                        let (version_opt, local_path) = crate::manifest::JoltManifest::parse_dependency_spec(&spec);
+                        if let Some(path) = local_path {
+                            let dep_dir = project_dir.join(&path);
+                            if dep_dir.exists() {
+                                println!("          [OK]    {} = {{ path = \"{}\" }} (Modulo local)", dep_name, path);
                                 ok_deps += 1;
                             } else {
-                                println!("          [ERROR] {} = \"{}\" (No instalado)", dep_name, version_spec);
-                                missing_deps.push(format!("{} = \"{}\"", dep_name, version_spec));
+                                println!("          [ERROR] {} = {{ path = \"{}\" }} (Ruta no existe)", dep_name, path);
+                                missing_deps.push(format!("{} (local path)", dep_name));
+                            }
+                            continue;
+                        }
+
+                        if let Some(version_spec) = version_opt {
+                            let parts: Vec<&str> = dep_name.split(':').collect();
+                            if parts.len() == 2 {
+                                let artifact_id = parts[1];
+                                let ver_parts: Vec<&str> = version_spec.split(':').collect();
+                                let ver = ver_parts[0];
+                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+
+                                let file_name = match classifier {
+                                    Some(c) => format!("{}-{}-{}.jar", artifact_id, ver, c),
+                                    None => format!("{}-{}.jar", artifact_id, ver),
+                                };
+
+                                let module_jar = project_dir.join(".jolt").join("modules").join(&file_name);
+                                if module_jar.exists() {
+                                    println!("          [OK]    {} = \"{}\" (Enlazado)", dep_name, version_spec);
+                                    ok_deps += 1;
+                                } else {
+                                    println!("          [ERROR] {} = \"{}\" (No instalado)", dep_name, version_spec);
+                                    missing_deps.push(format!("{} = \"{}\"", dep_name, version_spec));
+                                }
                             }
                         }
                     }
@@ -229,26 +278,41 @@ impl SystemChecker {
 
                 if let Some(dev_deps) = manifest.dev_dependencies {
                     println!("  [INFO]  Dependencias de Desarrollo ({} declaradas):", dev_deps.len());
-                    for (dep_name, version_spec) in dev_deps {
-                        let parts: Vec<&str> = dep_name.split(':').collect();
-                        if parts.len() == 2 {
-                            let artifact_id = parts[1];
-                            let ver_parts: Vec<&str> = version_spec.split(':').collect();
-                            let ver = ver_parts[0];
-                            let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
-
-                            let file_name = match classifier {
-                                Some(c) => format!("{}-{}-{}.jar", artifact_id, ver, c),
-                                None => format!("{}-{}.jar", artifact_id, ver),
-                            };
-
-                            let module_jar = project_dir.join(".jolt").join("dev-modules").join(&file_name);
-                            if module_jar.exists() {
-                                println!("          [OK]    {} = \"{}\" (Enlazado en dev-modules)", dep_name, version_spec);
+                    for (dep_name, spec) in dev_deps {
+                        let (version_opt, local_path) = crate::manifest::JoltManifest::parse_dependency_spec(&spec);
+                        if let Some(path) = local_path {
+                            let dep_dir = project_dir.join(&path);
+                            if dep_dir.exists() {
+                                println!("          [OK]    {} = {{ path = \"{}\" }} (Modulo local dev)", dep_name, path);
                                 ok_deps += 1;
                             } else {
-                                println!("          [ERROR] {} = \"{}\" (No instalado en dev-modules)", dep_name, version_spec);
-                                missing_deps.push(format!("{} = \"{}\" (dev)", dep_name, version_spec));
+                                println!("          [ERROR] {} = {{ path = \"{}\" }} (Ruta no existe)", dep_name, path);
+                                missing_deps.push(format!("{} (dev local path)", dep_name));
+                            }
+                            continue;
+                        }
+
+                        if let Some(version_spec) = version_opt {
+                            let parts: Vec<&str> = dep_name.split(':').collect();
+                            if parts.len() == 2 {
+                                let artifact_id = parts[1];
+                                let ver_parts: Vec<&str> = version_spec.split(':').collect();
+                                let ver = ver_parts[0];
+                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+
+                                let file_name = match classifier {
+                                    Some(c) => format!("{}-{}-{}.jar", artifact_id, ver, c),
+                                    None => format!("{}-{}.jar", artifact_id, ver),
+                                };
+
+                                let module_jar = project_dir.join(".jolt").join("dev-modules").join(&file_name);
+                                if module_jar.exists() {
+                                    println!("          [OK]    {} = \"{}\" (Enlazado en dev-modules)", dep_name, version_spec);
+                                    ok_deps += 1;
+                                } else {
+                                    println!("          [ERROR] {} = \"{}\" (No instalado en dev-modules)", dep_name, version_spec);
+                                    missing_deps.push(format!("{} = \"{}\" (dev)", dep_name, version_spec));
+                                }
                             }
                         }
                     }

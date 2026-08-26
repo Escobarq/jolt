@@ -11,9 +11,9 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// Inicializa un nuevo proyecto Java en el directorio actual o en el indicado
+    /// Inicializa un nuevo proyecto Java o un Workspace Monorepo en el directorio actual o en el indicado
     Init {
-        /// Nombre del proyecto a inicializar
+        /// Nombre del proyecto o módulo a inicializar
         name: Option<String>,
         /// Plantilla de inicio (minimal, cli, javafx, swing, web, spring)
         #[arg(short, long)]
@@ -21,6 +21,15 @@ pub enum Commands {
         /// Muestra todas las plantillas disponibles
         #[arg(short = 'l', long)]
         list_templates: bool,
+        /// Paquete raíz / namespace Java (ej: org.equipo.proyecto o com.empresa.app)
+        #[arg(short = 'p', long = "package")]
+        package: Option<String>,
+        /// GroupId de Maven (ej: org.equipo)
+        #[arg(short = 'g', long = "group-id")]
+        group_id: Option<String>,
+        /// Inicializa un workspace / monorepo multimódulo
+        #[arg(long = "workspace")]
+        workspace: bool,
     },
     /// Añade una dependencia al proyecto actual
     Add {
@@ -29,6 +38,9 @@ pub enum Commands {
         /// Añade la dependencia a las dependencias de desarrollo (dev-dependencies)
         #[arg(short = 'D', long = "dev")]
         dev: bool,
+        /// Módulo del workspace al que añadir la dependencia (si se ejecuta en la raíz)
+        #[arg(long = "member", alias = "pkg")]
+        member: Option<String>,
     },
     /// Busca dependencias y librerias en Maven Central
     #[command(alias = "find")]
@@ -44,12 +56,21 @@ pub enum Commands {
     Remove {
         /// La dependencia en formato groupId:artifactId
         dependency: String,
+        /// Módulo del workspace del que remover la dependencia
+        #[arg(long = "member", alias = "pkg")]
+        member: Option<String>,
     },
     /// Resuelve dependencias e instala localmente
     Install {
         /// Exige que las dependencias coincidan exactamente con jolt.lock (falla si hay discrepancias)
         #[arg(long)]
         locked: bool,
+        /// Instala las dependencias de todos los miembros del workspace
+        #[arg(long = "all")]
+        all: bool,
+        /// Módulo específico del workspace a instalar
+        #[arg(short = 'p', long = "package", alias = "member")]
+        member: Option<String>,
     },
     /// Compila y empaqueta el proyecto
     Build {
@@ -57,8 +78,14 @@ pub enum Commands {
         #[arg(short, long)]
         standalone: bool,
         /// Empaqueta la aplicación en un lanzador binario nativo (alias de 'jolt package')
-        #[arg(short = 'p', long = "package")]
+        #[arg(long = "package")]
         package: bool,
+        /// Compila todos los módulos del workspace
+        #[arg(long = "all")]
+        all: bool,
+        /// Compila un módulo específico del workspace
+        #[arg(short = 'p', long = "member", alias = "pkg")]
+        member: Option<String>,
     },
     /// Empaqueta la aplicación en un binario nativo o instalador autocontenido usando jpackage
     #[command(alias = "pkg", alias = "bundle")]
@@ -91,6 +118,10 @@ pub enum Commands {
         #[arg(long = "java-options")]
         java_options: Option<String>,
 
+        /// Módulo del workspace a empaquetar
+        #[arg(short = 'p', long = "member", alias = "pkg")]
+        member: Option<String>,
+
         /// Muestra la salida detallada del proceso jpackage
         #[arg(long)]
         verbose: bool,
@@ -100,11 +131,28 @@ pub enum Commands {
         /// Observa cambios en el código fuente y reinicia la aplicación automáticamente (Hot Reload)
         #[arg(short, long)]
         watch: bool,
+        /// Módulo del workspace a ejecutar
+        #[arg(short = 'p', long = "member", alias = "pkg")]
+        member: Option<String>,
     },
     /// Ejecuta las pruebas unitarias del proyecto con JUnit 5 integrado
-    Test,
+    Test {
+        /// Ejecuta pruebas en todos los módulos del workspace
+        #[arg(long = "all")]
+        all: bool,
+        /// Ejecuta pruebas en un módulo específico del workspace
+        #[arg(short = 'p', long = "member", alias = "pkg")]
+        member: Option<String>,
+    },
     /// Sincroniza dependencias del proyecto y regenera la configuración para VS Code / IDEs
-    Sync,
+    Sync {
+        /// Sincroniza todos los módulos del workspace
+        #[arg(long = "all")]
+        all: bool,
+        /// Sincroniza un módulo específico del workspace
+        #[arg(short = 'p', long = "member", alias = "pkg")]
+        member: Option<String>,
+    },
     /// Diagnostica el entorno del sistema (Java, Rust, Caché) y la salud del proyecto actual
     Check,
 }

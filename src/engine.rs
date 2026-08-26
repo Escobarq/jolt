@@ -57,7 +57,7 @@ impl BuildEngine {
         }
     }
 
-    /// Construye el classpath a partir de `.jolt/modules/` y directorios adicionales (solo dependencias de producción)
+    /// Construye el classpath a partir de `.jolt/modules/`, dependencias locales (path dependencies) y directorios adicionales (solo dependencias de producción)
     pub fn build_classpath(project_dir: &Path, include_classes: bool) -> String {
         let mut parts = Vec::new();
 
@@ -68,6 +68,7 @@ impl BuildEngine {
             }
         }
 
+        // 1. Módulos descargados en .jolt/modules
         let modules_dir = project_dir.join(".jolt").join("modules");
         if modules_dir.is_dir() {
             if let Ok(entries) = fs::read_dir(&modules_dir) {
@@ -80,11 +81,28 @@ impl BuildEngine {
             }
         }
 
+        // 2. Dependencias locales inter-módulos (path dependencies)
+        let manifest_path = project_dir.join("jolt.toml");
+        if let Ok(manifest) = crate::manifest::JoltManifest::load_from_file(&manifest_path) {
+            if let Some(deps) = &manifest.dependencies {
+                for (_name, spec) in deps {
+                    let (_ver, local_path_opt) = crate::manifest::JoltManifest::parse_dependency_spec(spec);
+                    if let Some(rel_path) = local_path_opt {
+                        let dep_dir = project_dir.join(&rel_path);
+                        let dep_classes = dep_dir.join("target").join("classes");
+                        if dep_classes.exists() {
+                            parts.push(dep_classes.to_string_lossy().to_string());
+                        }
+                    }
+                }
+            }
+        }
+
         let separator = if cfg!(windows) { ";" } else { ":" };
         parts.join(separator)
     }
 
-    /// Construye el classpath para pruebas incluyendo `.jolt/modules/` (producción) y `.jolt/dev-modules/` (testing/desarrollo)
+    /// Construye el classpath para pruebas incluyendo `.jolt/modules/`, `.jolt/dev-modules/` y dependencias locales
     pub fn build_test_classpath(project_dir: &Path, include_classes: bool) -> String {
         let mut parts = Vec::new();
 
@@ -113,6 +131,23 @@ impl BuildEngine {
             }
         }
 
+        // Dependencias locales inter-módulos
+        let manifest_path = project_dir.join("jolt.toml");
+        if let Ok(manifest) = crate::manifest::JoltManifest::load_from_file(&manifest_path) {
+            if let Some(deps) = &manifest.dependencies {
+                for (_name, spec) in deps {
+                    let (_ver, local_path_opt) = crate::manifest::JoltManifest::parse_dependency_spec(spec);
+                    if let Some(rel_path) = local_path_opt {
+                        let dep_dir = project_dir.join(&rel_path);
+                        let dep_classes = dep_dir.join("target").join("classes");
+                        if dep_classes.exists() {
+                            parts.push(dep_classes.to_string_lossy().to_string());
+                        }
+                    }
+                }
+            }
+        }
+
         let separator = if cfg!(windows) { ";" } else { ":" };
         parts.join(separator)
     }
@@ -122,6 +157,23 @@ impl BuildEngine {
         project_dir: &Path,
         toolchain: Option<&crate::toolchain::Toolchain>,
     ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+        // Compilar dependencias locales previas si existen
+        let manifest_path = project_dir.join("jolt.toml");
+        if let Ok(manifest) = crate::manifest::JoltManifest::load_from_file(&manifest_path) {
+            if let Some(deps) = &manifest.dependencies {
+                for (_name, spec) in deps {
+                    let (_ver, local_path_opt) = crate::manifest::JoltManifest::parse_dependency_spec(spec);
+                    if let Some(rel_path) = local_path_opt {
+                        let dep_dir = project_dir.join(&rel_path);
+                        let dep_manifest_path = dep_dir.join("jolt.toml");
+                        if dep_manifest_path.exists() {
+                            let _ = Self::compile(&dep_dir, toolchain);
+                        }
+                    }
+                }
+            }
+        }
+
         let main_src_dirs = [
             project_dir.join("src").join("main").join("java"),
             project_dir.join("src").join("main"),
@@ -415,6 +467,36 @@ impl BuildEngine {
             }
         }
 
+        // 2.1 Añadir clases y recursos de dependencias locales (path dependencies)
+        let manifest_path = project_dir.join("jolt.toml");
+        if let Ok(manifest) = crate::manifest::JoltManifest::load_from_file(&manifest_path) {
+            if let Some(deps) = &manifest.dependencies {
+                for (_name, spec) in deps {
+                    let (_ver, local_path_opt) = crate::manifest::JoltManifest::parse_dependency_spec(spec);
+                    if let Some(rel_path) = local_path_opt {
+                        let dep_dir = project_dir.join(&rel_path);
+                        let dep_classes = dep_dir.join("target").join("classes");
+                        if dep_classes.is_dir() {
+                            for entry in WalkDir::new(&dep_classes).into_iter().filter_map(|e| e.ok()) {
+                                let path = entry.path();
+                                if let Ok(rel_path) = path.strip_prefix(&dep_classes) {
+                                    let rel_str = rel_path.to_string_lossy().replace('\\', "/");
+                                    if !rel_str.is_empty() && path.is_file() && !added_entries.contains(&rel_str) {
+                                        added_entries.insert(rel_str.clone());
+                                        zip.start_file(&rel_str, options)?;
+                                        let mut f = File::open(path)?;
+                                        let mut buf = Vec::new();
+                                        f.read_to_end(&mut buf)?;
+                                        zip.write_all(&buf)?;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // 3. Extraer y fusionar cada dependencia .jar en .jolt/modules/ (solo producción)
         let modules_dir = project_dir.join(".jolt").join("modules");
         if modules_dir.is_dir() {
@@ -641,7 +723,7 @@ impl BuildEngine {
         let main_class = cli_main_class
             .map(|s| s.to_string())
             .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.clone()))
-            .or_else(|| manifest.project.main_class.clone())
+            .or_else(|| manifest.project.as_ref().and_then(|p| p.main_class.clone()))
             .or_else(|| Self::detect_main_class(project_dir))
             .unwrap_or_else(|| "Main".to_string());
 
@@ -649,7 +731,8 @@ impl BuildEngine {
         let raw_app_name = cli_name
             .map(|s| s.to_string())
             .or_else(|| manifest.package.as_ref().and_then(|p| p.name.clone()))
-            .unwrap_or_else(|| manifest.project.name.clone());
+            .or_else(|| manifest.project.as_ref().map(|p| p.name.clone()))
+            .unwrap_or_else(|| "app".to_string());
 
         let app_name = Path::new(&raw_app_name)
             .file_name()
@@ -660,7 +743,8 @@ impl BuildEngine {
         // 3. Determinar y sanitizar versión de la aplicación para jpackage (debe ser dígitos y puntos, ej. 1.0.0)
         let raw_version = cli_app_version
             .map(|s| s.to_string())
-            .unwrap_or_else(|| manifest.project.version.clone());
+            .or_else(|| manifest.project.as_ref().map(|p| p.version.clone()))
+            .unwrap_or_else(|| "1.0.0".to_string());
 
         let sanitized_version: String = {
             let base = raw_version.split('-').next().unwrap_or("1.0.0").trim();

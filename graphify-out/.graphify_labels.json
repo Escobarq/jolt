@@ -3,12 +3,12 @@
   "1": ".compile",
   "2": "Cache Storage Management",
   "3": "JoltManifest",
-  "4": "Lockfile Management",
+  "4": "JoltLock",
   "5": "Toolchain Provisioning",
   "6": "org.junit.jupiter.api.Test",
   "7": "System Check Components",
   "8": "App",
-  "9": "ensure_ide_configuration",
+  "9": "init_project",
   "10": "Spring Boot Templates",
   "11": "Picocli Command Templates",
   "12": "CLI Interfaces",
@@ -45,5 +45,11 @@
   "43": "Phase 4 Documentation",
   "44": "Maven Test Project",
   "45": "Jolt Configuration",
-  "46": "Jolt Root Repo"
+  "46": "Jolt Root Repo",
+  "47": "install_in_dir",
+  "48": "Jolt - Especificaciones Tecnicas Fase 5",
+  "49": "Modulo Q: Empaquetado Binario Nativo Multiplataforma (jpackage)",
+  "50": "Modulo R: Paquetes Java y Namespaces Estructurados",
+  "51": "Modulo S: Asistente Interactivo de Inicializacion",
+  "52": "Modulo T: Workspaces Multimodulo y Dependencias Locales"
 }
