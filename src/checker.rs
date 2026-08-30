@@ -116,6 +116,25 @@ impl SystemChecker {
             println!("  [WARN]  Cargo Package Manager:     No instalado");
         }
 
+        // NSIS Compiler (makensis)
+        if let Some(makensis_path) = crate::engine::BuildEngine::find_makensis_binary() {
+            let ver = Self::get_command_version(makensis_path.to_str().unwrap_or("makensis"), "/VERSION")
+                .or_else(|| Self::get_command_version(makensis_path.to_str().unwrap_or("makensis"), "-VERSION"))
+                .unwrap_or_else(|| "Instalado".to_string());
+            println!("  [OK]    NSIS Compiler (makensis):  {} ({})", ver, makensis_path.display());
+        } else {
+            println!("  [WARN]  NSIS Compiler (makensis):  No detectado (requerido para instaladores .exe NSIS en Windows)");
+        }
+
+        // UPX Compressor
+        if let Some(upx_path) = crate::engine::BuildEngine::find_upx_binary() {
+            let ver = Self::get_command_version(upx_path.to_str().unwrap_or("upx"), "--version")
+                .unwrap_or_else(|| "Instalado".to_string());
+            println!("  [OK]    UPX Compressor (upx):      {} ({})", ver, upx_path.display());
+        } else {
+            println!("  [WARN]  UPX Compressor (upx):      No detectado en PATH / Scoop (opcional para compresión de binarios)");
+        }
+
         // Caché Global de Jolt
         if let Some(home) = dirs::home_dir() {
             let jolt_cache = home.join(".jolt").join("cache").join("v1");

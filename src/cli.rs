@@ -72,7 +72,7 @@ pub enum Commands {
         #[arg(short = 'p', long = "package", alias = "member")]
         member: Option<String>,
     },
-    /// Compila y empaqueta el proyecto
+    /// Compila y empaqueta el proyecto (con soporte para Fat-JAR, lanzador nativo o instalador completo)
     Build {
         /// Empaqueta todas las dependencias en un único Fat-JAR autónomo
         #[arg(short, long)]
@@ -80,6 +80,18 @@ pub enum Commands {
         /// Empaqueta la aplicación en un lanzador binario nativo (alias de 'jolt package')
         #[arg(long = "package")]
         package: bool,
+        /// Genera un instalador nativo completo con UPX y NSIS/MSI mostrando el progreso paso a paso
+        #[arg(long = "installer")]
+        installer: bool,
+        /// Habilita la compresión de ejecutables y librerías con UPX
+        #[arg(long = "upx")]
+        upx: bool,
+        /// Agrega la aplicación a la variable de entorno PATH del sistema/usuario
+        #[arg(long = "add-to-path")]
+        add_to_path: bool,
+        /// Ámbito de instalación ('per-user' o 'per-machine')
+        #[arg(long = "scope")]
+        scope: Option<String>,
         /// Compila todos los módulos del workspace
         #[arg(long = "all")]
         all: bool,
@@ -87,10 +99,10 @@ pub enum Commands {
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
     },
-    /// Empaqueta la aplicación en un binario nativo o instalador autocontenido usando jpackage
+    /// Empaqueta la aplicación en un binario nativo o instalador autocontenido (app-image, nsis, exe, deb, rpm, msi, dmg, pkg)
     #[command(alias = "pkg", alias = "bundle")]
     Package {
-        /// Tipo de paquete (app-image, deb, rpm, msi, exe, dmg, pkg). Por defecto: app-image
+        /// Tipo de paquete (app-image, nsis, exe, deb, rpm, msi, dmg, pkg). Por defecto: app-image
         #[arg(short = 't', long = "type")]
         r#type: Option<String>,
 
@@ -118,11 +130,27 @@ pub enum Commands {
         #[arg(long = "java-options")]
         java_options: Option<String>,
 
+        /// Habilita la compresión de ejecutables y librerías con UPX
+        #[arg(long = "upx")]
+        upx: bool,
+
+        /// Deshabilita explícitamente la compresión UPX si estaba activa en jolt.toml
+        #[arg(long = "no-upx")]
+        no_upx: bool,
+
+        /// Agrega la aplicación a la variable de entorno PATH del sistema/usuario
+        #[arg(long = "add-to-path")]
+        add_to_path: bool,
+
+        /// Ámbito de instalación ('per-user' o 'per-machine')
+        #[arg(long = "scope")]
+        scope: Option<String>,
+
         /// Módulo del workspace a empaquetar
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
 
-        /// Muestra la salida detallada del proceso jpackage
+        /// Muestra la salida detallada del proceso
         #[arg(long)]
         verbose: bool,
     },

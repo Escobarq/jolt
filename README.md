@@ -49,6 +49,15 @@ cd jolt
 cargo install --path .
 ```
 
+### Generar Instalador Oficial para Windows (.exe con NSIS y UPX)
+```powershell
+pwsh scripts/build-windows-installer.ps1
+```
+El instalador generado en `dist/jolt-v<version>-windows-x86_64-setup.exe`:
+- Instala Jolt en `%LOCALAPPDATA%\Programs\Jolt`.
+- Configura automáticamente `jolt` en la variable de entorno `PATH`.
+- Incluye desinstalador limpio (`uninstall.exe`) y registro en *Aplicaciones instaladas*.
+
 Verificar la instalacion:
 ```bash
 jolt --version
@@ -77,9 +86,10 @@ jolt check
 | `jolt run --watch` (`-w`) | Ejecuta la aplicacion con **Hot Reload** continuo al editar archivos |
 | `jolt build [--all\|-p <modulo>]` | Compila el proyecto o módulos del workspace y genera `.jar` en `target/` |
 | `jolt build --standalone` (`-s`) | Genera un **Fat-JAR autonomo** (fusionando dependencias de producción y módulos locales) |
-| `jolt package [-p <modulo>]` (`pkg`, `bundle`) | Empaqueta la app en binario nativo o instalador (`app-image`, `deb`, `rpm`, `msi`, `exe`, `dmg`, `pkg`) |
+| `jolt build --installer` | Compila y genera un **instalador nativo completo con UPX y NSIS/MSI** mostrando el progreso paso a paso |
+| `jolt package [-p <modulo>]` (`pkg`, `bundle`) | Empaqueta la app en binario nativo o instalador (`app-image`, `nsis`, `deb`, `rpm`, `msi`, `exe`, `dmg`, `pkg`) con `--upx` y `--add-to-path` |
 | `jolt test [--all\|-p <modulo>]` | Ejecuta las pruebas unitarias en `src/test/java/` con **JUnit 5** |
-| `jolt check` | Diagnostica el entorno del sistema y la salud de dependencias o submódulos del workspace |
+| `jolt check` | Diagnostica el entorno del sistema (Java, Rust, NSIS, UPX, Caché) y la salud del proyecto o workspace |
 
 ---
 

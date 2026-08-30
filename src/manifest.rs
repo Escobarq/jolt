@@ -33,6 +33,18 @@ pub struct Project {
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone, Default)]
+pub struct WindowsPackageConfig {
+    pub upx: Option<bool>,
+    pub upx_args: Option<Vec<String>>,
+    pub installer: Option<String>,
+    pub add_to_path: Option<bool>,
+    pub desktop_shortcut: Option<bool>,
+    pub start_menu: Option<bool>,
+    pub scope: Option<String>,
+    pub license: Option<String>,
+}
+
+#[derive(Debug, Deserialize, PartialEq, Clone, Default)]
 pub struct PackageConfig {
     pub r#type: Option<String>,
     pub name: Option<String>,
@@ -43,6 +55,7 @@ pub struct PackageConfig {
     pub copyright: Option<String>,
     pub dest: Option<String>,
     pub java_options: Option<Vec<String>>,
+    pub windows: Option<WindowsPackageConfig>,
 }
 
 impl JoltManifest {
@@ -332,6 +345,42 @@ version = "0.1.0"
             pkg.java_options,
             Some(vec!["-Xmx512m".to_string(), "-Dfile.encoding=UTF-8".to_string()])
         );
+    }
+
+    #[test]
+    fn test_parse_manifest_with_windows_package_config() {
+        let toml_content = r#"
+        [project]
+        name = "my-tool"
+        version = "2.0.0"
+
+        [package]
+        type = "nsis"
+        name = "MyTool"
+
+        [package.windows]
+        upx = true
+        upx_args = ["--best", "--lzma"]
+        installer = "nsis"
+        add_to_path = true
+        desktop_shortcut = true
+        start_menu = true
+        scope = "per-user"
+        license = "LICENSE"
+        "#;
+
+        let manifest = JoltManifest::parse(toml_content).expect("Failed to parse toml");
+        let pkg = manifest.package.expect("Expected package configuration");
+        assert_eq!(pkg.r#type, Some("nsis".to_string()));
+        let win = pkg.windows.expect("Expected windows configuration");
+        assert_eq!(win.upx, Some(true));
+        assert_eq!(win.upx_args, Some(vec!["--best".to_string(), "--lzma".to_string()]));
+        assert_eq!(win.installer, Some("nsis".to_string()));
+        assert_eq!(win.add_to_path, Some(true));
+        assert_eq!(win.desktop_shortcut, Some(true));
+        assert_eq!(win.start_menu, Some(true));
+        assert_eq!(win.scope, Some("per-user".to_string()));
+        assert_eq!(win.license, Some("LICENSE".to_string()));
     }
 
     #[test]

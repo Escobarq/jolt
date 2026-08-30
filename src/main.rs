@@ -596,7 +596,7 @@ async fn main() {
                 }
             }
         }
-        cli::Commands::Build { standalone, package, all, member } => {
+        cli::Commands::Build { standalone, package, installer, upx, add_to_path, scope, all, member } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, false) {
                 Ok(d) => d,
                 Err(e) => {
@@ -624,24 +624,35 @@ async fn main() {
                             .or_else(|| engine::BuildEngine::detect_main_class(&dir))
                             .unwrap_or_else(|| "Main".to_string());
 
-                        if *package {
+                        if *installer || *package {
+                            let pkg_type = if *installer {
+                                if cfg!(target_os = "windows") { "nsis" } else { "deb" }
+                            } else {
+                                "app-image"
+                            };
+                            let opt_upx = if *upx { Some(true) } else { None };
+                            let opt_add_to_path = if *add_to_path { Some(true) } else { None };
+
                             match engine::BuildEngine::package_native_app(
                                 &dir,
                                 &manifest,
-                                None,
+                                Some(pkg_type),
                                 None,
                                 None,
                                 None,
                                 Some(&main_class),
                                 None,
                                 None,
+                                opt_upx,
+                                opt_add_to_path,
+                                scope.as_deref(),
                                 false,
                                 toolchain.as_ref(),
                             ) {
                                 Ok(output_path) => {
-                                    println!("[OK] Paquete / Lanzador binario nativo generado exitosamente en: {}", output_path.display());
+                                    println!("[OK] Paquete / Instalador generado exitosamente en: {}", output_path.display());
                                 }
-                                Err(e) => eprintln!("[ERROR] Error al empaquetar con jpackage en {}: {}", dir.display(), e),
+                                Err(e) => eprintln!("[ERROR] Error al empaquetar en {}: {}", dir.display(), e),
                             }
                         } else if *standalone {
                             println!("[INFO] Empaquetando Fat-JAR autonomo para '{}'...", proj.name);
@@ -681,6 +692,10 @@ async fn main() {
             main_class,
             icon,
             java_options,
+            upx,
+            no_upx,
+            add_to_path,
+            scope,
             member,
             verbose,
         } => {
@@ -699,6 +714,19 @@ async fn main() {
                     let java_ver = manifest.project.as_ref().and_then(|p| p.java_version.as_deref()).unwrap_or("21");
                     let toolchain = toolchain_manager.get_or_download_toolchain(java_ver).await.ok();
 
+                    let opt_upx = if *no_upx {
+                        Some(false)
+                    } else if *upx {
+                        Some(true)
+                    } else {
+                        None
+                    };
+                    let opt_add_to_path = if *add_to_path {
+                        Some(true)
+                    } else {
+                        None
+                    };
+
                     match engine::BuildEngine::package_native_app(
                         dir,
                         &manifest,
@@ -709,6 +737,9 @@ async fn main() {
                         main_class.as_deref(),
                         icon.as_deref(),
                         java_options.as_deref(),
+                        opt_upx,
+                        opt_add_to_path,
+                        scope.as_deref(),
                         *verbose,
                         toolchain.as_ref(),
                     ) {
@@ -718,7 +749,7 @@ async fn main() {
                                 println!("[TIP] Puedes ejecutar la aplicacion directamente con: {}", output_path.display());
                             }
                         }
-                        Err(e) => eprintln!("[ERROR] Error al empaquetar con jpackage: {}", e),
+                        Err(e) => eprintln!("[ERROR] Error al empaquetar: {}", e),
                     }
                 }
                 Err(e) => eprintln!("[ERROR] Error al leer jolt.toml en {}: {}", dir.display(), e),

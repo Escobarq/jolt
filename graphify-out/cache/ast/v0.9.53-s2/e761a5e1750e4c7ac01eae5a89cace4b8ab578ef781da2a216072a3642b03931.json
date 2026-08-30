@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_agents_workflows_opsx_apply_md", "label": "opsx-apply.md", "file_type": "document", "node_kind": "page", "source_file": ".agents/workflows/opsx-apply.md", "source_location": "L1", "frontmatter": {"description": "Implement tasks from an OpenSpec change (Experimental)"}}], "edges": [], "input_tokens": 0, "output_tokens": 0}
