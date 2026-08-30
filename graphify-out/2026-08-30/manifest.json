@@ -174,9 +174,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788127395.8176742,
-    "seen": 1788127414.4820075,
-    "ast_hash": "ab8a1e389d51f3931bf8a9a5b99c7ec4",
+    "mtime": 1788127832.4095843,
+    "seen": 1788127838.2406132,
+    "ast_hash": "03bf00733cd960b3ef90d7ffcfa8f9d9",
     "semantic_hash": ""
   },
   "benchmark/results.md": {
@@ -423,6 +423,12 @@
     "mtime": 1788126564.869768,
     "seen": 1788127414.4820673,
     "ast_hash": "a88f7d80935e1a432dc9b5affe49eb27",
+    "semantic_hash": ""
+  },
+  "docs/archive/modulo-u-windows-nsis-upx.md": {
+    "mtime": 1788127575.4096348,
+    "seen": 1788127838.2406504,
+    "ast_hash": "b9cb7cfad9cb9cff64ae483f01c5c3b9",
     "semantic_hash": ""
   }
 }

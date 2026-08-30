@@ -90,11 +90,9 @@ impl SystemChecker {
         // Java Packager (jpackage)
         if let Some(ver) = Self::get_command_version("jpackage", "--version") {
             let formats = if cfg!(target_os = "linux") {
-                "app-image, deb, rpm"
+                "app-image"
             } else if cfg!(target_os = "windows") {
-                "app-image, msi, exe"
-            } else if cfg!(target_os = "macos") {
-                "app-image, dmg, pkg"
+                "msi, app-image, exe, nsis"
             } else {
                 "app-image"
             };

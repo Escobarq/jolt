@@ -626,7 +626,7 @@ async fn main() {
 
                         if *installer || *package {
                             let pkg_type = if *installer {
-                                if cfg!(target_os = "windows") { "nsis" } else { "deb" }
+                                if cfg!(target_os = "windows") { "msi" } else { "app-image" }
                             } else {
                                 "app-image"
                             };

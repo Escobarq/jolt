@@ -1201,13 +1201,11 @@ SectionEnd
             pkg_type = "nsis".to_string();
         }
 
-        // Validar tipo de paquete según el sistema operativo
+        // Validar tipo de paquete según el sistema operativo (Windows y Linux)
         let valid_types = if cfg!(target_os = "linux") {
-            vec!["app-image", "deb", "rpm"]
+            vec!["app-image"]
         } else if cfg!(target_os = "windows") {
-            vec!["app-image", "msi", "exe", "nsis", "setup"]
-        } else if cfg!(target_os = "macos") {
-            vec!["app-image", "dmg", "pkg"]
+            vec!["msi", "app-image", "exe", "nsis", "setup"]
         } else {
             vec!["app-image"]
         };
@@ -1455,10 +1453,15 @@ SectionEnd
         let output_path = if pkg_type == "app-image" {
             if cfg!(target_os = "windows") {
                 dest_dir.join(&app_name).join(format!("{}.exe", app_name))
-            } else if cfg!(target_os = "macos") {
-                dest_dir.join(format!("{}.app", app_name))
             } else {
                 dest_dir.join(&app_name).join("bin").join(&app_name)
+            }
+        } else if pkg_type == "msi" {
+            let candidate_msi = dest_dir.join(format!("{}-{}.msi", app_name, sanitized_version));
+            if candidate_msi.exists() {
+                candidate_msi
+            } else {
+                dest_dir.clone()
             }
         } else {
             dest_dir.clone()

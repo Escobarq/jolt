@@ -64,5 +64,6 @@
   "62": "opsx-propose.md",
   "63": "opsx-sync.md",
   "64": "opsx-update.md",
-  "65": "build-windows-installer.ps1"
+  "65": "build-windows-installer.ps1",
+  "66": "Módulo U: Empaquetado en Windows con UPX y NSIS (Windows Installer)"
 }

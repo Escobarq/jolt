@@ -80,7 +80,7 @@ pub enum Commands {
         /// Empaqueta la aplicación en un lanzador binario nativo (alias de 'jolt package')
         #[arg(long = "package")]
         package: bool,
-        /// Genera un instalador nativo completo con UPX y NSIS/MSI mostrando el progreso paso a paso
+        /// Genera un instalador nativo del sistema (.msi en Windows, app-image en Linux) mostrando el progreso paso a paso
         #[arg(long = "installer")]
         installer: bool,
         /// Habilita la compresión de ejecutables y librerías con UPX
@@ -99,10 +99,10 @@ pub enum Commands {
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
     },
-    /// Empaqueta la aplicación en un binario nativo o instalador autocontenido (app-image, nsis, exe, deb, rpm, msi, dmg, pkg)
+    /// Empaqueta la aplicación en un binario nativo o instalador autocontenido (msi, app-image, nsis, exe)
     #[command(alias = "pkg", alias = "bundle")]
     Package {
-        /// Tipo de paquete (app-image, nsis, exe, deb, rpm, msi, dmg, pkg). Por defecto: app-image
+        /// Tipo de paquete (msi, app-image, nsis, exe). Por defecto: app-image (o msi en Windows)
         #[arg(short = 't', long = "type")]
         r#type: Option<String>,
 
@@ -122,7 +122,7 @@ pub enum Commands {
         #[arg(short = 'm', long = "main-class")]
         main_class: Option<String>,
 
-        /// Ruta al archivo de ícono (.png en Linux, .ico en Windows, .icns en macOS)
+        /// Ruta al archivo de ícono (.png en Linux, .ico en Windows)
         #[arg(short = 'i', long = "icon")]
         icon: Option<String>,
 

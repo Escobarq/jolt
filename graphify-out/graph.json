@@ -1022,7 +1022,7 @@
       "file_type": "code",
       "norm_label": "test_build_classpath_separation()",
       "source_file": "src/engine.rs",
-      "source_location": "L1493"
+      "source_location": "L1496"
     },
     {
       "id": "src_engine_test_collect_java_files",
@@ -1033,7 +1033,7 @@
       "file_type": "code",
       "norm_label": "test_collect_java_files()",
       "source_file": "src/engine.rs",
-      "source_location": "L1476"
+      "source_location": "L1479"
     },
     {
       "id": "src_engine_test_detect_main_class",
@@ -1044,7 +1044,7 @@
       "file_type": "code",
       "norm_label": "test_detect_main_class()",
       "source_file": "src/engine.rs",
-      "source_location": "L1520"
+      "source_location": "L1523"
     },
     {
       "id": "src_engine_test_generate_nsis_script_content",
@@ -1055,7 +1055,7 @@
       "file_type": "code",
       "norm_label": "test_generate_nsis_script_content()",
       "source_file": "src/engine.rs",
-      "source_location": "L1544"
+      "source_location": "L1547"
     },
     {
       "id": "src_toolchain_rs_string",
@@ -3725,7 +3725,7 @@
       "file_type": "code",
       "norm_label": "test_format_bytes()",
       "source_file": "src/checker.rs",
-      "source_location": "L377"
+      "source_location": "L375"
     },
     {
       "id": "javafx_application_application",
@@ -4844,7 +4844,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/checker.rs",
-      "source_location": "L142",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -5000,7 +5000,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1240",
+      "source_location": "L1238",
       "weight": 1.0
     },
     {
@@ -5012,7 +5012,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1264",
+      "source_location": "L1262",
       "weight": 1.0
     },
     {
@@ -5024,7 +5024,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1316",
+      "source_location": "L1314",
       "weight": 1.0
     },
     {
@@ -5036,7 +5036,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1342",
+      "source_location": "L1340",
       "weight": 1.0
     },
     {
@@ -5132,7 +5132,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1507",
+      "source_location": "L1510",
       "weight": 1.0
     },
     {
@@ -5144,7 +5144,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1511",
+      "source_location": "L1514",
       "weight": 1.0
     },
     {
@@ -5156,7 +5156,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1486",
+      "source_location": "L1489",
       "weight": 1.0
     },
     {
@@ -5168,7 +5168,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1537",
+      "source_location": "L1540",
       "weight": 1.0
     },
     {
@@ -5180,7 +5180,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/engine.rs",
-      "source_location": "L1547",
+      "source_location": "L1550",
       "weight": 1.0
     },
     {
@@ -11131,7 +11131,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/checker.rs",
-      "source_location": "L377",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
@@ -11186,7 +11186,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/engine.rs",
-      "source_location": "L1476",
+      "source_location": "L1479",
       "weight": 1.0
     },
     {
@@ -11197,7 +11197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/engine.rs",
-      "source_location": "L1493",
+      "source_location": "L1496",
       "weight": 1.0
     },
     {
@@ -11208,7 +11208,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/engine.rs",
-      "source_location": "L1520",
+      "source_location": "L1523",
       "weight": 1.0
     },
     {
@@ -11219,7 +11219,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/engine.rs",
-      "source_location": "L1544",
+      "source_location": "L1547",
       "weight": 1.0
     },
     {
@@ -12888,5 +12888,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "53230cb67d46ac49bc877e45bbde1113ef2f8c2e"
+  "built_at_commit": "b90041bfc57b0cbf7fc7807536311177b36f90cd"
 }
