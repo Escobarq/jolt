@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "src/cli.rs": {
-    "mtime": 1788128042.8429139,
-    "seen": 1788128057.2616248,
-    "ast_hash": "9ccde327c1a5a62165a56bc0bd762ed0",
+    "mtime": 1788128234.930841,
+    "seen": 1788128314.7640202,
+    "ast_hash": "1f60c7962108a51cde0a462bec34fa2f",
     "semantic_hash": ""
   },
   "src/engine.rs": {
@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   "src/main.rs": {
-    "mtime": 1788128026.3263333,
-    "seen": 1788128057.2616355,
-    "ast_hash": "2242474ed56ddfc4f57f340df2e7096a",
+    "mtime": 1788128243.5207977,
+    "seen": 1788128314.7640264,
+    "ast_hash": "f4ad1753d2af8c0ab39966e49915389e",
     "semantic_hash": ""
   },
   "src/manifest.rs": {
@@ -342,9 +342,9 @@
     "semantic_hash": ""
   },
   "scripts/build-windows-installer.ps1": {
-    "mtime": 1788126820.5171034,
-    "seen": 1788127414.4819355,
-    "ast_hash": "7a50ba270603456d9740d6557f154071",
+    "mtime": 1788128226.8179443,
+    "seen": 1788128314.7640133,
+    "ast_hash": "03511206cfa284587a287c1cc9fbae36",
     "semantic_hash": ""
   },
   ".agents/skills/openspec-apply-change/SKILL.md": {

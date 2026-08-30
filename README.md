@@ -31,7 +31,7 @@ cargo install --path .
 ```powershell
 pwsh scripts/build-windows-installer.ps1
 ```
-*Genera `dist/jolt-v0.5.0-windows-x86_64-setup.exe` configurando automáticamente `jolt` en el `PATH` del usuario con desinstalador limpio.*
+*Genera `dist/jolt-setup.exe` (o `dist/jolt-v0.6.0-setup.exe`) configurando automáticamente `jolt` en el `PATH` del usuario con desinstalador limpio.*
 
 ---
 
