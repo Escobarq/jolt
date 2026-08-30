@@ -5768,7 +5768,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "src/cli.rs",
-      "source_location": "L182",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -6440,7 +6440,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/cli.rs",
-      "source_location": "L182",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -12888,5 +12888,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "b90041bfc57b0cbf7fc7807536311177b36f90cd"
+  "built_at_commit": "3ba0b7e3799cb6a9174781c54f06b5104dec8f22"
 }

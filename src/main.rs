@@ -596,7 +596,7 @@ async fn main() {
                 }
             }
         }
-        cli::Commands::Build { standalone, package, installer, upx, add_to_path, scope, all, member } => {
+        cli::Commands::Build { standalone, package, installer, name, upx, add_to_path, scope, all, member } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, false) {
                 Ok(d) => d,
                 Err(e) => {
@@ -638,7 +638,7 @@ async fn main() {
                                 &manifest,
                                 Some(pkg_type),
                                 None,
-                                None,
+                                name.as_deref(),
                                 None,
                                 Some(&main_class),
                                 None,

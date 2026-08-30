@@ -2,6 +2,8 @@
 # Script de Compilación y Generación del Instalador de Jolt para Windows
 # ==============================================================================
 param (
+    [Alias("Name")]
+    [string]$InstallerName,
     [switch]$NoUpx,
     [switch]$VerboseOutput
 )
@@ -89,12 +91,28 @@ if (-not (Test-Path $DistDir)) {
 }
 
 $NsisScript = "installer\windows\jolt_installer.nsi"
-& $MakensisPath $NsisScript
+$NsisArgs = @()
+
+if ($InstallerName) {
+    $FinalName = $InstallerName
+    if (-not $FinalName.EndsWith(".exe")) {
+        $FinalName = "$FinalName.exe"
+    }
+    $NsisArgs += "/DOUTFILE_NAME=$FinalName"
+    Write-Host "  Nombre personalizado del instalador: $FinalName" -ForegroundColor Cyan
+}
+
+$NsisArgs += $NsisScript
+& $MakensisPath $NsisArgs
 if ($LASTEXITCODE -ne 0) {
     Write-Error "makensis falló al generar el instalador."
 }
 
-$Installer = Get-ChildItem -Path $DistDir -Filter "jolt-*-windows-x86_64-setup.exe" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$Installer = if ($InstallerName) {
+    Get-Item (Join-Path $DistDir $FinalName) -ErrorAction SilentlyContinue
+} else {
+    Get-ChildItem -Path $DistDir -Filter "*.exe" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+}
 
 if ($Installer) {
     $InstSize = [math]::Round($Installer.Length / 1MB, 2)

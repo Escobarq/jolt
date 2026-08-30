@@ -32,8 +32,12 @@ SetCompressor /SOLID lzma
   !define OUTPUT_DIR "..\..\dist"
 !endif
 
+!ifndef OUTFILE_NAME
+  !define OUTFILE_NAME "jolt-v${PRODUCT_VERSION}-windows-x86_64-setup.exe"
+!endif
+
 Name "${PRODUCT_NAME} v${PRODUCT_VERSION}"
-OutFile "${OUTPUT_DIR}\jolt-v${PRODUCT_VERSION}-windows-x86_64-setup.exe"
+OutFile "${OUTPUT_DIR}\${OUTFILE_NAME}"
 InstallDir "$LOCALAPPDATA\Programs\Jolt"
 InstallDirRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString"
 RequestExecutionLevel user

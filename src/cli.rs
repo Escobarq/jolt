@@ -83,6 +83,9 @@ pub enum Commands {
         /// Genera un instalador nativo del sistema (.msi en Windows, app-image en Linux) mostrando el progreso paso a paso
         #[arg(long = "installer")]
         installer: bool,
+        /// Nombre personalizado para el binario o instalador generado
+        #[arg(short = 'n', long = "name", alias = "installer-name")]
+        name: Option<String>,
         /// Habilita la compresión de ejecutables y librerías con UPX
         #[arg(long = "upx")]
         upx: bool,
