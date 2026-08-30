@@ -1,16 +1,16 @@
 # Graph Report - jolt  (2026-08-30)
 
 ## Corpus Check
-- 70 files · ~44,294 words
+- 71 files · ~43,236 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 375 nodes · 710 edges · 66 communities (19 shown, 35 thin omitted)
+- 378 nodes · 712 edges · 67 communities (19 shown, 36 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.95)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8abc74ab`
+- Built from commit: `53230cb6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -69,6 +69,7 @@
 - Modulo T: Workspaces Multimodulo y Dependencias Locales
 - openspec-explore/SKILL.md
 - opsx-explore.md
+- Módulo U: Empaquetado en Windows con UPX y NSIS (Windows Installer)
 
 ## God Nodes (most connected - your core abstractions)
 1. `CacheManager` - 21 edges
@@ -100,7 +101,7 @@
 ## Hyperedges (group relationships)
 - **Jolt Modules** — docs_archive_modulo_a_cli_scaffolding_modulo_a, docs_archive_modulo_b_maven_resolver_modulo_b, docs_archive_modulo_c_cache_storage_modulo_c, docs_archive_modulo_d_toolchain_provisioner_modulo_d, docs_archive_modulo_e_build_run_engine_modulo_e, docs_archive_modulo_f_i_fatjar_resources_modulo_f, docs_archive_modulo_f_i_fatjar_resources_modulo_i, docs_archive_modulo_g_unit_testing_modulo_g, docs_archive_modulo_h_watch_mode_modulo_h, docs_archive_modulo_j_system_project_check_modulo_j, docs_archive_modulo_k_lockfile_modulo_k, docs_archive_modulo_l_templates_modulo_l, docs_archive_modulo_m_remove_dependency_modulo_m, docs_archive_modulo_n_search_modulo_n [EXTRACTED 1.00]
 
-## Communities (66 total, 35 thin omitted)
+## Communities (67 total, 36 thin omitted)
 
 ### Community 0 - "Maven Resolver Component"
 Cohesion: 0.21
@@ -179,18 +180,18 @@ Cohesion: 0.20
 Nodes (9): Check for context, Ending Discovery, Guardrails, OpenSpec Awareness, The Stance, What You Don't Have To Do, What You Might Do, When a change exists (+1 more)
 
 ## Knowledge Gaps
-- **70 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `The Stance`, `What You Might Do` (+65 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 127 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **71 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `The Stance`, `What You Might Do` (+66 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 129 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **36 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `ToolchainManager` connect `Toolchain Provisioning` to `install_in_dir`, `System Check Components`?**
-  _High betweenness centrality (0.146) - this node is a cross-community bridge._
+  _High betweenness centrality (0.143) - this node is a cross-community bridge._
 - **Why does `Toolchain` connect `BuildEngine` to `Toolchain Provisioning`?**
-  _High betweenness centrality (0.121) - this node is a cross-community bridge._
+  _High betweenness centrality (0.119) - this node is a cross-community bridge._
 - **Why does `JoltManifest` connect `JoltManifest` to `BuildEngine`?**
-  _High betweenness centrality (0.084) - this node is a cross-community bridge._
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
 - **What connects `jolt`, `com.example:maven-test`, `run_benchmark.sh script` to the rest of the system?**
-  _70 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _71 weakly-connected nodes found - possible documentation gaps or missing edges._

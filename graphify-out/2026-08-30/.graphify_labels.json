@@ -1,6 +1,6 @@
 {
   "0": "Maven Resolver Component",
-  "1": ".compile",
+  "1": "BuildEngine",
   "2": "Cache Storage Management",
   "3": "JoltManifest",
   "4": "JoltLock",
@@ -51,5 +51,18 @@
   "49": "Modulo Q: Empaquetado Binario Nativo Multiplataforma (jpackage)",
   "50": "Modulo R: Paquetes Java y Namespaces Estructurados",
   "51": "Modulo S: Asistente Interactivo de Inicializacion",
-  "52": "Modulo T: Workspaces Multimodulo y Dependencias Locales"
+  "52": "Modulo T: Workspaces Multimodulo y Dependencias Locales",
+  "53": "openspec-explore/SKILL.md",
+  "54": "opsx-explore.md",
+  "55": "openspec-apply-change/SKILL.md",
+  "56": "openspec-archive-change/SKILL.md",
+  "57": "openspec-propose/SKILL.md",
+  "58": "openspec-sync-specs/SKILL.md",
+  "59": "openspec-update-change/SKILL.md",
+  "60": "opsx-apply.md",
+  "61": "opsx-archive.md",
+  "62": "opsx-propose.md",
+  "63": "opsx-sync.md",
+  "64": "opsx-update.md",
+  "65": "build-windows-installer.ps1"
 }

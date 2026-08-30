@@ -3516,6 +3516,42 @@
       "source_location": "L1"
     },
     {
+      "id": "docs_archive_modulo_u_windows_nsis_upx",
+      "label": "modulo-u-windows-nsis-upx.md",
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "M\u00f3dulo U: Empaquetado en Windows con UPX y NSIS (Windows Installer)",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "modulo-u-windows-nsis-upx.md",
+      "source_file": "docs/archive/modulo-u-windows-nsis-upx.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "docs_archive_modulo_u_windows_nsis_upx_funcionalidades_implementadas",
+      "label": "Funcionalidades implementadas:",
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "M\u00f3dulo U: Empaquetado en Windows con UPX y NSIS (Windows Installer)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "funcionalidades implementadas:",
+      "source_file": "docs/archive/modulo-u-windows-nsis-upx.md",
+      "source_location": "L5"
+    },
+    {
+      "id": "docs_archive_modulo_u_windows_nsis_upx_m\u00f3dulo_u_empaquetado_en_windows_con_upx_y_nsis_windows_installer",
+      "label": "M\u00f3dulo U: Empaquetado en Windows con UPX y NSIS (Windows Installer)",
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "M\u00f3dulo U: Empaquetado en Windows con UPX y NSIS (Windows Installer)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "modulo u: empaquetado en windows con upx y nsis (windows installer)",
+      "source_file": "docs/archive/modulo-u-windows-nsis-upx.md",
+      "source_location": "L1"
+    },
+    {
       "id": "command",
       "label": "Command",
       "_origin": "ast",
@@ -10923,6 +10959,28 @@
       "weight": 1.0
     },
     {
+      "source": "docs_archive_modulo_u_windows_nsis_upx",
+      "target": "docs_archive_modulo_u_windows_nsis_upx_m\u00f3dulo_u_empaquetado_en_windows_con_upx_y_nsis_windows_installer",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/archive/modulo-u-windows-nsis-upx.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_archive_modulo_u_windows_nsis_upx_m\u00f3dulo_u_empaquetado_en_windows_con_upx_y_nsis_windows_installer",
+      "target": "docs_archive_modulo_u_windows_nsis_upx_funcionalidades_implementadas",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/archive/modulo-u-windows-nsis-upx.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
       "source": "docs_specs_v4",
       "target": "docs_specs_v4_jolt_especificaciones_tecnicas_fase_4",
       "relation": "contains",
@@ -12830,5 +12888,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "8abc74ab28f63646e6cc65dd2fadb43185717cc9"
+  "built_at_commit": "53230cb67d46ac49bc877e45bbde1113ef2f8c2e"
 }
