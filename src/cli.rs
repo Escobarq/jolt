@@ -89,6 +89,12 @@ pub enum Commands {
         /// Habilita la compresión de ejecutables y librerías con UPX
         #[arg(long = "upx")]
         upx: bool,
+        /// Compila a binario nativo autónomo usando GraalVM Native Image
+        #[arg(long = "native")]
+        native: bool,
+        /// Permite descargar automáticamente un JDK (Adoptium Temurin) si no hay uno compatible instalado
+        #[arg(long = "download-jdk")]
+        download_jdk: bool,
         /// Agrega la aplicación a la variable de entorno PATH del sistema/usuario
         #[arg(long = "add-to-path")]
         add_to_path: bool,
@@ -165,15 +171,21 @@ pub enum Commands {
         /// Módulo del workspace a ejecutar
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
+        /// Permite descargar automáticamente un JDK si no hay uno compatible instalado
+        #[arg(long = "download-jdk")]
+        download_jdk: bool,
     },
     /// Ejecuta las pruebas unitarias del proyecto con JUnit 5 integrado
     Test {
         /// Ejecuta pruebas en todos los módulos del workspace
         #[arg(long = "all")]
         all: bool,
-        /// Ejecuta pruebas en un módulo específico del workspace
+        /// Módulo específico del workspace a ejecutar
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
+        /// Permite descargar automáticamente un JDK si no hay uno compatible instalado
+        #[arg(long = "download-jdk")]
+        download_jdk: bool,
     },
     /// Sincroniza dependencias del proyecto y regenera la configuración para VS Code / IDEs
     Sync {

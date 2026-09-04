@@ -596,7 +596,7 @@ async fn main() {
                 }
             }
         }
-        cli::Commands::Build { standalone, package, installer, name, upx, add_to_path, scope, all, member } => {
+        cli::Commands::Build { standalone, package, installer, name, upx, native, download_jdk, add_to_path, scope, all, member } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, false) {
                 Ok(d) => d,
                 Err(e) => {
@@ -615,7 +615,13 @@ async fn main() {
                         };
 
                         let java_ver = proj.java_version.as_deref().unwrap_or("21");
-                        let toolchain = toolchain_manager.get_or_download_toolchain(java_ver).await.ok();
+                        let toolchain = match toolchain_manager.resolve_toolchain(java_ver, *download_jdk).await {
+                            Ok(tc) => Some(tc),
+                            Err(e) => {
+                                eprintln!("[ERROR] {}", e);
+                                continue;
+                            }
+                        };
 
                         let main_class = proj.main_class
                             .as_deref()
@@ -624,7 +630,22 @@ async fn main() {
                             .or_else(|| engine::BuildEngine::detect_main_class(&dir))
                             .unwrap_or_else(|| "Main".to_string());
 
-                        if *installer || *package {
+                        let is_native = *native || manifest.graalvm_config().and_then(|g| g.enabled).unwrap_or(false);
+
+                        if is_native {
+                            println!("[INFO] Compilando binario nativo con GraalVM Native Image para '{}'...", proj.name);
+                            match engine::BuildEngine::build_native_image(
+                                &dir,
+                                &proj.name,
+                                &proj.version,
+                                &main_class,
+                                toolchain.as_ref(),
+                                manifest.graalvm_config(),
+                            ) {
+                                Ok(bin_path) => println!("[OK] Binario nativo generado exitosamente en: {}", bin_path.display()),
+                                Err(e) => eprintln!("[ERROR] Error al compilar binario nativo en {}: {}", dir.display(), e),
+                            }
+                        } else if *installer || *package {
                             let pkg_type = if *installer {
                                 if cfg!(target_os = "windows") { "msi" } else { "app-image" }
                             } else {
@@ -712,7 +733,13 @@ async fn main() {
             match manifest::JoltManifest::load_from_file(&manifest_path) {
                 Ok(manifest) => {
                     let java_ver = manifest.project.as_ref().and_then(|p| p.java_version.as_deref()).unwrap_or("21");
-                    let toolchain = toolchain_manager.get_or_download_toolchain(java_ver).await.ok();
+                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, false).await {
+                        Ok(tc) => Some(tc),
+                        Err(e) => {
+                            eprintln!("[ERROR] {}", e);
+                            return;
+                        }
+                    };
 
                     let opt_upx = if *no_upx {
                         Some(false)
@@ -755,7 +782,7 @@ async fn main() {
                 Err(e) => eprintln!("[ERROR] Error al leer jolt.toml en {}: {}", dir.display(), e),
             }
         }
-        cli::Commands::Run { watch, member } => {
+        cli::Commands::Run { watch, member, download_jdk } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), false, false) {
                 Ok(d) => d,
                 Err(e) => {
@@ -777,7 +804,13 @@ async fn main() {
                     };
 
                     let java_ver = proj.java_version.as_deref().unwrap_or("21");
-                    let toolchain = toolchain_manager.get_or_download_toolchain(java_ver).await.ok();
+                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, *download_jdk).await {
+                        Ok(tc) => Some(tc),
+                        Err(e) => {
+                            eprintln!("[ERROR] {}", e);
+                            return;
+                        }
+                    };
 
                     let main_class = proj.main_class
                         .as_deref()
@@ -800,7 +833,7 @@ async fn main() {
                 Err(e) => eprintln!("[ERROR] Error al leer {}: {}", manifest_path.display(), e),
             }
         }
-        cli::Commands::Test { all, member } => {
+        cli::Commands::Test { all, member, download_jdk } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, true) {
                 Ok(d) => d,
                 Err(e) => {
@@ -825,7 +858,13 @@ async fn main() {
                 let manifest_path = dir.join("jolt.toml");
                 if let Ok(manifest) = manifest::JoltManifest::load_from_file(&manifest_path) {
                     let java_ver = manifest.project.as_ref().and_then(|p| p.java_version.as_deref()).unwrap_or("21");
-                    let toolchain = toolchain_manager.get_or_download_toolchain(java_ver).await.ok();
+                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, *download_jdk).await {
+                        Ok(tc) => Some(tc),
+                        Err(e) => {
+                            eprintln!("[ERROR] {}", e);
+                            continue;
+                        }
+                    };
                     let proj_name = manifest.project.as_ref().map(|p| p.name.as_str()).unwrap_or("app");
 
                     println!("[INFO] Ejecutando suite de pruebas unitarias (JUnit 5) para '{}'...", proj_name);

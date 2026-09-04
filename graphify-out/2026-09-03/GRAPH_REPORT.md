@@ -1,11 +1,11 @@
 # Graph Report - jolt  (2026-09-03)
 
 ## Corpus Check
-- 77 files · ~47,788 words
+- 76 files · ~47,094 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 444 nodes · 826 edges · 73 communities (25 shown, 36 thin omitted)
+- 432 nodes · 815 edges · 72 communities (24 shown, 36 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.95)
 - Token cost: 0 input · 0 output
 
@@ -75,7 +75,6 @@
 - ADDED Requirements
 - proposal.md
 - tasks.md
-- Jolt - Especificaciones Técnicas Fase 6
 
 ## God Nodes (most connected - your core abstractions)
 1. `Toolchain` - 22 edges
@@ -107,7 +106,7 @@
 ## Hyperedges (group relationships)
 - **Jolt Modules** — docs_archive_modulo_a_cli_scaffolding_modulo_a, docs_archive_modulo_b_maven_resolver_modulo_b, docs_archive_modulo_c_cache_storage_modulo_c, docs_archive_modulo_d_toolchain_provisioner_modulo_d, docs_archive_modulo_e_build_run_engine_modulo_e, docs_archive_modulo_f_i_fatjar_resources_modulo_f, docs_archive_modulo_f_i_fatjar_resources_modulo_i, docs_archive_modulo_g_unit_testing_modulo_g, docs_archive_modulo_h_watch_mode_modulo_h, docs_archive_modulo_j_system_project_check_modulo_j, docs_archive_modulo_k_lockfile_modulo_k, docs_archive_modulo_l_templates_modulo_l, docs_archive_modulo_m_remove_dependency_modulo_m, docs_archive_modulo_n_search_modulo_n [EXTRACTED 1.00]
 
-## Communities (73 total, 36 thin omitted)
+## Communities (72 total, 36 thin omitted)
 
 ### Community 0 - "Maven Resolver Component"
 Cohesion: 0.21
@@ -205,23 +204,19 @@ Nodes (6): Capabilities, Impact, Modified Capabilities, New Capabilities, What C
 Cohesion: 0.40
 Nodes (4): 1. Soporte de configuración GraalVM en jolt.toml, 2. Detección inteligente de JDKs locales en ToolchainManager, 3. Integración de GraalVM Native Image y comandos CLI, 4. Verificación y pruebas de integración
 
-### Community 72 - "Jolt - Especificaciones Técnicas Fase 6"
-Cohesion: 0.17
-Nodes (11): 1. Módulo U: Detección Multinivel de JDKs (`src/toolchain.rs`), 2. Módulo V: Compatibilidad y Control de Descargas (`src/toolchain.rs`, `src/cli.rs`), 3. Módulo W: Configuración GraalVM en `jolt.toml` (`src/manifest.rs`), 4. Módulo X: Compilador Nativo GraalVM (`src/engine.rs`, `src/main.rs`), Detección Semántica y Extracción de Vendor:, Esquema de Configuración:, Flujo de Ejecución:, Fuentes de Escaneo (en orden de prioridad): (+3 more)
-
 ## Knowledge Gaps
-- **101 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `The Stance`, `What You Might Do` (+96 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 163 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **95 isolated node(s):** `jolt`, `com.example:maven-test`, `run_benchmark.sh script`, `The Stance`, `What You Might Do` (+90 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 156 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **36 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `ToolchainManager` connect `ToolchainManager` to `install_in_dir`, `System Check Components`?**
-  _High betweenness centrality (0.121) - this node is a cross-community bridge._
+  _High betweenness centrality (0.127) - this node is a cross-community bridge._
 - **Why does `Toolchain` connect `Toolchain` to `ToolchainManager`?**
-  _High betweenness centrality (0.101) - this node is a cross-community bridge._
+  _High betweenness centrality (0.107) - this node is a cross-community bridge._
 - **Why does `CacheManager` connect `Cache Storage Management` to `install_in_dir`, `System Check Components`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
 - **What connects `jolt`, `com.example:maven-test`, `run_benchmark.sh script` to the rest of the system?**
-  _101 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _95 weakly-connected nodes found - possible documentation gaps or missing edges._

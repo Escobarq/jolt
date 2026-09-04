@@ -541,6 +541,98 @@ impl BuildEngine {
         Ok(standalone_jar_path)
     }
 
+    /// Compila la aplicación a un binario nativo autónomo usando GraalVM Native Image
+    pub fn build_native_image(
+        project_dir: &Path,
+        project_name: &str,
+        version: &str,
+        main_class: &str,
+        toolchain: Option<&crate::toolchain::Toolchain>,
+        graalvm_config: Option<&crate::manifest::GraalVmConfig>,
+    ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+        // 1. Localizar el ejecutable native-image
+        let native_image_bin = toolchain
+            .and_then(|t| t.native_image_bin.clone())
+            .or_else(|| {
+                if let Ok(g_home) = std::env::var("GRAALVM_HOME") {
+                    let bin_dir = PathBuf::from(g_home).join("bin");
+                    for name in &["native-image.cmd", "native-image.exe", "native-image"] {
+                        let cand = bin_dir.join(name);
+                        if cand.exists() {
+                            return Some(cand);
+                        }
+                    }
+                }
+                if let Ok(path_var) = std::env::var("PATH") {
+                    for entry in std::env::split_paths(&path_var) {
+                        for name in &["native-image.cmd", "native-image.exe", "native-image"] {
+                            let cand = entry.join(name);
+                            if cand.exists() {
+                                return Some(cand);
+                            }
+                        }
+                    }
+                }
+                None
+            })
+            .ok_or_else(|| {
+                "No se encontró el ejecutable 'native-image'. Asegúrate de tener GraalVM instalado con el componente native-image en tu PATH o GRAALVM_HOME."
+            })?;
+
+        println!("⚡ Compilando Fat-JAR previo para GraalVM Native Image...");
+        let target_jar = Self::build_standalone_jar(project_dir, project_name, version, main_class, toolchain)?;
+
+        let dist_dir = project_dir.join("dist");
+        fs::create_dir_all(&dist_dir)?;
+
+        let bin_name = graalvm_config
+            .and_then(|c| c.name.as_deref())
+            .unwrap_or(project_name);
+
+        println!("🚀 Invocando GraalVM Native Image para generar binario nativo '{}'...", bin_name);
+        println!("   Ejecutable: {}", native_image_bin.display());
+
+        let mut cmd = Command::new(&native_image_bin);
+        cmd.current_dir(&dist_dir);
+
+        // Pasar el Fat-JAR
+        cmd.arg("-jar").arg(&target_jar);
+
+        // Nombre del binario
+        cmd.arg(format!("-o{}", bin_name));
+
+        // Argumentos configurados en jolt.toml
+        if let Some(cfg) = graalvm_config {
+            if let Some(args) = &cfg.args {
+                for arg in args {
+                    cmd.arg(arg);
+                }
+            }
+            if let Some(refl) = &cfg.reflection_config {
+                let refl_path = project_dir.join(refl);
+                cmd.arg(format!("-H:ReflectionConfigurationFiles={}", refl_path.display()));
+            }
+            if let Some(res) = &cfg.resources_config {
+                let res_path = project_dir.join(res);
+                cmd.arg(format!("-H:ResourceConfigurationFiles={}", res_path.display()));
+            }
+        }
+
+        let status = cmd.status()?;
+        if !status.success() {
+            return Err(format!("Fallo en la compilación nativa con GraalVM (código: {:?})", status.code()).into());
+        }
+
+        let out_binary = if cfg!(windows) {
+            dist_dir.join(format!("{}.exe", bin_name))
+        } else {
+            dist_dir.join(bin_name)
+        };
+
+        println!("✅ Binario nativo generado exitosamente en: {}", out_binary.display());
+        Ok(out_binary)
+    }
+
     /// Compila los archivos de prueba en `src/test/` colocando los .class en `target/test-classes/`
     pub fn compile_tests(
         project_dir: &Path,

@@ -1,8 +1,8 @@
 {
   "Cargo.toml": {
-    "mtime": 1788494691.49822,
-    "seen": 1788495447.9106236,
-    "ast_hash": "9310d7262bb7bd5b32875d5e7021317d",
+    "mtime": 1788492590.018557,
+    "seen": 1788494286.323762,
+    "ast_hash": "3d97832e5eacefc894ba3869b7947f3d",
     "semantic_hash": ""
   },
   "benchmark/gradle-test/build.gradle": {
@@ -174,9 +174,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788494675.1373954,
-    "seen": 1788495447.9107103,
-    "ast_hash": "0fa5d6b76686e2703badc84f379087c1",
+    "mtime": 1788492590.018557,
+    "seen": 1788494286.3238328,
+    "ast_hash": "dc1d022b54dea1df9635ae66001066b6",
     "semantic_hash": ""
   },
   "benchmark/results.md": {
@@ -465,12 +465,6 @@
     "mtime": 1788494272.2057602,
     "seen": 1788494286.3238778,
     "ast_hash": "11f3b78628b485b6e5adc7f943178743",
-    "semantic_hash": ""
-  },
-  "docs/specs-v6.md": {
-    "mtime": 1788494683.3539464,
-    "seen": 1788495447.9107606,
-    "ast_hash": "15f09fc94ea8b95971dcec15a56e8659",
     "semantic_hash": ""
   }
 }

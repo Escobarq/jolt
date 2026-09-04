@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use std::fs;
@@ -16,6 +16,7 @@ pub struct JoltManifest {
     pub workspace: Option<Workspace>,
     pub project: Option<Project>,
     pub package: Option<PackageConfig>,
+    pub graalvm: Option<GraalVmConfig>,
     #[serde(default)]
     pub dependencies: Option<HashMap<String, toml::Value>>,
     #[serde(rename = "dev-dependencies", default)]
@@ -30,6 +31,16 @@ pub struct Project {
     pub main_class: Option<String>,
     pub package: Option<String>,
     pub group_id: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone, Default)]
+pub struct GraalVmConfig {
+    pub enabled: Option<bool>,
+    pub args: Option<Vec<String>>,
+    pub main_class: Option<String>,
+    pub name: Option<String>,
+    pub reflection_config: Option<String>,
+    pub resources_config: Option<String>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone, Default)]
@@ -56,6 +67,7 @@ pub struct PackageConfig {
     pub dest: Option<String>,
     pub java_options: Option<Vec<String>>,
     pub windows: Option<WindowsPackageConfig>,
+    pub graalvm: Option<GraalVmConfig>,
 }
 
 impl JoltManifest {
@@ -67,6 +79,11 @@ impl JoltManifest {
     /// Retorna `true` si el manifiesto define un workspace multimódulo
     pub fn is_workspace(&self) -> bool {
         self.workspace.is_some()
+    }
+
+    /// Retorna la configuración de GraalVM (a nivel raíz o dentro de package)
+    pub fn graalvm_config(&self) -> Option<&GraalVmConfig> {
+        self.graalvm.as_ref().or_else(|| self.package.as_ref().and_then(|p| p.graalvm.as_ref()))
     }
 
     /// Extrae la versión y/o la ruta local de una especificación de dependencia TOML
@@ -430,6 +447,32 @@ version = "0.1.0"
         let (core_ver, core_path) = JoltManifest::parse_dependency_spec(core);
         assert_eq!(core_ver, Some("0.1.0".to_string()));
         assert_eq!(core_path, Some("../core".to_string()));
+    }
+
+    #[test]
+    fn test_parse_graalvm_config() {
+        let toml_content = r#"
+        [project]
+        name = "native-app"
+        version = "0.1.0"
+
+        [graalvm]
+        enabled = true
+        main_class = "com.example.Main"
+        name = "native-app-bin"
+        args = ["--no-fallback", "-H:+ReportExceptionStackTraces"]
+        reflection_config = "reflect-config.json"
+        resources_config = "resource-config.json"
+        "#;
+
+        let manifest = JoltManifest::parse(toml_content).expect("Failed to parse toml with graalvm");
+        let gvm = manifest.graalvm_config().expect("Expected graalvm config");
+        assert_eq!(gvm.enabled, Some(true));
+        assert_eq!(gvm.main_class, Some("com.example.Main".to_string()));
+        assert_eq!(gvm.name, Some("native-app-bin".to_string()));
+        assert_eq!(gvm.args, Some(vec!["--no-fallback".to_string(), "-H:+ReportExceptionStackTraces".to_string()]));
+        assert_eq!(gvm.reflection_config, Some("reflect-config.json".to_string()));
+        assert_eq!(gvm.resources_config, Some("resource-config.json".to_string()));
     }
 }
 

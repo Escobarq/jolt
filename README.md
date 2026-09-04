@@ -31,7 +31,7 @@ cargo install --path .
 ```powershell
 pwsh scripts/build-windows-installer.ps1
 ```
-*Genera `dist/jolt-setup.exe` (o `dist/jolt-v0.6.0-setup.exe`) configurando automáticamente `jolt` en el `PATH` del usuario con desinstalador limpio.*
+*Genera `dist/jolt-setup.exe` (o `dist/jolt-v0.7.0-setup.exe`) configurando automáticamente `jolt` en el `PATH` del usuario con desinstalador limpio.*
 
 ---
 
@@ -51,9 +51,10 @@ jolt run --watch
 # 4. Ejecutar pruebas unitarias integradas (JUnit 5)
 jolt test
 
-# 5. Compilar Fat-JAR autónomo o Instalador Nativo
+# 5. Compilar Fat-JAR autónomo, Binario Nativo GraalVM o Instalador
 jolt build --standalone
-jolt build --installer
+jolt build --native            # 🚀 Binario nativo instantáneo con GraalVM Native Image
+jolt build --installer         # 📦 Instalador nativo (.msi / NSIS .exe)
 ```
 
 > 💡 **Ayuda interactiva en CLI:**
@@ -61,8 +62,17 @@ jolt build --installer
 > ```bash
 > jolt --help
 > jolt <comando> --help    # Ej: jolt build --help, jolt package --help, jolt init --help
-> jolt check               # Diagnostica tu entorno (Java, Rust, NSIS, UPX, Caché)
+> jolt check               # Diagnostica tu entorno (Java, GraalVM, Rust, NSIS, UPX, Caché)
 > ```
+
+---
+
+## ☕ Detección Inteligente de JDKs y Control de Descargas
+
+Jolt incorpora un motor de resolución multinivel para Java:
+- **Escaneo inteligente de tu entorno**: Inspecciona variables `GRAALVM_HOME` y `JAVA_HOME`, ejecutables en `PATH` (`javac`, `java`) y directorios estándar del sistema operativo (Oracle GraalVM, Eclipse Temurin, Amazon Corretto, Azul Zulu, BellSoft, Microsoft OpenJDK, etc.).
+- **Compatibilidad semántica**: Si tu proyecto define `java_version = "21"` y cuentas con un JDK más moderno instalado (por ejemplo, **Oracle GraalVM 25**), Jolt lo detecta y lo utiliza automáticamente sin necesidad de descargar versiones redundantes.
+- **Sin descargas silenciosas**: Jolt jamás descargará paquetes pesados en segundo plano sin consentimiento. Si no se encuentra un JDK adecuado, te indicará claramente los JDKs detectados y cómo instalar uno compatible, o puedes autorizar la auto-descarga de Eclipse Temurin usando el flag `--download-jdk`.
 
 ---
 
@@ -81,6 +91,17 @@ package = "com.empresa.app"
 
 [dev-dependencies]
 "org.junit.jupiter:junit-jupiter-api" = "5.10.2"
+
+# Configuración opcional para GraalVM Native Image
+[graalvm]
+enabled = false # o activar en CLI con: jolt build --native
+name = "mi-app-bin"
+args = [
+    "--no-fallback",
+    "-H:+ReportExceptionStackTraces"
+]
+# reflection_config = "reflect-config.json"
+# resources_config = "resource-config.json"
 
 [package]
 type = "nsis"

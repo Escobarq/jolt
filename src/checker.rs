@@ -101,6 +101,13 @@ impl SystemChecker {
             println!("  [WARN]  Java Packager (jpackage):  No detectado en PATH (requiere JDK 14+)");
         }
 
+        // GraalVM Native Image
+        if let Some(ver) = Self::get_command_version("native-image", "--version") {
+            println!("  [OK]    GraalVM Native Image:      {}", ver);
+        } else {
+            println!("  [INFO]  GraalVM Native Image:      No detectado en PATH (opcional para compilación con 'jolt build --native')");
+        }
+
         // Rust Toolchain
         if let Some(ver) = Self::get_command_version("rustc", "--version") {
             println!("  [OK]    Rust Compiler (rustc):     {}", ver);
