@@ -8,3 +8,11 @@ java_version = "21"
 
 [dev-dependencies]
 "org.junit.jupiter:junit-jupiter-api" = "5.10.2"
+
+[graalvm]
+enabled = false
+name = "{{project_name}}-gui"
+args = [
+    "--no-fallback",
+    "-H:+ReportExceptionStackTraces"
+]

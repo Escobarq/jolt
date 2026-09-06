@@ -21,7 +21,7 @@ SetCompressor /SOLID lzma
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
 
 !ifndef PRODUCT_VERSION
-  !define PRODUCT_VERSION "0.7.0"
+  !define PRODUCT_VERSION "0.7.1"
 !endif
 
 !ifndef BINARY_PATH

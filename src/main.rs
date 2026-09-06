@@ -386,6 +386,7 @@ async fn main() {
             package,
             group_id,
             workspace,
+            graalvm,
         } => {
             if *list_templates {
                 scaffold::print_available_templates();
@@ -397,6 +398,7 @@ async fn main() {
                 package.as_deref(),
                 group_id.as_deref(),
                 *workspace,
+                *graalvm,
             ) {
                 eprintln!("[ERROR] Error al inicializar: {}", e);
             }

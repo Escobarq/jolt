@@ -30,6 +30,9 @@ pub enum Commands {
         /// Inicializa un workspace / monorepo multimódulo
         #[arg(long = "workspace")]
         workspace: bool,
+        /// Habilita la configuración predefinida para GraalVM Native Image
+        #[arg(long = "graalvm", alias = "native")]
+        graalvm: bool,
     },
     /// Añade una dependencia al proyecto actual
     Add {
