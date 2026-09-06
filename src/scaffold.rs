@@ -512,7 +512,7 @@ pub fn init_project(
     match tmpl.as_str() {
         "cli" => {
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"info.picocli:picocli\" = \"4.7.6\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-cli\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\",\n    \"--initialize-at-build-time\"\n]\n",
+                "{}\n\n[dependencies]\n\"info.picocli:picocli\" = \"4.7.6\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-cli\"\nreflection_config = \"src/main/resources/reflect-config.json\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
                 toml_project_header, resolved_graalvm, project_name
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
@@ -528,6 +528,15 @@ pub fn init_project(
                 pkg_stmt
             );
             fs::write(src_test_java.join("MainTest.java"), test_content)?;
+
+            let reflect_json = format!(
+                "[\n  {{\n    \"name\": \"{}\",\n    \"allDeclaredConstructors\": true,\n    \"allPublicConstructors\": true,\n    \"allDeclaredMethods\": true,\n    \"allPublicMethods\": true,\n    \"allDeclaredFields\": true,\n    \"allPublicFields\": true\n  }},\n  {{\n    \"name\": \"picocli.CommandLine$AutoHelpMixin\",\n    \"allDeclaredConstructors\": true,\n    \"allPublicConstructors\": true,\n    \"allDeclaredMethods\": true,\n    \"allPublicMethods\": true,\n    \"allDeclaredFields\": true,\n    \"allPublicFields\": true\n  }}\n]\n",
+                main_class_name
+            );
+            let meta_inf_dir = base_dir.join("src/main/resources/META-INF/native-image");
+            fs::create_dir_all(&meta_inf_dir)?;
+            fs::write(base_dir.join("src/main/resources/reflect-config.json"), &reflect_json)?;
+            fs::write(meta_inf_dir.join("reflect-config.json"), &reflect_json)?;
         }
         "javafx" => {
             let toml_content = format!(
@@ -766,6 +775,9 @@ mod tests {
         let gvm = manifest.graalvm_config().expect("Expected graalvm config in cli template");
         assert_eq!(gvm.enabled, Some(true));
         assert_eq!(gvm.name, Some("cli_app-cli".to_string()));
+        assert_eq!(gvm.reflection_config, Some("src/main/resources/reflect-config.json".to_string()));
+        assert!(target_dir.join("src/main/resources/reflect-config.json").exists());
+        assert!(target_dir.join("src/main/resources/META-INF/native-image/reflect-config.json").exists());
 
         let _ = fs::remove_dir_all(&temp_dir);
     }
