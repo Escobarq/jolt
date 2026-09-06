@@ -589,17 +589,36 @@ impl BuildEngine {
             .and_then(|c| c.name.as_deref())
             .unwrap_or(project_name);
 
-        println!("🚀 Invocando GraalVM Native Image para generar binario nativo '{}'...", bin_name);
-        println!("   Ejecutable: {}", native_image_bin.display());
+        let clean_path = |p: &Path| -> PathBuf {
+            let s = p.to_string_lossy();
+            if s.starts_with(r"\\?\") {
+                PathBuf::from(&s[4..])
+            } else {
+                p.to_path_buf()
+            }
+        };
 
-        let mut cmd = Command::new(&native_image_bin);
+        // Asegurar que el Fat-JAR tenga ruta absoluta limpia ya que native-image se ejecuta con current_dir = dist/
+        let abs_target_jar = if target_jar.is_relative() {
+            let curr = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+            curr.join(&target_jar)
+        } else {
+            target_jar.clone()
+        };
+        let clean_target_jar = clean_path(&abs_target_jar);
+        let clean_native_image_bin = clean_path(&native_image_bin);
+
+        println!("🚀 Invocando GraalVM Native Image para generar binario nativo '{}'...", bin_name);
+        println!("   Ejecutable: {}", clean_native_image_bin.display());
+
+        let mut cmd = Command::new(&clean_native_image_bin);
         cmd.current_dir(&dist_dir);
 
-        // Pasar el Fat-JAR
-        cmd.arg("-jar").arg(&target_jar);
+        // Pasar el Fat-JAR con ruta absoluta
+        cmd.arg("-jar").arg(&clean_target_jar);
 
         // Nombre del binario
-        cmd.arg(format!("-o{}", bin_name));
+        cmd.arg("-o").arg(bin_name);
 
         // Argumentos configurados en jolt.toml
         if let Some(cfg) = graalvm_config {
@@ -609,12 +628,24 @@ impl BuildEngine {
                 }
             }
             if let Some(refl) = &cfg.reflection_config {
-                let refl_path = project_dir.join(refl);
-                cmd.arg(format!("-H:ReflectionConfigurationFiles={}", refl_path.display()));
+                let refl_path = if Path::new(refl).is_relative() {
+                    let curr = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+                    curr.join(project_dir).join(refl)
+                } else {
+                    PathBuf::from(refl)
+                };
+                let clean_refl = clean_path(&refl_path);
+                cmd.arg(format!("-H:ReflectionConfigurationFiles={}", clean_refl.display()));
             }
             if let Some(res) = &cfg.resources_config {
-                let res_path = project_dir.join(res);
-                cmd.arg(format!("-H:ResourceConfigurationFiles={}", res_path.display()));
+                let res_path = if Path::new(res).is_relative() {
+                    let curr = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+                    curr.join(project_dir).join(res)
+                } else {
+                    PathBuf::from(res)
+                };
+                let clean_res = clean_path(&res_path);
+                cmd.arg(format!("-H:ResourceConfigurationFiles={}", clean_res.display()));
             }
         }
 

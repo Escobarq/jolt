@@ -222,16 +222,25 @@ impl ToolchainManager {
             dir.parent().unwrap_or(dir).to_path_buf()
         };
 
+        let clean_path = |p: &Path| -> PathBuf {
+            let s = p.to_string_lossy();
+            if s.starts_with(r"\\?\") {
+                PathBuf::from(&s[4..])
+            } else {
+                p.to_path_buf()
+            }
+        };
+
         Some(InstalledJdk {
             version_raw: if version_raw.is_empty() { format!("Java {}", major_version) } else { version_raw },
             major_version,
             vendor,
-            home_dir,
-            java_bin,
-            javac_bin,
-            jar_bin,
-            jpackage_bin,
-            native_image_bin,
+            home_dir: clean_path(&home_dir),
+            java_bin: clean_path(&java_bin),
+            javac_bin: clean_path(&javac_bin),
+            jar_bin: clean_path(&jar_bin),
+            jpackage_bin: clean_path(&jpackage_bin),
+            native_image_bin: native_image_bin.as_ref().map(|p| clean_path(p)),
         })
     }
 

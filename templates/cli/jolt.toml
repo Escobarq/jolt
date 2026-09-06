@@ -12,6 +12,7 @@ java_version = "21"
 [graalvm]
 enabled = false
 name = "{{project_name}}-cli"
+reflection_config = "src/main/resources/reflect-config.json"
 args = [
     "--no-fallback",
     "-H:+ReportExceptionStackTraces",
