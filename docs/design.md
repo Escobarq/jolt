@@ -13,86 +13,84 @@ Históricamente, los desarrolladores de Java han dependido de Maven y Gradle. Au
 - **Curva de aprendizaje empinada** y configuración verbosa (XML complejo en Maven, Groovy/Kotlin intrincado en Gradle).
 - **Resolución de dependencias pesada**.
 
-**Jolt** busca ser un binario único, escrito en un lenguaje de sistemas de alto rendimiento (como **Rust** o **Zig**), que se ejecute instantáneamente y centralice todo el ciclo de vida del desarrollo en Java: inicialización de proyectos, gestión de la versión de la JDK, resolución de dependencias, compilación y ejecución.
+**Jolt** es un binario único, ultrarrápido y escrito en **Rust**, que se ejecuta instantáneamente y centraliza todo el ciclo de vida del desarrollo en Java: inicialización de proyectos, gestión de toolchains de JDK, resolución determinista de dependencias, compilación incremental, pruebas unitarias, ejecución con Hot Reload y empaquetado nativo/instaladores.
+
+---
 
 ## 2. Características Clave
 
 ### 🚀 Velocidad Extrema (Escrito en Rust)
-Al igual que `uv` y `bun`, el CLI estará construido en Rust. Esto permite:
+Al igual que `uv` y `bun`, el CLI está construido en Rust. Esto permite:
 - **Inicio en milisegundos** (cold start instantáneo).
-- Resolución de dependencias y descargas concurrentes agresivas.
-- Uso de **Hardlinks y Caché Global** (similar a `pnpm` o `uv`), evitando descargar la misma dependencia JAR/POM en múltiples proyectos.
+- Resolución de dependencias y descargas concurrentes asíncronas con `tokio` y `reqwest`.
+- Uso de **Hardlinks y Caché Global** (`~/.jolt/cache/`), evitando descargar o duplicar la misma dependencia JAR/POM en múltiples proyectos.
 
-### 📦 Gestión de Entorno y JDK Integrada
-No es necesario instalar Java manualmente. Jolt administrará versiones de la JDK por proyecto.
-- `jolt run app.java` detectará la versión requerida, descargará la JDK correspondiente (ej. Eclipse Temurin) en caché y ejecutará el código automáticamente.
+### ☕ Gestión de Entorno y Detección Inteligente de JDKs
+- **Detección Multinivel:** Escanea variables de entorno (`GRAALVM_HOME`, `JAVA_HOME`), ejecutables en `PATH` (`javac`, `java`) y directorios estándar del sistema operativo (Oracle GraalVM, Eclipse Temurin, Amazon Corretto, Azul Zulu, BellSoft Liberica, Microsoft OpenJDK, etc.).
+- **Compatibilidad Semántica:** Si el proyecto define `java_version = "21"` y el sistema cuenta con un JDK compatible superior (ej. Java 25), Jolt lo aprovecha automáticamente sin descargas innecesarias.
+- **Sin Descargas Silenciosas:** Notifica claramente y requiere consentimiento o uso del flag `--download-jdk` para aprovisionar Eclipse Temurin.
 
-### 📄 Manifiesto Simplificado (`jolt.toml`)
-Adiós al verboso `pom.xml`. Jolt usará un formato moderno y legible, inspirado en `Cargo.toml` o `pyproject.toml`.
+### 📄 Manifiesto Simplificado (`jolt.toml`) y Lockfile Determinista (`jolt.lock`)
+Adiós al verboso `pom.xml`. Jolt utiliza un formato moderno y legible, inspirado en `Cargo.toml`.
 
 ```toml
 [project]
 name = "mi-app"
 version = "1.0.0"
 java_version = "21"
+package = "com.empresa.app"
 
 [dependencies]
-"org.springframework.boot:spring-boot-starter-web" = "3.2.0"
-"com.google.guava:guava" = "33.0.0-jre"
+"com.google.code.gson:gson" = "2.14.0"
 
 [dev-dependencies]
-"org.junit.jupiter:junit-jupiter" = "5.10.1"
-```
+"org.junit.jupiter:junit-jupiter-api" = "5.10.2"
 
-### 🤝 Compatibilidad Total con Maven Central
-Jolt funcionará como un cliente ultrarrápido para los repositorios Maven.
-- Podrá leer archivos `pom.xml` existentes para proyectos heredados.
-- Publicará artefactos compatibles con repositorios Maven.
-- Implementará un archivo `jolt.lock` determinista para builds reproducibles.
+[graalvm]
+enabled = true
+args = ["--no-fallback", "-H:+ReportExceptionStackTraces"]
+```
 
 ---
 
-## 3. Arquitectura Interna
+## 3. Arquitectura Interna del Proyecto (`src/`)
 
-La arquitectura de Jolt se dividirá en varios motores modulares:
+La base de código de Jolt está organizada de forma modular en 8 subsistemas especializados dentro de [`src/`](../src/):
 
-1. **PubGrub Resolver**: Un motor de resolución de versiones eficiente basado en el algoritmo PubGrub (usado por Cargo y uv) adaptado a las reglas de resolución transitiva y exclusiones de Maven.
-2. **Pom Parser en Rust**: Un analizador XML ultrarrápido capaz de parsear el árbol de dependencias de Maven Central sin inicializar una JVM.
-3. **Caché Direccionable por Contenido**: Almacén global `~/.jolt/cache` para JARs, POMs, y JDKs.
-4. **Daemon de Compilación (Opcional)**: Integración con el compilador de Java (`javac`) mediante un servidor persistente en segundo plano (estilo Gradle Daemon, pero gestionado transparentemente por Rust) o usando compilación incremental en Rust + JNI.
+| Módulo | Directorio | Responsabilidad Principal |
+|---|---|---|
+| **Core** | [`src/core/`](../src/core/) | Parser de `jolt.toml` ([`manifest.rs`](../src/core/manifest.rs)), gestión de `jolt.lock` ([`lockfile.rs`](../src/core/lockfile.rs)) y caché global direccionable ([`cache.rs`](../src/core/cache.rs)). |
+| **CLI** | [`src/cli/`](../src/cli/) | Definición de argumentos, subcomandos y flags con `clap` ([`args.rs`](../src/cli/args.rs), [`mod.rs`](../src/cli/mod.rs)). |
+| **Build & Run** | [`src/build/`](../src/build/) | Compilación con `javac` ([`compiler.rs`](../src/build/compiler.rs)), ejecución y Hot Reload ([`runner.rs`](../src/build/runner.rs)) y runner JUnit 5 ([`test_runner.rs`](../src/build/test_runner.rs)). |
+| **Resolver** | [`src/resolver/`](../src/resolver/) | Cliente asíncrono Maven Central ([`maven_client.rs`](../src/resolver/maven_client.rs)) y parser XML de POMs ([`pom_parser.rs`](../src/resolver/pom_parser.rs)). |
+| **Packaging** | [`src/packaging/`](../src/packaging/) | Fat-JAR ([`jar.rs`](../src/packaging/jar.rs)), GraalVM AOT ([`native_image.rs`](../src/packaging/native_image.rs)), jpackage ([`jpackage.rs`](../src/packaging/jpackage.rs)), NSIS ([`nsis.rs`](../src/packaging/nsis.rs)) y UPX ([`upx.rs`](../src/packaging/upx.rs)). |
+| **Toolchain** | [`src/toolchain/`](../src/toolchain/) | Detección multinivel del sistema ([`detector.rs`](../src/toolchain/detector.rs)) y descarga automatizada de JDKs ([`downloader.rs`](../src/toolchain/downloader.rs)). |
+| **Scaffold** | [`src/scaffold/`](../src/scaffold/) | Generador de plantillas y workspaces ([`templates.rs`](../src/scaffold/templates.rs)) y configuración para VS Code / IntelliJ ([`ide_config.rs`](../src/scaffold/ide_config.rs)). |
+| **Doctor** | [`src/doctor/`](../src/doctor/) | Diagnóstico y validación de herramientas instaladas y proyectos ([`diagnostics.rs`](../src/doctor/diagnostics.rs)). |
 
 ---
 
 ## 4. Flujo de Trabajo (UX / CLI)
 
-La interfaz de línea de comandos será intuitiva y directa:
-
-- `jolt init` - Crea un proyecto con `jolt.toml` y `src/main/java/Main.java`.
-- `jolt add <groupId:artifactId>` - Busca en Maven Central, resuelve la última versión y la añade al `.toml`.
-- `jolt install` o `jolt sync` - Resuelve dependencias y genera el `jolt.lock`.
-- `jolt run src/Main.java` - Compila al vuelo (en memoria o en una carpeta de build transparente) y ejecuta.
-- `jolt build` - Empaqueta el proyecto en un fat-JAR o una imagen nativa (integración con GraalVM).
-
----
-
-## 5. Roadmap 2026: Siguientes Pasos
-
-Para lograr tener una primera versión utilizable este año, la estrategia de ejecución es:
-
-1. **Trimestre 1: Core y Resolución Maven**
-   - Implementar el analizador de POMs en Rust.
-   - Algoritmo de resolución de dependencias desde Maven Central.
-   - Creación del formato `jolt.lock` y descargas concurrentes.
-2. **Trimestre 2: Entorno y Configuración**
-   - Gestión automática de toolchains de Java (descarga de JDKs).
-   - CLI `jolt init`, `jolt add` y soporte para `jolt.toml`.
-3. **Trimestre 3: Integración de Build y Ejecución**
-   - Envolver las llamadas a `javac` y `java`.
-   - Soporte para ejecutar archivos y gestionar el CLASSPATH automáticamente.
-4. **Trimestre 4: Integración Avanzada**
-   - Soporte para ejecución de pruebas (JUnit integration sin plugins pesados).
-   - Beta pública inicial.
+- `jolt init` - Asistente interactivo para inicializar proyectos individuales o workspaces monorepo.
+- `jolt add <groupId:artifactId>` - Busca en Maven Central y registra la versión en `jolt.toml`.
+- `jolt install` - Resuelve dependencias y genera el `jolt.lock` determinista enlazando JARs a `.jolt/modules/`.
+- `jolt run [--watch]` - Compila y ejecuta con soporte de Hot Reload instantáneo.
+- `jolt test` - Ejecuta la suite de pruebas JUnit 5 de forma nativa.
+- `jolt build [--standalone | --native | --installer]` - Empaqueta Fat-JARs, binarios GraalVM AOT o instaladores NSIS.
+- `jolt check` - Diagnóstica la salud del entorno, toolchains y dependencias.
 
 ---
 
-¿Qué te parece este enfoque inicial? Podemos refinar partes específicas como la **sintaxis del archivo de configuración**, el **algoritmo de resolución de conflictos** (que en Maven a veces es caótico), o cómo estructuraríamos **el proyecto en Rust**.
+## 5. Roadmap
+
+- **v0.7.0 / v0.7.1 (Completadas):**
+  - Detección inteligente de JDKs locales y compatibilidad semántica.
+  - GraalVM Native Image y presets en todas las plantillas.
+  - Empaquetado en Windows con NSIS y UPX.
+  - Workspaces monorepo y dependencias locales por ruta.
+  - Reorganización modular del código en `src/`.
+- **v0.8.0 (Próxima Versión):**
+  - `jolt fmt`: Formateador nativo ultrarrápido de código Java.
+  - `jolt doc`: Generador y servidor web embebido para Javadoc.
+  - `jolt audit`: Auditoría de vulnerabilidades CVE (OSV.dev / Sonatype).

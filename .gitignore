@@ -7,6 +7,21 @@ Cargo.lock.bak
 **/.jolt/
 dist/
 
+# ── Gradle & Maven Caches ─────────────────────────────────────
+.gradle/
+**/.gradle/
+/build/
+benchmark/**/build/
+.m2/
+
+# Unignore source code folders that might be named build
+!src/**/build/
+!src/**/build/**
+
+# ── Graphify (keep main knowledge graph, ignore cache & date backups) ──
+graphify-out/cache/
+graphify-out/[0-9]*/
+
 # ── Proyectos de demo / sandbox locales ───────────────────────
 demo_app/
 javafx_demo/
@@ -20,19 +35,27 @@ test_*/
 .aider*
 *.aider
 
-# ── VS Code (solo ignorar si no quieres commitear settings) ───
-# Descomenta si no quieres subir configuración de editor:
-# .vscode/
-
-# ── IntelliJ / JetBrains ──────────────────────────────────────
+# ── VS Code / IDEs ────────────────────────────────────────────
+.vscode/
 .idea/
 *.iml
 *.ipr
 *.iws
+.classpath
+.project
+.settings/
+bin/
 
-# ── macOS ──────────────────────────────────────────────────────
+# ── Python / Tools caches ─────────────────────────────────────
+__pycache__/
+*.pyc
+
+# ── OS specifics ──────────────────────────────────────────────
 .DS_Store
 **/.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # ── Logs y temporales ─────────────────────────────────────────
 *.log

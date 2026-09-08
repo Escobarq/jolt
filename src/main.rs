@@ -1,20 +1,20 @@
-mod cache;
-mod checker;
-mod cli;
-mod engine;
-mod lockfile;
-mod manifest;
-mod maven;
-mod scaffold;
-mod toolchain;
+pub mod build;
+pub mod cli;
+pub mod core;
+pub mod doctor;
+pub mod packaging;
+pub mod resolver;
+pub mod scaffold;
+pub mod toolchain;
 
-use cache::CacheManager;
+pub use core::{CacheManager, JoltLock, JoltManifest, LockedPackage};
+pub use doctor::SystemChecker;
+pub use resolver::MavenClient;
+pub use toolchain::ToolchainManager;
+
 use clap::Parser;
-use lockfile::{JoltLock, LockedPackage};
-use maven::MavenClient;
 use std::fs;
 use std::path::{Path, PathBuf};
-use toolchain::ToolchainManager;
 
 fn resolve_target_directories(
     member: Option<&str>,
@@ -26,7 +26,7 @@ fn resolve_target_directories(
         return Err("No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto o workspace.".to_string());
     }
 
-    let manifest = manifest::JoltManifest::load_from_file(root_manifest_path)
+    let manifest = JoltManifest::load_from_file(root_manifest_path)
         .map_err(|e| format!("Error al leer jolt.toml: {}", e))?;
 
     if manifest.is_workspace() {
@@ -77,7 +77,7 @@ async fn install_in_dir(
             return Err(format!("Modo --locked activo pero no existe 'jolt.lock' en {}", project_dir.display()).into());
         }
 
-        let manifest = manifest::JoltManifest::load_from_file(&manifest_path).ok();
+        let manifest = JoltManifest::load_from_file(&manifest_path).ok();
         let dev_dep_names: std::collections::HashSet<String> = manifest
             .as_ref()
             .and_then(|m| m.dev_dependencies.as_ref())
@@ -119,7 +119,7 @@ async fn install_in_dir(
         return Ok(());
     }
 
-    let manifest = manifest::JoltManifest::load_from_file(&manifest_path)?;
+    let manifest = JoltManifest::load_from_file(&manifest_path)?;
     let mut prod_count = 0;
     let mut dev_count = 0;
     let mut lock = JoltLock::load_from_file(&lock_path).unwrap_or_default();
@@ -128,7 +128,7 @@ async fn install_in_dir(
     if let Some(deps) = manifest.dependencies {
         println!("[INFO] Sincronizando dependencias de produccion en {}...", project_dir.display());
         for (dep_name, spec) in deps {
-            let (version_opt, local_path) = manifest::JoltManifest::parse_dependency_spec(&spec);
+            let (version_opt, local_path) = JoltManifest::parse_dependency_spec(&spec);
             if local_path.is_some() {
                 continue; // Dependencia local inter-módulo
             }
@@ -172,7 +172,7 @@ async fn install_in_dir(
     if let Some(dev_deps) = manifest.dev_dependencies {
         println!("[INFO] Sincronizando dependencias de desarrollo en {}...", project_dir.display());
         for (dep_name, spec) in dev_deps {
-            let (version_opt, local_path) = manifest::JoltManifest::parse_dependency_spec(&spec);
+            let (version_opt, local_path) = JoltManifest::parse_dependency_spec(&spec);
             if local_path.is_some() {
                 continue;
             }
@@ -229,7 +229,7 @@ async fn sync_in_dir(
         return Err(format!("No se encontro 'jolt.toml' en {}", project_dir.display()).into());
     }
 
-    let manifest = manifest::JoltManifest::load_from_file(&manifest_path)?;
+    let manifest = JoltManifest::load_from_file(&manifest_path)?;
     let lock_path = project_dir.join("jolt.lock");
     let mut lock = JoltLock::load_from_file(&lock_path).unwrap_or_default();
     let mut prod_count = 0;
@@ -241,7 +241,7 @@ async fn sync_in_dir(
     // 1. Sincronizar dependencias de producción (modules/)
     if let Some(deps) = &manifest.dependencies {
         for (dep_name, spec) in deps {
-            let (version_opt, local_path) = manifest::JoltManifest::parse_dependency_spec(spec);
+            let (version_opt, local_path) = JoltManifest::parse_dependency_spec(spec);
             if local_path.is_some() {
                 continue;
             }
@@ -290,7 +290,7 @@ async fn sync_in_dir(
     // 2. Sincronizar dependencias de desarrollo (dev-modules/)
     if let Some(dev_deps) = &manifest.dev_dependencies {
         for (dep_name, spec) in dev_deps {
-            let (version_opt, local_path) = manifest::JoltManifest::parse_dependency_spec(spec);
+            let (version_opt, local_path) = JoltManifest::parse_dependency_spec(spec);
             if local_path.is_some() {
                 continue;
             }
@@ -451,7 +451,7 @@ async fn main() {
             let dep_key = format!("{}:{}", group_id, artifact_id);
             let target_folder = if *dev { "dev-modules" } else { "modules" };
 
-            match manifest::JoltManifest::add_dependency_to_file(&manifest_path, &dep_key, &version_value, *dev) {
+            match JoltManifest::add_dependency_to_file(&manifest_path, &dep_key, &version_value, *dev) {
                 Ok(_) => {
                     let scope_label = if *dev { "dev-dependencies" } else { "dependencies" };
                     println!("[OK] Dependencia '{} = \"{}\"' anadida a {} [{}]", dep_key, version_value, manifest_path.display(), scope_label);
@@ -544,7 +544,7 @@ async fn main() {
                 return;
             }
 
-            match manifest::JoltManifest::remove_dependency_from_file(&manifest_path, dependency) {
+            match JoltManifest::remove_dependency_from_file(&manifest_path, dependency) {
                 Ok(removed) => {
                     if removed {
                         println!("[OK] Dependencia '{}' eliminada de {}", dependency, manifest_path.display());
@@ -609,7 +609,7 @@ async fn main() {
 
             for dir in target_dirs {
                 let manifest_path = dir.join("jolt.toml");
-                match manifest::JoltManifest::load_from_file(&manifest_path) {
+                match JoltManifest::load_from_file(&manifest_path) {
                     Ok(manifest) => {
                         let proj = match &manifest.project {
                             Some(p) => p,
@@ -629,14 +629,14 @@ async fn main() {
                             .as_deref()
                             .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.as_deref()))
                             .map(|s| s.to_string())
-                            .or_else(|| engine::BuildEngine::detect_main_class(&dir))
+                            .or_else(|| build::detect_main_class(&dir))
                             .unwrap_or_else(|| "Main".to_string());
 
                         let is_native = *native || manifest.graalvm_config().and_then(|g| g.enabled).unwrap_or(false);
 
                         if is_native {
                             println!("[INFO] Compilando binario nativo con GraalVM Native Image para '{}'...", proj.name);
-                            match engine::BuildEngine::build_native_image(
+                            match packaging::build_native_image(
                                 &dir,
                                 &proj.name,
                                 &proj.version,
@@ -656,7 +656,7 @@ async fn main() {
                             let opt_upx = if *upx { Some(true) } else { None };
                             let opt_add_to_path = if *add_to_path { Some(true) } else { None };
 
-                            match engine::BuildEngine::package_native_app(
+                            match packaging::package_native_app(
                                 &dir,
                                 &manifest,
                                 Some(pkg_type),
@@ -679,7 +679,7 @@ async fn main() {
                             }
                         } else if *standalone {
                             println!("[INFO] Empaquetando Fat-JAR autonomo para '{}'...", proj.name);
-                            match engine::BuildEngine::build_standalone_jar(
+                            match packaging::build_standalone_jar(
                                 &dir,
                                 &proj.name,
                                 &proj.version,
@@ -691,7 +691,7 @@ async fn main() {
                             }
                         } else {
                             println!("[INFO] Compilando '{}' con Java {}...", proj.name, java_ver);
-                            match engine::BuildEngine::build_jar(
+                            match packaging::build_jar(
                                 &dir,
                                 &proj.name,
                                 &proj.version,
@@ -732,7 +732,7 @@ async fn main() {
 
             let dir = &target_dirs[0];
             let manifest_path = dir.join("jolt.toml");
-            match manifest::JoltManifest::load_from_file(&manifest_path) {
+            match JoltManifest::load_from_file(&manifest_path) {
                 Ok(manifest) => {
                     let java_ver = manifest.project.as_ref().and_then(|p| p.java_version.as_deref()).unwrap_or("21");
                     let toolchain = match toolchain_manager.resolve_toolchain(java_ver, false).await {
@@ -756,7 +756,7 @@ async fn main() {
                         None
                     };
 
-                    match engine::BuildEngine::package_native_app(
+                    match packaging::package_native_app(
                         dir,
                         &manifest,
                         r#type.as_deref(),
@@ -795,7 +795,7 @@ async fn main() {
 
             let dir = &target_dirs[0];
             let manifest_path = dir.join("jolt.toml");
-            match manifest::JoltManifest::load_from_file(&manifest_path) {
+            match JoltManifest::load_from_file(&manifest_path) {
                 Ok(manifest) => {
                     let proj = match &manifest.project {
                         Some(p) => p,
@@ -818,16 +818,16 @@ async fn main() {
                         .as_deref()
                         .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.as_deref()))
                         .map(|s| s.to_string())
-                        .or_else(|| engine::BuildEngine::detect_main_class(dir))
+                        .or_else(|| build::detect_main_class(dir))
                         .unwrap_or_else(|| "Main".to_string());
 
                     if *watch {
-                        if let Err(e) = engine::BuildEngine::run_watch(dir, &main_class, toolchain.as_ref()) {
+                        if let Err(e) = build::run_watch(dir, &main_class, toolchain.as_ref()) {
                             eprintln!("[ERROR] {}", e);
                         }
                     } else {
                         println!("[INFO] Compilando y ejecutando '{}' con Java {}...", proj.name, java_ver);
-                        if let Err(e) = engine::BuildEngine::run(dir, &main_class, toolchain.as_ref()) {
+                        if let Err(e) = build::run(dir, &main_class, toolchain.as_ref()) {
                             eprintln!("[ERROR] {}", e);
                         }
                     }
@@ -858,7 +858,7 @@ async fn main() {
 
             for dir in target_dirs {
                 let manifest_path = dir.join("jolt.toml");
-                if let Ok(manifest) = manifest::JoltManifest::load_from_file(&manifest_path) {
+                if let Ok(manifest) = JoltManifest::load_from_file(&manifest_path) {
                     let java_ver = manifest.project.as_ref().and_then(|p| p.java_version.as_deref()).unwrap_or("21");
                     let toolchain = match toolchain_manager.resolve_toolchain(java_ver, *download_jdk).await {
                         Ok(tc) => Some(tc),
@@ -870,7 +870,7 @@ async fn main() {
                     let proj_name = manifest.project.as_ref().map(|p| p.name.as_str()).unwrap_or("app");
 
                     println!("[INFO] Ejecutando suite de pruebas unitarias (JUnit 5) para '{}'...", proj_name);
-                    if let Err(e) = engine::BuildEngine::run_tests(&dir, toolchain.as_ref(), &junit_jar_path) {
+                    if let Err(e) = build::run_tests(&dir, toolchain.as_ref(), &junit_jar_path) {
                         eprintln!("[ERROR] Pruebas fallidas en {}: {}", dir.display(), e);
                     }
                 }
@@ -892,7 +892,7 @@ async fn main() {
             }
         }
         cli::Commands::Check => {
-            if let Err(e) = checker::SystemChecker::run_check(Path::new("."), &cache_manager, &toolchain_manager).await {
+            if let Err(e) = SystemChecker::run_check(Path::new("."), &cache_manager, &toolchain_manager).await {
                 eprintln!("[ERROR] Error durante el diagnostico: {}", e);
             }
         }
