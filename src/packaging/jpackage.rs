@@ -3,6 +3,35 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// Comprime el directorio de una aplicación en un archivo .tar.gz para Linux
+fn compress_to_tar_gz(
+    dest_dir: &Path,
+    app_name: &str,
+    version: &str,
+) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+    let tar_file = dest_dir.join(format!("{}-{}.tar.gz", app_name, version));
+    let app_dir = dest_dir.join(app_name);
+
+    if !app_dir.exists() {
+        return Err(format!("El directorio de la aplicación {:?} no existe para comprimir", app_dir).into());
+    }
+
+    let status = Command::new("tar")
+        .arg("-czf")
+        .arg(&tar_file)
+        .arg("-C")
+        .arg(dest_dir)
+        .arg(app_name)
+        .status()?;
+
+    if !status.success() {
+        return Err("Fallo al comprimir la aplicación en tar.gz usando el comando 'tar'".into());
+    }
+
+    let _ = fs::remove_dir_all(&app_dir);
+    Ok(tar_file)
+}
+
 use crate::build::detect_main_class;
 use crate::toolchain::Toolchain;
 use super::jar::build_standalone_jar;
@@ -82,6 +111,8 @@ pub fn package_native_app(
         .unwrap_or_else(|| "app-image".to_string())
         .to_lowercase();
 
+    let original_pkg_type = pkg_type.clone();
+
     // Si se especificó 'nsis' o 'exe' en Windows, preparar el pipeline
     if cfg!(target_os = "windows") && (pkg_type == "nsis" || pkg_type == "setup") {
         pkg_type = "nsis".to_string();
@@ -89,7 +120,7 @@ pub fn package_native_app(
 
     // Validar tipo de paquete según el sistema operativo (Windows y Linux)
     let valid_types = if cfg!(target_os = "linux") {
-        vec!["app-image"]
+        vec!["app-image", "tar.gz"]
     } else if cfg!(target_os = "windows") {
         vec!["msi", "app-image", "exe", "nsis", "setup"]
     } else {
@@ -103,6 +134,11 @@ pub fn package_native_app(
             std::env::consts::OS,
             valid_types.join(", ")
         ).into());
+    }
+
+    // Para jpackage, tar.gz se trata como app-image
+    if pkg_type == "tar.gz" {
+        pkg_type = "app-image".to_string();
     }
 
     // 6. Determinar directorio de destino
@@ -315,6 +351,12 @@ pub fn package_native_app(
         let _ = compress_with_upx(&app_out_dir, custom_upx_args, verbose);
     }
 
+    // Si el tipo original era tar.gz, comprimir la carpeta resultante
+    if original_pkg_type == "tar.gz" && cfg!(target_os = "linux") {
+        println!("[INFO] [3/3] Comprimiendo App-Image en archivo tar.gz...");
+        return compress_to_tar_gz(&dest_dir, &app_name, &sanitized_version);
+    }
+
     // Determinar ruta resultante para el usuario
     let output_path = if pkg_type == "app-image" {
         if cfg!(target_os = "windows") {
@@ -333,5 +375,39 @@ pub fn package_native_app(
         dest_dir.clone()
     };
 
+// ... (everything up to line 344) ...
     Ok(output_path)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::Path;
+
+    #[test]
+    fn test_compress_to_tar_gz() {
+        let temp_dir = std::env::temp_dir().join("jolt_test_tar_gz");
+        if temp_dir.exists() {
+            let _ = fs::remove_dir_all(&temp_dir);
+        }
+        fs::create_dir_all(&temp_dir).unwrap();
+
+        let app_name = "test-app";
+        let version = "1.0.0";
+        let app_dir = temp_dir.join(app_name);
+        fs::create_dir_all(&app_dir).unwrap();
+        fs::write(app_dir.join("test.txt"), "hello jolt").unwrap();
+
+        let result = compress_to_tar_gz(&temp_dir, app_name, version);
+        
+        assert!(result.is_ok(), "compress_to_tar_gz should succeed");
+        let tar_path = result.unwrap();
+        assert!(tar_path.to_str().unwrap().contains("test-app-1.0.0.tar.gz"));
+        assert!(tar_path.exists());
+        assert!(!app_dir.exists(), "Original app directory should be removed after compression");
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+}
+
