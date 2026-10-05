@@ -13,7 +13,11 @@ fn compress_to_tar_gz(
     let app_dir = dest_dir.join(app_name);
 
     if !app_dir.exists() {
-        return Err(format!("El directorio de la aplicación {:?} no existe para comprimir", app_dir).into());
+        return Err(format!(
+            "El directorio de la aplicación {:?} no existe para comprimir",
+            app_dir
+        )
+        .into());
     }
 
     let status = Command::new("tar")
@@ -32,11 +36,11 @@ fn compress_to_tar_gz(
     Ok(tar_file)
 }
 
-use crate::build::detect_main_class;
-use crate::toolchain::Toolchain;
 use super::jar::build_standalone_jar;
 use super::nsis::{find_makensis_binary, generate_nsis_script};
 use super::upx::compress_with_upx;
+use crate::build::detect_main_class;
+use crate::toolchain::Toolchain;
 
 /// Empaqueta la aplicación como un ejecutable binario autónomo o instalador usando jpackage / NSIS / UPX
 pub fn package_native_app(
@@ -84,7 +88,10 @@ pub fn package_native_app(
 
     let sanitized_version: String = {
         let base = raw_version.split('-').next().unwrap_or("1.0.0").trim();
-        let cleaned: String = base.chars().filter(|c| c.is_ascii_digit() || *c == '.').collect();
+        let cleaned: String = base
+            .chars()
+            .filter(|c| c.is_ascii_digit() || *c == '.')
+            .collect();
         if cleaned.is_empty() {
             "1.0.0".to_string()
         } else {
@@ -94,8 +101,12 @@ pub fn package_native_app(
 
     // 4. Determinar configuración de Windows / UPX / NSIS
     let win_cfg = manifest.package.as_ref().and_then(|p| p.windows.as_ref());
-    let is_upx_requested = cli_upx.or_else(|| win_cfg.and_then(|w| w.upx)).unwrap_or(false);
-    let is_add_to_path = cli_add_to_path.or_else(|| win_cfg.and_then(|w| w.add_to_path)).unwrap_or(false);
+    let is_upx_requested = cli_upx
+        .or_else(|| win_cfg.and_then(|w| w.upx))
+        .unwrap_or(false);
+    let is_add_to_path = cli_add_to_path
+        .or_else(|| win_cfg.and_then(|w| w.add_to_path))
+        .unwrap_or(false);
     let scope_str = cli_scope
         .map(|s| s.to_string())
         .or_else(|| win_cfg.and_then(|w| w.scope.clone()))
@@ -133,7 +144,8 @@ pub fn package_native_app(
             pkg_type,
             std::env::consts::OS,
             valid_types.join(", ")
-        ).into());
+        )
+        .into());
     }
 
     // Para jpackage, tar.gz se trata como app-image
@@ -172,12 +184,23 @@ pub fn package_native_app(
         .map(|t| t.jpackage_bin.as_path())
         .unwrap_or_else(|| Path::new("jpackage"));
 
-    let icon_path = cli_icon
-        .map(|s| project_dir.join(s))
-        .or_else(|| manifest.package.as_ref().and_then(|p| p.icon.as_ref().map(|s| project_dir.join(s))));
+    let icon_path = cli_icon.map(|s| project_dir.join(s)).or_else(|| {
+        manifest
+            .package
+            .as_ref()
+            .and_then(|p| p.icon.as_ref().map(|s| project_dir.join(s)))
+    });
 
-    let vendor_str = manifest.package.as_ref().and_then(|p| p.vendor.clone()).unwrap_or_else(|| "Jolt App".to_string());
-    let _desc_str = manifest.package.as_ref().and_then(|p| p.description.clone()).unwrap_or_else(|| "Aplicación construida con Jolt".to_string());
+    let vendor_str = manifest
+        .package
+        .as_ref()
+        .and_then(|p| p.vendor.clone())
+        .unwrap_or_else(|| "Jolt App".to_string());
+    let _desc_str = manifest
+        .package
+        .as_ref()
+        .and_then(|p| p.description.clone())
+        .unwrap_or_else(|| "Aplicación construida con Jolt".to_string());
 
     // Manejo especial: Instalador NSIS en Windows
     if cfg!(target_os = "windows") && pkg_type == "nsis" {
@@ -194,29 +217,50 @@ pub fn package_native_app(
         fs::create_dir_all(&staging_app_dir)?;
 
         let mut cmd = Command::new(jpackage_bin);
-        cmd.arg("--input").arg(&package_input_dir)
-            .arg("--main-jar").arg("app.jar")
-            .arg("--main-class").arg(&main_class)
-            .arg("--name").arg(&app_name)
-            .arg("--app-version").arg(&sanitized_version)
-            .arg("--dest").arg(&staging_app_dir)
-            .arg("--type").arg("app-image");
+        cmd.arg("--input")
+            .arg(&package_input_dir)
+            .arg("--main-jar")
+            .arg("app.jar")
+            .arg("--main-class")
+            .arg(&main_class)
+            .arg("--name")
+            .arg(&app_name)
+            .arg("--app-version")
+            .arg(&sanitized_version)
+            .arg("--dest")
+            .arg(&staging_app_dir)
+            .arg("--type")
+            .arg("app-image");
 
         if let Some(pkg_cfg) = &manifest.package {
-            if let Some(vendor) = &pkg_cfg.vendor { cmd.arg("--vendor").arg(vendor); }
-            if let Some(desc) = &pkg_cfg.description { cmd.arg("--description").arg(desc); }
-            if let Some(copyright) = &pkg_cfg.copyright { cmd.arg("--copyright").arg(copyright); }
+            if let Some(vendor) = &pkg_cfg.vendor {
+                cmd.arg("--vendor").arg(vendor);
+            }
+            if let Some(desc) = &pkg_cfg.description {
+                cmd.arg("--description").arg(desc);
+            }
+            if let Some(copyright) = &pkg_cfg.copyright {
+                cmd.arg("--copyright").arg(copyright);
+            }
             if let Some(opts) = &pkg_cfg.java_options {
-                for opt in opts { cmd.arg("--java-options").arg(opt); }
+                for opt in opts {
+                    cmd.arg("--java-options").arg(opt);
+                }
             }
         }
         if let Some(cli_opts) = cli_java_options {
-            for opt in cli_opts.split_whitespace() { cmd.arg("--java-options").arg(opt); }
+            for opt in cli_opts.split_whitespace() {
+                cmd.arg("--java-options").arg(opt);
+            }
         }
         if let Some(ref icon) = icon_path {
-            if icon.exists() { cmd.arg("--icon").arg(icon); }
+            if icon.exists() {
+                cmd.arg("--icon").arg(icon);
+            }
         }
-        if verbose { cmd.arg("--verbose"); }
+        if verbose {
+            cmd.arg("--verbose");
+        }
 
         let output = cmd.output()?;
         if !output.status.success() {
@@ -240,7 +284,8 @@ pub fn package_native_app(
         // 7.C: Generar script NSIS
         println!("[INFO] [4/5] Generando script NSIS profesional...");
         let exe_name = format!("{}.exe", app_name);
-        let final_installer_exe = dest_dir.join(format!("{}-{}-setup.exe", app_name, sanitized_version));
+        let final_installer_exe =
+            dest_dir.join(format!("{}-{}-setup.exe", app_name, sanitized_version));
         let nsis_script_content = generate_nsis_script(
             &app_name,
             &sanitized_version,
@@ -289,40 +334,68 @@ pub fn package_native_app(
     }
 
     // Flujo estándar jpackage
-    println!("[INFO] [2/3] Empaquetando aplicación con jpackage (tipo: '{}', clase principal: '{}')...", pkg_type, main_class);
+    println!(
+        "[INFO] [2/3] Empaquetando aplicación con jpackage (tipo: '{}', clase principal: '{}')...",
+        pkg_type, main_class
+    );
     let target_app_dir = dest_dir.join(&app_name);
     if target_app_dir.exists() {
         let _ = fs::remove_dir_all(&target_app_dir);
     }
 
     let mut cmd = Command::new(jpackage_bin);
-    cmd.arg("--input").arg(&package_input_dir)
-        .arg("--main-jar").arg("app.jar")
-        .arg("--main-class").arg(&main_class)
-        .arg("--name").arg(&app_name)
-        .arg("--app-version").arg(&sanitized_version)
-        .arg("--dest").arg(&dest_dir)
-        .arg("--type").arg(&pkg_type);
+    cmd.arg("--input")
+        .arg(&package_input_dir)
+        .arg("--main-jar")
+        .arg("app.jar")
+        .arg("--main-class")
+        .arg(&main_class)
+        .arg("--name")
+        .arg(&app_name)
+        .arg("--app-version")
+        .arg(&sanitized_version)
+        .arg("--dest")
+        .arg(&dest_dir)
+        .arg("--type")
+        .arg(&pkg_type);
 
     if let Some(pkg_cfg) = &manifest.package {
-        if let Some(vendor) = &pkg_cfg.vendor { cmd.arg("--vendor").arg(vendor); }
-        if let Some(desc) = &pkg_cfg.description { cmd.arg("--description").arg(desc); }
-        if let Some(copyright) = &pkg_cfg.copyright { cmd.arg("--copyright").arg(copyright); }
+        if let Some(vendor) = &pkg_cfg.vendor {
+            cmd.arg("--vendor").arg(vendor);
+        }
+        if let Some(desc) = &pkg_cfg.description {
+            cmd.arg("--description").arg(desc);
+        }
+        if let Some(copyright) = &pkg_cfg.copyright {
+            cmd.arg("--copyright").arg(copyright);
+        }
         if let Some(opts) = &pkg_cfg.java_options {
-            for opt in opts { cmd.arg("--java-options").arg(opt); }
+            for opt in opts {
+                cmd.arg("--java-options").arg(opt);
+            }
         }
     }
     if let Some(cli_opts) = cli_java_options {
-        for opt in cli_opts.split_whitespace() { cmd.arg("--java-options").arg(opt); }
+        for opt in cli_opts.split_whitespace() {
+            cmd.arg("--java-options").arg(opt);
+        }
     }
     if let Some(ref icon) = icon_path {
-        if icon.exists() { cmd.arg("--icon").arg(icon); }
+        if icon.exists() {
+            cmd.arg("--icon").arg(icon);
+        }
     }
-    if verbose { cmd.arg("--verbose"); }
+    if verbose {
+        cmd.arg("--verbose");
+    }
 
     let output = if verbose {
         let s = cmd.status()?;
-        if s.success() { Ok(()) } else { Err(format!("jpackage falló con código: {:?}", s.code())) }
+        if s.success() {
+            Ok(())
+        } else {
+            Err(format!("jpackage falló con código: {:?}", s.code()))
+        }
     } else {
         let out = cmd.output()?;
         if out.status.success() {
@@ -330,7 +403,11 @@ pub fn package_native_app(
         } else {
             let err_str = String::from_utf8_lossy(&out.stderr);
             let out_str = String::from_utf8_lossy(&out.stdout);
-            let full_msg = if !err_str.trim().is_empty() { err_str.to_string() } else { out_str.to_string() };
+            let full_msg = if !err_str.trim().is_empty() {
+                err_str.to_string()
+            } else {
+                out_str.to_string()
+            };
             Err(format!("Error en jpackage:\n{}", full_msg))
         }
     };
@@ -375,7 +452,7 @@ pub fn package_native_app(
         dest_dir.clone()
     };
 
-// ... (everything up to line 344) ...
+    // ... (everything up to line 344) ...
     Ok(output_path)
 }
 
@@ -400,14 +477,16 @@ mod tests {
         fs::write(app_dir.join("test.txt"), "hello jolt").unwrap();
 
         let result = compress_to_tar_gz(&temp_dir, app_name, version);
-        
+
         assert!(result.is_ok(), "compress_to_tar_gz should succeed");
         let tar_path = result.unwrap();
         assert!(tar_path.to_str().unwrap().contains("test-app-1.0.0.tar.gz"));
         assert!(tar_path.exists());
-        assert!(!app_dir.exists(), "Original app directory should be removed after compression");
+        assert!(
+            !app_dir.exists(),
+            "Original app directory should be removed after compression"
+        );
 
         let _ = fs::remove_dir_all(&temp_dir);
     }
 }
-

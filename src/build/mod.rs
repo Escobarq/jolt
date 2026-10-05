@@ -2,8 +2,11 @@ pub mod compiler;
 pub mod runner;
 pub mod test_runner;
 
-pub use compiler::{build_classpath, build_test_classpath, collect_java_files, compile, copy_resources, detect_main_class};
-pub use runner::{run, run_watch, spawn_process};
+pub use compiler::{
+    build_classpath, build_test_classpath, collect_java_files, compile, copy_resources,
+    detect_main_class,
+};
+pub use runner::{run, run_watch, spawn_process, verify_start};
 pub use test_runner::{compile_tests, run_tests};
 
 #[cfg(test)]
@@ -59,7 +62,12 @@ mod tests {
     fn test_detect_main_class() {
         let temp_dir = std::env::temp_dir().join("jolt_test_detect_main_mod");
         let _ = fs::remove_dir_all(&temp_dir);
-        let src_dir = temp_dir.join("src").join("main").join("java").join("com").join("example");
+        let src_dir = temp_dir
+            .join("src")
+            .join("main")
+            .join("java")
+            .join("com")
+            .join("example");
         fs::create_dir_all(&src_dir).unwrap();
 
         let java_code = r#"

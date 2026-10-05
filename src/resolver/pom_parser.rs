@@ -21,6 +21,7 @@ pub fn parse_pom_dependencies(
     let mut curr_artifact = String::new();
     let mut curr_version = String::new();
     let mut curr_scope = None;
+    let mut curr_optional = false;
 
     let mut buf = Vec::new();
 
@@ -36,6 +37,7 @@ pub fn parse_pom_dependencies(
                     curr_artifact.clear();
                     curr_version.clear();
                     curr_scope = None;
+                    curr_optional = false;
                 }
                 current_tag = name;
             }
@@ -51,6 +53,7 @@ pub fn parse_pom_dependencies(
                             artifact_id: curr_artifact.clone(),
                             version: curr_version.clone(),
                             scope: curr_scope.clone(),
+                            optional: curr_optional,
                         });
                     }
                 }
@@ -64,6 +67,7 @@ pub fn parse_pom_dependencies(
                         "artifactId" => curr_artifact = text,
                         "version" => curr_version = text,
                         "scope" => curr_scope = Some(text),
+                        "optional" => curr_optional = text.eq_ignore_ascii_case("true"),
                         _ => {}
                     }
                 }

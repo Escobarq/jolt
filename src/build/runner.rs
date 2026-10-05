@@ -1,12 +1,13 @@
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::error::Error;
+use std::io::Read;
 use std::path::Path;
 use std::process::Command;
 use std::sync::mpsc::channel;
 use std::time::{Duration, Instant};
 
-use crate::toolchain::Toolchain;
 use super::compiler::{build_classpath, compile};
+use crate::toolchain::Toolchain;
 
 /// Ejecuta la aplicación Java con el classpath completo
 pub fn run(
@@ -34,7 +35,11 @@ pub fn run(
     let status = child.wait()?;
 
     if !status.success() {
-        return Err(format!("El programa terminó con código de salida: {:?}", status.code()).into());
+        return Err(format!(
+            "El programa terminó con código de salida: {:?}",
+            status.code()
+        )
+        .into());
     }
 
     Ok(())
@@ -59,6 +64,66 @@ pub fn spawn_process(
 
     let child = cmd.spawn()?;
     Ok(child)
+}
+
+pub fn verify_start(
+    project_dir: &Path,
+    main_class: &str,
+    toolchain: Option<&Toolchain>,
+) -> Result<(), Box<dyn Error + Send + Sync>> {
+    compile(project_dir, toolchain)?;
+    let classpath = build_classpath(project_dir, true);
+    let java_path = toolchain
+        .map(|t| t.java_bin.as_path())
+        .unwrap_or_else(|| Path::new("java"));
+    let mut child = Command::new(java_path)
+        .arg("-cp")
+        .arg(&classpath)
+        .arg(main_class)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped())
+        .spawn()?;
+
+    std::thread::sleep(Duration::from_millis(750));
+    if let Some(status) = child.try_wait()? {
+        if !status.success() {
+            let mut stderr = String::new();
+            if let Some(mut pipe) = child.stderr.take() {
+                pipe.read_to_string(&mut stderr)?;
+            }
+            return Err(diagnose_class_not_found(&stderr).into());
+        }
+        return Ok(());
+    }
+    let _ = child.kill();
+    let _ = child.wait();
+    Ok(())
+}
+
+fn diagnose_class_not_found(stderr: &str) -> String {
+    if let Some(class_name) = stderr
+        .split("ClassNotFoundException:")
+        .nth(1)
+        .and_then(|s| s.lines().next())
+    {
+        let class_name = class_name.trim();
+        let suggestion = if class_name.starts_with("com.fasterxml.jackson") {
+            "com.fasterxml.jackson.core:jackson-databind"
+        } else if class_name.starts_with("org.eclipse.jetty") {
+            "org.eclipse.jetty:jetty-server"
+        } else if class_name.starts_with("org.slf4j") {
+            "org.slf4j:slf4j-api"
+        } else if class_name.starts_with("kotlin.") {
+            "org.jetbrains.kotlin:kotlin-stdlib"
+        } else {
+            "la dependencia Maven que contiene esa clase"
+        };
+        return format!(
+            "ClassNotFoundException: '{}'. Falta una dependencia en el classpath. Añádela con `jolt add {}` y ejecuta `jolt install`.",
+            class_name, suggestion
+        );
+    }
+    format!("La aplicación no pudo arrancar:\n{}", stderr.trim())
 }
 
 /// Ejecuta la aplicación en modo Watch / Hot Reload reaccionando a cambios de archivos
@@ -141,4 +206,48 @@ pub fn run_watch(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::diagnose_class_not_found;
+
+    #[test]
+    fn explains_known_missing_framework_dependencies() {
+        let cases = [
+            (
+                "java.lang.ClassNotFoundException: com.fasterxml.jackson.databind.ObjectMapper",
+                "com.fasterxml.jackson.core:jackson-databind",
+            ),
+            (
+                "java.lang.ClassNotFoundException: org.eclipse.jetty.server.Server",
+                "org.eclipse.jetty:jetty-server",
+            ),
+            (
+                "java.lang.ClassNotFoundException: org.slf4j.Logger",
+                "org.slf4j:slf4j-api",
+            ),
+            (
+                "java.lang.ClassNotFoundException: kotlin.Unit",
+                "org.jetbrains.kotlin:kotlin-stdlib",
+            ),
+        ];
+
+        for (stderr, artifact) in cases {
+            let message = diagnose_class_not_found(stderr);
+            assert!(message.contains("Falta una dependencia"));
+            assert!(message.contains(artifact));
+            assert!(message.contains("jolt add"));
+        }
+    }
+
+    #[test]
+    fn preserves_unknown_startup_errors() {
+        let message = diagnose_class_not_found("java.lang.IllegalStateException: boom");
+
+        assert_eq!(
+            message,
+            "La aplicación no pudo arrancar:\njava.lang.IllegalStateException: boom"
+        );
+    }
 }

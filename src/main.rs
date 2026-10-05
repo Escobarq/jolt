@@ -23,7 +23,10 @@ fn resolve_target_directories(
 ) -> Result<Vec<PathBuf>, String> {
     let root_manifest_path = Path::new("jolt.toml");
     if !root_manifest_path.exists() {
-        return Err("No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto o workspace.".to_string());
+        return Err(
+            "No se encontro 'jolt.toml'. Ejecuta este comando dentro de un proyecto o workspace."
+                .to_string(),
+        );
     }
 
     let manifest = JoltManifest::load_from_file(root_manifest_path)
@@ -69,153 +72,176 @@ async fn install_in_dir(
         return Err(format!("No se encontro 'jolt.toml' en {}", project_dir.display()).into());
     }
 
-    let _ = scaffold::ensure_ide_configuration(project_dir, None);
+    install_resolved_in_dir(project_dir, locked, cache_manager, maven_client).await
+}
+
+async fn install_resolved_in_dir(
+    project_dir: &Path,
+    locked: bool,
+    cache_manager: &CacheManager,
+    maven_client: &MavenClient,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let manifest_path = project_dir.join("jolt.toml");
+    let manifest = JoltManifest::load_from_file(&manifest_path)?;
     let lock_path = project_dir.join("jolt.lock");
+    let mut lock = JoltLock::load_from_file(&lock_path).unwrap_or_default();
 
     if locked {
         if !lock_path.exists() {
-            return Err(format!("Modo --locked activo pero no existe 'jolt.lock' en {}", project_dir.display()).into());
+            return Err(format!(
+                "Modo --locked activo pero no existe 'jolt.lock' en {}",
+                project_dir.display()
+            )
+            .into());
         }
-
-        let manifest = JoltManifest::load_from_file(&manifest_path).ok();
-        let dev_dep_names: std::collections::HashSet<String> = manifest
-            .as_ref()
-            .and_then(|m| m.dev_dependencies.as_ref())
-            .map(|d| d.keys().cloned().collect())
-            .unwrap_or_default();
-
-        let lock = JoltLock::load_from_file(&lock_path)?;
-        println!("[INFO] Instalando {} dependencias fijadas desde jolt.lock en {}...", lock.packages.len(), project_dir.display());
-        let mut count = 0;
-        for pkg in lock.packages {
-            let parts: Vec<&str> = pkg.name.split(':').collect();
-            if parts.len() == 2 {
-                let group_id = parts[0];
-                let artifact_id = parts[1];
-
-                let ver_parts: Vec<&str> = pkg.version.split(':').collect();
-                let version = ver_parts[0];
-                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
-
-                let target_folder = if dev_dep_names.contains(&pkg.name) {
-                    "dev-modules"
-                } else {
-                    "modules"
-                };
-
-                if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
-                    println!("[INFO] Descargando fijado {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
-                    if let Ok(bytes) = maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
-                        let _ = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes);
-                    }
-                }
-
-                if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(project_dir, target_folder, group_id, artifact_id, version, classifier) {
-                    count += 1;
-                }
-            }
+        for pkg in &lock.packages {
+            install_one_dependency(
+                project_dir,
+                cache_manager,
+                maven_client,
+                &pkg.name,
+                &pkg.version,
+                false,
+            )
+            .await?;
         }
-        println!("[OK] Instalacion determinista completada en {}: {} dependencias vinculadas.", project_dir.display(), count);
+        println!(
+            "[OK] Instalacion determinista completada en {}: {} dependencias vinculadas.",
+            project_dir.display(),
+            lock.packages.len()
+        );
         return Ok(());
     }
 
-    let manifest = JoltManifest::load_from_file(&manifest_path)?;
-    let mut prod_count = 0;
-    let mut dev_count = 0;
-    let mut lock = JoltLock::load_from_file(&lock_path).unwrap_or_default();
-
-    // 1. Instalar dependencias de producción (modules/)
-    if let Some(deps) = manifest.dependencies {
-        println!("[INFO] Sincronizando dependencias de produccion en {}...", project_dir.display());
-        for (dep_name, spec) in deps {
-            let (version_opt, local_path) = JoltManifest::parse_dependency_spec(&spec);
-            if local_path.is_some() {
-                continue; // Dependencia local inter-módulo
-            }
-
-            if let Some(version_spec) = version_opt {
-                let parts: Vec<&str> = dep_name.split(':').collect();
-                if parts.len() == 2 {
-                    let group_id = parts[0];
-                    let artifact_id = parts[1];
-
-                    let ver_parts: Vec<&str> = version_spec.split(':').collect();
-                    let version = ver_parts[0];
-                    let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
-
-                    if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
-                        println!("[INFO] Descargando {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
-                        if let Ok(bytes) = maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
-                            let _ = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes);
-                        }
-                    }
-
-                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(project_dir, "modules", group_id, artifact_id, version, classifier) {
-                        prod_count += 1;
-
-                        let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
-                        let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
-
-                        lock.add_or_update_package(LockedPackage {
-                            name: dep_name.clone(),
-                            version: version_spec.clone(),
-                            checksum,
-                            dependencies: vec![],
-                        });
-                    }
+    let mut roots = Vec::new();
+    let mut root_scopes = std::collections::HashMap::new();
+    for (scope, deps) in [
+        ("modules", manifest.dependencies.as_ref()),
+        ("dev-modules", manifest.dev_dependencies.as_ref()),
+    ] {
+        if let Some(deps) = deps {
+            for (name, spec) in deps {
+                let (version, local_path) = JoltManifest::parse_dependency_spec(spec);
+                if local_path.is_some() {
+                    continue;
                 }
+                let version =
+                    version.ok_or_else(|| format!("La dependencia '{}' no tiene versión", name))?;
+                let parts: Vec<&str> = name.split(':').collect();
+                if parts.len() != 2 {
+                    return Err(
+                        format!("Dependencia inválida '{}'; usa groupId:artifactId", name).into(),
+                    );
+                }
+                roots.push((
+                    parts[0].to_string(),
+                    parts[1].to_string(),
+                    version.split(':').next().unwrap_or("").to_string(),
+                ));
+                root_scopes.insert(format!("{}:{}", parts[0], parts[1]), (scope, version));
             }
         }
     }
 
-    // 2. Instalar dependencias de desarrollo/testing (dev-modules/)
-    if let Some(dev_deps) = manifest.dev_dependencies {
-        println!("[INFO] Sincronizando dependencias de desarrollo en {}...", project_dir.display());
-        for (dep_name, spec) in dev_deps {
-            let (version_opt, local_path) = JoltManifest::parse_dependency_spec(&spec);
-            if local_path.is_some() {
-                continue;
-            }
-
-            if let Some(version_spec) = version_opt {
-                let parts: Vec<&str> = dep_name.split(':').collect();
-                if parts.len() == 2 {
-                    let group_id = parts[0];
-                    let artifact_id = parts[1];
-
-                    let ver_parts: Vec<&str> = version_spec.split(':').collect();
-                    let version = ver_parts[0];
-                    let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
-
-                    if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
-                        println!("[INFO] Descargando dev {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
-                        if let Ok(bytes) = maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
-                            let _ = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes);
-                        }
-                    }
-
-                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(project_dir, "dev-modules", group_id, artifact_id, version, classifier) {
-                        dev_count += 1;
-
-                        let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
-                        let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
-
-                        lock.add_or_update_package(LockedPackage {
-                            name: dep_name.clone(),
-                            version: version_spec.clone(),
-                            checksum,
-                            dependencies: vec![],
-                        });
-                    }
-                }
-            }
+    let transitive = maven_client.resolve_dependencies(&roots).await?;
+    let mut installed = std::collections::HashSet::new();
+    for (group, artifact, _version) in &roots {
+        let key = format!("{}:{}", group, artifact);
+        if let Some((scope, requested_version)) = root_scopes.get(&key) {
+            install_one_dependency(
+                project_dir,
+                cache_manager,
+                maven_client,
+                &key,
+                requested_version,
+                *scope == "dev-modules",
+            )
+            .await?;
+            let version = requested_version
+                .split(':')
+                .next()
+                .unwrap_or(requested_version);
+            let checksum =
+                CacheManager::compute_file_sha256(&cache_manager.get_jar_path_with_classifier(
+                    group,
+                    artifact,
+                    version,
+                    requested_version.split(':').nth(1),
+                ))?;
+            lock.add_or_update_package(LockedPackage {
+                name: key.clone(),
+                version: requested_version.clone(),
+                checksum,
+                dependencies: Vec::new(),
+            });
+            installed.insert(format!("{}:{}:{}", group, artifact, version));
+        }
+    }
+    for dep in transitive {
+        let key = format!("{}:{}:{}", dep.group_id, dep.artifact_id, dep.version);
+        if installed.insert(key) {
+            install_one_dependency(
+                project_dir,
+                cache_manager,
+                maven_client,
+                &format!("{}:{}", dep.group_id, dep.artifact_id),
+                &dep.version,
+                false,
+            )
+            .await?;
+            let checksum = CacheManager::compute_file_sha256(&cache_manager.get_jar_path(
+                &dep.group_id,
+                &dep.artifact_id,
+                &dep.version,
+            ))?;
+            lock.add_or_update_package(LockedPackage {
+                name: format!("{}:{}", dep.group_id, dep.artifact_id),
+                version: dep.version.clone(),
+                checksum,
+                dependencies: Vec::new(),
+            });
         }
     }
 
-    let _ = lock.save_to_file(&lock_path);
-    let _ = scaffold::ensure_ide_configuration(project_dir, None);
-    println!("[OK] Instalacion completa en {}: {} en .jolt/modules/ y {} en .jolt/dev-modules/", project_dir.display(), prod_count, dev_count);
+    lock.save_to_file(&lock_path)?;
+    println!(
+        "[OK] Instalacion completa en {}: {} dependencias transitivas disponibles.",
+        project_dir.display(),
+        installed.len()
+    );
+    Ok(())
+}
 
+async fn install_one_dependency(
+    project_dir: &Path,
+    cache_manager: &CacheManager,
+    maven_client: &MavenClient,
+    name: &str,
+    version_spec: &str,
+    dev: bool,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let parts: Vec<&str> = name.split(':').collect();
+    if parts.len() != 2 {
+        return Err(format!("Dependencia inválida '{}'; usa groupId:artifactId", name).into());
+    }
+    let version_parts: Vec<&str> = version_spec.split(':').collect();
+    let version = version_parts[0];
+    let classifier = version_parts.get(1).copied();
+    if !cache_manager.has_jar_with_classifier(parts[0], parts[1], version, classifier) {
+        let bytes = maven_client
+            .download_jar_with_classifier(parts[0], parts[1], version, classifier)
+            .await
+            .map_err(|e| format!("No se pudo descargar '{}:{}': {}", name, version_spec, e))?;
+        cache_manager.save_jar_with_classifier(parts[0], parts[1], version, classifier, &bytes)?;
+    }
+    cache_manager.link_to_project_dir_with_classifier(
+        project_dir,
+        if dev { "dev-modules" } else { "modules" },
+        parts[0],
+        parts[1],
+        version,
+        classifier,
+    )?;
     Ok(())
 }
 
@@ -254,26 +280,67 @@ async fn sync_in_dir(
 
                     let ver_parts: Vec<&str> = version_spec.split(':').collect();
                     let version = ver_parts[0];
-                    let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+                    let classifier = if ver_parts.len() > 1 {
+                        Some(ver_parts[1])
+                    } else {
+                        None
+                    };
 
                     let file_name = match classifier {
-                        Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
+                        Some(c) if !c.is_empty() => {
+                            format!("{}-{}-{}.jar", artifact_id, version, c)
+                        }
                         _ => format!("{}-{}.jar", artifact_id, version),
                     };
                     active_prod_jars.insert(file_name.clone());
 
-                    if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
-                        println!("[INFO] Descargando {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
-                        if let Ok(bytes) = maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
-                            let _ = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes);
+                    if !cache_manager.has_jar_with_classifier(
+                        group_id,
+                        artifact_id,
+                        version,
+                        classifier,
+                    ) {
+                        println!(
+                            "[INFO] Descargando {}:{}:{}{:?}...",
+                            group_id, artifact_id, version, classifier
+                        );
+                        if let Ok(bytes) = maven_client
+                            .download_jar_with_classifier(
+                                group_id,
+                                artifact_id,
+                                version,
+                                classifier,
+                            )
+                            .await
+                        {
+                            let _ = cache_manager.save_jar_with_classifier(
+                                group_id,
+                                artifact_id,
+                                version,
+                                classifier,
+                                &bytes,
+                            );
                         }
                     }
 
-                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(project_dir, "modules", group_id, artifact_id, version, classifier) {
+                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(
+                        project_dir,
+                        "modules",
+                        group_id,
+                        artifact_id,
+                        version,
+                        classifier,
+                    ) {
                         prod_count += 1;
 
-                        let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
-                        let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
+                        let cached_jar = cache_manager.get_jar_path_with_classifier(
+                            group_id,
+                            artifact_id,
+                            version,
+                            classifier,
+                        );
+                        let checksum = CacheManager::compute_file_sha256(&cached_jar)
+                            .unwrap_or_else(|_| "sha256:unknown".to_string());
 
                         lock.add_or_update_package(LockedPackage {
                             name: dep_name.clone(),
@@ -303,26 +370,67 @@ async fn sync_in_dir(
 
                     let ver_parts: Vec<&str> = version_spec.split(':').collect();
                     let version = ver_parts[0];
-                    let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+                    let classifier = if ver_parts.len() > 1 {
+                        Some(ver_parts[1])
+                    } else {
+                        None
+                    };
 
                     let file_name = match classifier {
-                        Some(c) if !c.is_empty() => format!("{}-{}-{}.jar", artifact_id, version, c),
+                        Some(c) if !c.is_empty() => {
+                            format!("{}-{}-{}.jar", artifact_id, version, c)
+                        }
                         _ => format!("{}-{}.jar", artifact_id, version),
                     };
                     active_dev_jars.insert(file_name.clone());
 
-                    if !cache_manager.has_jar_with_classifier(group_id, artifact_id, version, classifier) {
-                        println!("[INFO] Descargando dev {}:{}:{}{:?}...", group_id, artifact_id, version, classifier);
-                        if let Ok(bytes) = maven_client.download_jar_with_classifier(group_id, artifact_id, version, classifier).await {
-                            let _ = cache_manager.save_jar_with_classifier(group_id, artifact_id, version, classifier, &bytes);
+                    if !cache_manager.has_jar_with_classifier(
+                        group_id,
+                        artifact_id,
+                        version,
+                        classifier,
+                    ) {
+                        println!(
+                            "[INFO] Descargando dev {}:{}:{}{:?}...",
+                            group_id, artifact_id, version, classifier
+                        );
+                        if let Ok(bytes) = maven_client
+                            .download_jar_with_classifier(
+                                group_id,
+                                artifact_id,
+                                version,
+                                classifier,
+                            )
+                            .await
+                        {
+                            let _ = cache_manager.save_jar_with_classifier(
+                                group_id,
+                                artifact_id,
+                                version,
+                                classifier,
+                                &bytes,
+                            );
                         }
                     }
 
-                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(project_dir, "dev-modules", group_id, artifact_id, version, classifier) {
+                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(
+                        project_dir,
+                        "dev-modules",
+                        group_id,
+                        artifact_id,
+                        version,
+                        classifier,
+                    ) {
                         dev_count += 1;
 
-                        let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
-                        let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
+                        let cached_jar = cache_manager.get_jar_path_with_classifier(
+                            group_id,
+                            artifact_id,
+                            version,
+                            classifier,
+                        );
+                        let checksum = CacheManager::compute_file_sha256(&cached_jar)
+                            .unwrap_or_else(|_| "sha256:unknown".to_string());
 
                         lock.add_or_update_package(LockedPackage {
                             name: dep_name.clone(),
@@ -364,7 +472,10 @@ async fn sync_in_dir(
     let proj_name = manifest.project.as_ref().map(|p| p.name.as_str());
     let _ = scaffold::ensure_ide_configuration(project_dir, proj_name);
 
-    println!("[OK] Sincronizacion completada para '{}':", proj_name.unwrap_or("app"));
+    println!(
+        "[OK] Sincronizacion completada para '{}':",
+        proj_name.unwrap_or("app")
+    );
     println!("     • {} dependencias en .jolt/modules/", prod_count);
     println!("     • {} dependencias en .jolt/dev-modules/", dev_count);
 
@@ -403,7 +514,11 @@ async fn main() {
                 eprintln!("[ERROR] Error al inicializar: {}", e);
             }
         }
-        cli::Commands::Add { dependency, dev, member } => {
+        cli::Commands::Add {
+            dependency,
+            dev,
+            member,
+        } => {
             let target_dir = if let Some(m) = member {
                 PathBuf::from(m)
             } else {
@@ -412,25 +527,40 @@ async fn main() {
 
             let manifest_path = target_dir.join("jolt.toml");
             if !manifest_path.exists() {
-                eprintln!("[ERROR] No se encontro 'jolt.toml' en {}. Ejecuta este comando dentro de un proyecto o usa --member <nombre>.", target_dir.display());
+                eprintln!(
+                    "[ERROR] No se encontro 'jolt.toml' en {}. Ejecuta este comando dentro de un proyecto o usa --member <nombre>.",
+                    target_dir.display()
+                );
                 return;
             }
 
             let parts: Vec<&str> = dependency.split(':').collect();
             if parts.len() < 2 {
-                eprintln!("[ERROR] Formato de dependencia invalido. Usa: 'groupId:artifactId' o 'groupId:artifactId:version'");
+                eprintln!(
+                    "[ERROR] Formato de dependencia invalido. Usa: 'groupId:artifactId' o 'groupId:artifactId:version'"
+                );
                 return;
             }
 
             let group_id = parts[0];
             let artifact_id = parts[1];
-            let classifier = if parts.len() >= 4 { Some(parts[3]) } else { None };
+            let classifier = if parts.len() >= 4 {
+                Some(parts[3])
+            } else {
+                None
+            };
 
             let raw_version = if parts.len() >= 3 {
                 parts[2].to_string()
             } else {
-                println!("[INFO] Buscando ultima version para '{}:{}' en Maven Central...", group_id, artifact_id);
-                match maven_client.fetch_latest_version(group_id, artifact_id).await {
+                println!(
+                    "[INFO] Buscando ultima version para '{}:{}' en Maven Central...",
+                    group_id, artifact_id
+                );
+                match maven_client
+                    .fetch_latest_version(group_id, artifact_id)
+                    .await
+                {
                     Ok(ver) => {
                         println!("[OK] Ultima version encontrada: {}", ver);
                         ver
@@ -451,47 +581,107 @@ async fn main() {
             let dep_key = format!("{}:{}", group_id, artifact_id);
             let target_folder = if *dev { "dev-modules" } else { "modules" };
 
-            match JoltManifest::add_dependency_to_file(&manifest_path, &dep_key, &version_value, *dev) {
+            match JoltManifest::add_dependency_to_file(
+                &manifest_path,
+                &dep_key,
+                &version_value,
+                *dev,
+            ) {
                 Ok(_) => {
-                    let scope_label = if *dev { "dev-dependencies" } else { "dependencies" };
-                    println!("[OK] Dependencia '{} = \"{}\"' anadida a {} [{}]", dep_key, version_value, manifest_path.display(), scope_label);
+                    let scope_label = if *dev {
+                        "dev-dependencies"
+                    } else {
+                        "dependencies"
+                    };
+                    println!(
+                        "[OK] Dependencia '{} = \"{}\"' anadida a {} [{}]",
+                        dep_key,
+                        version_value,
+                        manifest_path.display(),
+                        scope_label
+                    );
 
                     // Descargar a caché global si no existe
-                    if !cache_manager.has_jar_with_classifier(group_id, artifact_id, &raw_version, classifier) {
+                    if !cache_manager.has_jar_with_classifier(
+                        group_id,
+                        artifact_id,
+                        &raw_version,
+                        classifier,
+                    ) {
                         let label = match classifier {
                             Some(c) => format!("{}-{}-{}.jar", artifact_id, raw_version, c),
                             None => format!("{}-{}.jar", artifact_id, raw_version),
                         };
                         println!("[INFO] Descargando {} a la cache global...", label);
-                        match maven_client.download_jar_with_classifier(group_id, artifact_id, &raw_version, classifier).await {
+                        match maven_client
+                            .download_jar_with_classifier(
+                                group_id,
+                                artifact_id,
+                                &raw_version,
+                                classifier,
+                            )
+                            .await
+                        {
                             Ok(bytes) => {
-                                if let Err(e) = cache_manager.save_jar_with_classifier(group_id, artifact_id, &raw_version, classifier, &bytes) {
+                                if let Err(e) = cache_manager.save_jar_with_classifier(
+                                    group_id,
+                                    artifact_id,
+                                    &raw_version,
+                                    classifier,
+                                    &bytes,
+                                ) {
                                     eprintln!("[WARN] Error al guardar en cache: {}", e);
                                 }
                             }
                             Err(e) => eprintln!("[WARN] Error al descargar binario JAR: {}", e),
                         }
                     } else {
-                        println!("[INFO] Usando {}-{} desde la cache global", artifact_id, raw_version);
+                        println!(
+                            "[INFO] Usando {}-{} desde la cache global",
+                            artifact_id, raw_version
+                        );
                     }
 
                     // Enlazar al proyecto local
-                    if let Ok(linked) = cache_manager.link_to_project_dir_with_classifier(&target_dir, target_folder, group_id, artifact_id, &raw_version, classifier) {
+                    if let Ok(linked) = cache_manager.link_to_project_dir_with_classifier(
+                        &target_dir,
+                        target_folder,
+                        group_id,
+                        artifact_id,
+                        &raw_version,
+                        classifier,
+                    ) {
                         println!("[OK] Enlazado a {}", linked.display());
                     }
 
                     let _ = scaffold::ensure_ide_configuration(&target_dir, None);
 
-                    let cached_jar = cache_manager.get_jar_path_with_classifier(group_id, artifact_id, &raw_version, classifier);
-                    let checksum = CacheManager::compute_file_sha256(&cached_jar).unwrap_or_else(|_| "sha256:unknown".to_string());
+                    let cached_jar = cache_manager.get_jar_path_with_classifier(
+                        group_id,
+                        artifact_id,
+                        &raw_version,
+                        classifier,
+                    );
+                    let checksum = CacheManager::compute_file_sha256(&cached_jar)
+                        .unwrap_or_else(|_| "sha256:unknown".to_string());
 
                     let mut transitive_names = Vec::new();
-                    if let Ok(tree) = maven_client.fetch_dependency_tree(group_id, artifact_id, &raw_version).await {
+                    if let Ok(tree) = maven_client
+                        .fetch_dependency_tree(group_id, artifact_id, &raw_version)
+                        .await
+                    {
                         if !tree.dependencies.is_empty() {
-                            println!("[INFO] Dependencias transitivas detectadas ({}):", tree.dependencies.len());
+                            println!(
+                                "[INFO] Dependencias transitivas detectadas ({}):",
+                                tree.dependencies.len()
+                            );
                             for child in &tree.dependencies {
-                                println!("       └── {}:{} ({})", child.group_id, child.artifact_id, child.version);
-                                transitive_names.push(format!("{}:{}", child.group_id, child.artifact_id));
+                                println!(
+                                    "       └── {}:{} ({})",
+                                    child.group_id, child.artifact_id, child.version
+                                );
+                                transitive_names
+                                    .push(format!("{}:{}", child.group_id, child.artifact_id));
                             }
                         }
                     }
@@ -514,7 +704,10 @@ async fn main() {
             match maven_client.search_packages(query, *limit).await {
                 Ok(results) => {
                     if results.is_empty() {
-                        println!("[WARN] No se encontraron paquetes que coincidan con '{}'.", query);
+                        println!(
+                            "[WARN] No se encontraron paquetes que coincidan con '{}'.",
+                            query
+                        );
                         return;
                     }
 
@@ -540,14 +733,21 @@ async fn main() {
 
             let manifest_path = target_dir.join("jolt.toml");
             if !manifest_path.exists() {
-                eprintln!("[ERROR] No se encontro 'jolt.toml' en {}.", target_dir.display());
+                eprintln!(
+                    "[ERROR] No se encontro 'jolt.toml' en {}.",
+                    target_dir.display()
+                );
                 return;
             }
 
             match JoltManifest::remove_dependency_from_file(&manifest_path, dependency) {
                 Ok(removed) => {
                     if removed {
-                        println!("[OK] Dependencia '{}' eliminada de {}", dependency, manifest_path.display());
+                        println!(
+                            "[OK] Dependencia '{}' eliminada de {}",
+                            dependency,
+                            manifest_path.display()
+                        );
 
                         let parts: Vec<&str> = dependency.split(':').collect();
                         if parts.len() == 2 {
@@ -559,8 +759,11 @@ async fn main() {
                             for modules_dir in &search_folders {
                                 if let Ok(entries) = fs::read_dir(modules_dir) {
                                     for entry in entries.flatten() {
-                                        let filename = entry.file_name().to_string_lossy().to_string();
-                                        if filename.starts_with(artifact_id) && filename.ends_with(".jar") {
+                                        let filename =
+                                            entry.file_name().to_string_lossy().to_string();
+                                        if filename.starts_with(artifact_id)
+                                            && filename.ends_with(".jar")
+                                        {
                                             let _ = fs::remove_file(entry.path());
                                             println!("[OK] Removido {}", entry.path().display());
                                         }
@@ -577,13 +780,21 @@ async fn main() {
                         }
                         let _ = scaffold::ensure_ide_configuration(&target_dir, None);
                     } else {
-                        println!("[WARN] La dependencia '{}' no se encontro en {}", dependency, manifest_path.display());
+                        println!(
+                            "[WARN] La dependencia '{}' no se encontro en {}",
+                            dependency,
+                            manifest_path.display()
+                        );
                     }
                 }
                 Err(e) => eprintln!("[ERROR] Error al modificar jolt.toml: {}", e),
             }
         }
-        cli::Commands::Install { locked, all, member } => {
+        cli::Commands::Install {
+            locked,
+            all,
+            member,
+        } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, true) {
                 Ok(d) => d,
                 Err(e) => {
@@ -598,7 +809,19 @@ async fn main() {
                 }
             }
         }
-        cli::Commands::Build { standalone, package, installer, name, upx, native, download_jdk, add_to_path, scope, all, member } => {
+        cli::Commands::Build {
+            standalone,
+            package,
+            installer,
+            name,
+            upx,
+            native,
+            download_jdk,
+            add_to_path,
+            scope,
+            all,
+            member,
+        } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, false) {
                 Ok(d) => d,
                 Err(e) => {
@@ -617,7 +840,10 @@ async fn main() {
                         };
 
                         let java_ver = proj.java_version.as_deref().unwrap_or("21");
-                        let toolchain = match toolchain_manager.resolve_toolchain(java_ver, *download_jdk).await {
+                        let toolchain = match toolchain_manager
+                            .resolve_toolchain(java_ver, *download_jdk)
+                            .await
+                        {
                             Ok(tc) => Some(tc),
                             Err(e) => {
                                 eprintln!("[ERROR] {}", e);
@@ -625,17 +851,30 @@ async fn main() {
                             }
                         };
 
-                        let main_class = proj.main_class
+                        let main_class = proj
+                            .main_class
                             .as_deref()
-                            .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.as_deref()))
+                            .or_else(|| {
+                                manifest
+                                    .package
+                                    .as_ref()
+                                    .and_then(|p| p.main_class.as_deref())
+                            })
                             .map(|s| s.to_string())
                             .or_else(|| build::detect_main_class(&dir))
                             .unwrap_or_else(|| "Main".to_string());
 
-                        let is_native = *native || manifest.graalvm_config().and_then(|g| g.enabled).unwrap_or(false);
+                        let is_native = *native
+                            || manifest
+                                .graalvm_config()
+                                .and_then(|g| g.enabled)
+                                .unwrap_or(false);
 
                         if is_native {
-                            println!("[INFO] Compilando binario nativo con GraalVM Native Image para '{}'...", proj.name);
+                            println!(
+                                "[INFO] Compilando binario nativo con GraalVM Native Image para '{}'...",
+                                proj.name
+                            );
                             match packaging::build_native_image(
                                 &dir,
                                 &proj.name,
@@ -644,12 +883,23 @@ async fn main() {
                                 toolchain.as_ref(),
                                 manifest.graalvm_config(),
                             ) {
-                                Ok(bin_path) => println!("[OK] Binario nativo generado exitosamente en: {}", bin_path.display()),
-                                Err(e) => eprintln!("[ERROR] Error al compilar binario nativo en {}: {}", dir.display(), e),
+                                Ok(bin_path) => println!(
+                                    "[OK] Binario nativo generado exitosamente en: {}",
+                                    bin_path.display()
+                                ),
+                                Err(e) => eprintln!(
+                                    "[ERROR] Error al compilar binario nativo en {}: {}",
+                                    dir.display(),
+                                    e
+                                ),
                             }
                         } else if *installer || *package {
                             let pkg_type = if *installer {
-                                if cfg!(target_os = "windows") { "msi" } else { "app-image" }
+                                if cfg!(target_os = "windows") {
+                                    "msi"
+                                } else {
+                                    "app-image"
+                                }
                             } else {
                                 "app-image"
                             };
@@ -673,12 +923,22 @@ async fn main() {
                                 toolchain.as_ref(),
                             ) {
                                 Ok(output_path) => {
-                                    println!("[OK] Paquete / Instalador generado exitosamente en: {}", output_path.display());
+                                    println!(
+                                        "[OK] Paquete / Instalador generado exitosamente en: {}",
+                                        output_path.display()
+                                    );
                                 }
-                                Err(e) => eprintln!("[ERROR] Error al empaquetar en {}: {}", dir.display(), e),
+                                Err(e) => eprintln!(
+                                    "[ERROR] Error al empaquetar en {}: {}",
+                                    dir.display(),
+                                    e
+                                ),
                             }
                         } else if *standalone {
-                            println!("[INFO] Empaquetando Fat-JAR autonomo para '{}'...", proj.name);
+                            println!(
+                                "[INFO] Empaquetando Fat-JAR autonomo para '{}'...",
+                                proj.name
+                            );
                             match packaging::build_standalone_jar(
                                 &dir,
                                 &proj.name,
@@ -686,8 +946,15 @@ async fn main() {
                                 &main_class,
                                 toolchain.as_ref(),
                             ) {
-                                Ok(jar_path) => println!("[OK] Fat-JAR creado exitosamente en: {}", jar_path.display()),
-                                Err(e) => eprintln!("[ERROR] Error al crear Fat-JAR en {}: {}", dir.display(), e),
+                                Ok(jar_path) => println!(
+                                    "[OK] Fat-JAR creado exitosamente en: {}",
+                                    jar_path.display()
+                                ),
+                                Err(e) => eprintln!(
+                                    "[ERROR] Error al crear Fat-JAR en {}: {}",
+                                    dir.display(),
+                                    e
+                                ),
                             }
                         } else {
                             println!("[INFO] Compilando '{}' con Java {}...", proj.name, java_ver);
@@ -698,7 +965,9 @@ async fn main() {
                                 &main_class,
                                 toolchain.as_ref(),
                             ) {
-                                Ok(jar_path) => println!("[OK] JAR estandar creado en: {}", jar_path.display()),
+                                Ok(jar_path) => {
+                                    println!("[OK] JAR estandar creado en: {}", jar_path.display())
+                                }
                                 Err(e) => eprintln!("[ERROR] Error en {}: {}", dir.display(), e),
                             }
                         }
@@ -734,8 +1003,13 @@ async fn main() {
             let manifest_path = dir.join("jolt.toml");
             match JoltManifest::load_from_file(&manifest_path) {
                 Ok(manifest) => {
-                    let java_ver = manifest.project.as_ref().and_then(|p| p.java_version.as_deref()).unwrap_or("21");
-                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, false).await {
+                    let java_ver = manifest
+                        .project
+                        .as_ref()
+                        .and_then(|p| p.java_version.as_deref())
+                        .unwrap_or("21");
+                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, false).await
+                    {
                         Ok(tc) => Some(tc),
                         Err(e) => {
                             eprintln!("[ERROR] {}", e);
@@ -750,11 +1024,7 @@ async fn main() {
                     } else {
                         None
                     };
-                    let opt_add_to_path = if *add_to_path {
-                        Some(true)
-                    } else {
-                        None
-                    };
+                    let opt_add_to_path = if *add_to_path { Some(true) } else { None };
 
                     match packaging::package_native_app(
                         dir,
@@ -773,18 +1043,32 @@ async fn main() {
                         toolchain.as_ref(),
                     ) {
                         Ok(output_path) => {
-                            println!("[OK] Paquete / Lanzador binario nativo generado exitosamente en: {}", output_path.display());
+                            println!(
+                                "[OK] Paquete / Lanzador binario nativo generado exitosamente en: {}",
+                                output_path.display()
+                            );
                             if output_path.is_file() || output_path.join("bin").exists() {
-                                println!("[TIP] Puedes ejecutar la aplicacion directamente con: {}", output_path.display());
+                                println!(
+                                    "[TIP] Puedes ejecutar la aplicacion directamente con: {}",
+                                    output_path.display()
+                                );
                             }
                         }
                         Err(e) => eprintln!("[ERROR] Error al empaquetar: {}", e),
                     }
                 }
-                Err(e) => eprintln!("[ERROR] Error al leer jolt.toml en {}: {}", dir.display(), e),
+                Err(e) => eprintln!(
+                    "[ERROR] Error al leer jolt.toml en {}: {}",
+                    dir.display(),
+                    e
+                ),
             }
         }
-        cli::Commands::Run { watch, member, download_jdk } => {
+        cli::Commands::Run {
+            watch,
+            member,
+            download_jdk,
+        } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), false, false) {
                 Ok(d) => d,
                 Err(e) => {
@@ -800,13 +1084,19 @@ async fn main() {
                     let proj = match &manifest.project {
                         Some(p) => p,
                         None => {
-                            eprintln!("[ERROR] El archivo '{}' no define un [project] ejecutable.", manifest_path.display());
+                            eprintln!(
+                                "[ERROR] El archivo '{}' no define un [project] ejecutable.",
+                                manifest_path.display()
+                            );
                             return;
                         }
                     };
 
                     let java_ver = proj.java_version.as_deref().unwrap_or("21");
-                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, *download_jdk).await {
+                    let toolchain = match toolchain_manager
+                        .resolve_toolchain(java_ver, *download_jdk)
+                        .await
+                    {
                         Ok(tc) => Some(tc),
                         Err(e) => {
                             eprintln!("[ERROR] {}", e);
@@ -814,9 +1104,15 @@ async fn main() {
                         }
                     };
 
-                    let main_class = proj.main_class
+                    let main_class = proj
+                        .main_class
                         .as_deref()
-                        .or_else(|| manifest.package.as_ref().and_then(|p| p.main_class.as_deref()))
+                        .or_else(|| {
+                            manifest
+                                .package
+                                .as_ref()
+                                .and_then(|p| p.main_class.as_deref())
+                        })
                         .map(|s| s.to_string())
                         .or_else(|| build::detect_main_class(dir))
                         .unwrap_or_else(|| "Main".to_string());
@@ -826,7 +1122,10 @@ async fn main() {
                             eprintln!("[ERROR] {}", e);
                         }
                     } else {
-                        println!("[INFO] Compilando y ejecutando '{}' con Java {}...", proj.name, java_ver);
+                        println!(
+                            "[INFO] Compilando y ejecutando '{}' con Java {}...",
+                            proj.name, java_ver
+                        );
                         if let Err(e) = build::run(dir, &main_class, toolchain.as_ref()) {
                             eprintln!("[ERROR] {}", e);
                         }
@@ -835,7 +1134,11 @@ async fn main() {
                 Err(e) => eprintln!("[ERROR] Error al leer {}: {}", manifest_path.display(), e),
             }
         }
-        cli::Commands::Test { all, member, download_jdk } => {
+        cli::Commands::Test {
+            all,
+            member,
+            download_jdk,
+        } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, true) {
                 Ok(d) => d,
                 Err(e) => {
@@ -849,31 +1152,163 @@ async fn main() {
             const JUNIT_VERSION: &str = "1.10.2";
 
             if !cache_manager.has_jar(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION) {
-                println!("[INFO] Aprovisionando JUnit 5 Platform Console Launcher ({}) a la cache...", JUNIT_VERSION);
-                if let Ok(bytes) = maven_client.download_jar_with_classifier(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION, None).await {
-                    let _ = cache_manager.save_jar_with_classifier(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION, None, &bytes);
+                println!(
+                    "[INFO] Aprovisionando JUnit 5 Platform Console Launcher ({}) a la cache...",
+                    JUNIT_VERSION
+                );
+                if let Ok(bytes) = maven_client
+                    .download_jar_with_classifier(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION, None)
+                    .await
+                {
+                    let _ = cache_manager.save_jar_with_classifier(
+                        JUNIT_GROUP,
+                        JUNIT_ARTIFACT,
+                        JUNIT_VERSION,
+                        None,
+                        &bytes,
+                    );
                 }
             }
-            let junit_jar_path = cache_manager.get_jar_path(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION);
+            let junit_jar_path =
+                cache_manager.get_jar_path(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION);
 
             for dir in target_dirs {
                 let manifest_path = dir.join("jolt.toml");
                 if let Ok(manifest) = JoltManifest::load_from_file(&manifest_path) {
-                    let java_ver = manifest.project.as_ref().and_then(|p| p.java_version.as_deref()).unwrap_or("21");
-                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, *download_jdk).await {
+                    let java_ver = manifest
+                        .project
+                        .as_ref()
+                        .and_then(|p| p.java_version.as_deref())
+                        .unwrap_or("21");
+                    let toolchain = match toolchain_manager
+                        .resolve_toolchain(java_ver, *download_jdk)
+                        .await
+                    {
                         Ok(tc) => Some(tc),
                         Err(e) => {
                             eprintln!("[ERROR] {}", e);
                             continue;
                         }
                     };
-                    let proj_name = manifest.project.as_ref().map(|p| p.name.as_str()).unwrap_or("app");
+                    let proj_name = manifest
+                        .project
+                        .as_ref()
+                        .map(|p| p.name.as_str())
+                        .unwrap_or("app");
 
-                    println!("[INFO] Ejecutando suite de pruebas unitarias (JUnit 5) para '{}'...", proj_name);
+                    println!(
+                        "[INFO] Ejecutando suite de pruebas unitarias (JUnit 5) para '{}'...",
+                        proj_name
+                    );
                     if let Err(e) = build::run_tests(&dir, toolchain.as_ref(), &junit_jar_path) {
                         eprintln!("[ERROR] Pruebas fallidas en {}: {}", dir.display(), e);
                     }
                 }
+            }
+        }
+        cli::Commands::Verify {
+            member,
+            download_jdk,
+        } => {
+            let target_dirs = match resolve_target_directories(member.as_deref(), false, false) {
+                Ok(d) => d,
+                Err(e) => {
+                    eprintln!("[ERROR] {}", e);
+                    return;
+                }
+            };
+            for dir in target_dirs {
+                if let Err(e) = install_in_dir(&dir, false, &cache_manager, &maven_client).await {
+                    eprintln!("[ERROR] Instalación de {}: {}", dir.display(), e);
+                    continue;
+                }
+                let manifest_path = dir.join("jolt.toml");
+                let manifest = match JoltManifest::load_from_file(&manifest_path) {
+                    Ok(m) => m,
+                    Err(e) => {
+                        eprintln!("[ERROR] Error al leer {}: {}", manifest_path.display(), e);
+                        continue;
+                    }
+                };
+                let project = match manifest.project.as_ref() {
+                    Some(p) => p,
+                    None => {
+                        eprintln!(
+                            "[ERROR] {} no define un [project].",
+                            manifest_path.display()
+                        );
+                        continue;
+                    }
+                };
+                let java_ver = project.java_version.as_deref().unwrap_or("21");
+                let toolchain = match toolchain_manager
+                    .resolve_toolchain(java_ver, *download_jdk)
+                    .await
+                {
+                    Ok(tc) => Some(tc),
+                    Err(e) => {
+                        eprintln!("[ERROR] {}", e);
+                        continue;
+                    }
+                };
+                let test_source = dir.join("src").join("test");
+                if test_source.is_dir()
+                    && build::collect_java_files(&test_source)
+                        .iter()
+                        .next()
+                        .is_some()
+                {
+                    const JUNIT_GROUP: &str = "org.junit.platform";
+                    const JUNIT_ARTIFACT: &str = "junit-platform-console-standalone";
+                    const JUNIT_VERSION: &str = "1.10.2";
+                    if !cache_manager.has_jar(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION) {
+                        let bytes = match maven_client
+                            .download_jar(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION)
+                            .await
+                        {
+                            Ok(bytes) => bytes,
+                            Err(e) => {
+                                eprintln!(
+                                    "[ERROR] No se pudo aprovisionar JUnit para verify: {}",
+                                    e
+                                );
+                                continue;
+                            }
+                        };
+                        if let Err(e) = cache_manager.save_jar(
+                            JUNIT_GROUP,
+                            JUNIT_ARTIFACT,
+                            JUNIT_VERSION,
+                            &bytes,
+                        ) {
+                            eprintln!("[ERROR] No se pudo guardar JUnit para verify: {}", e);
+                            continue;
+                        }
+                    }
+                    let junit =
+                        cache_manager.get_jar_path(JUNIT_GROUP, JUNIT_ARTIFACT, JUNIT_VERSION);
+                    if let Err(e) = build::run_tests(&dir, toolchain.as_ref(), &junit) {
+                        eprintln!("[ERROR] Verificación de pruebas fallida: {}", e);
+                        continue;
+                    }
+                }
+                if let Err(e) = build::compile(&dir, toolchain.as_ref()) {
+                    eprintln!("[ERROR] Verificación de compilación fallida: {}", e);
+                    continue;
+                }
+                let main_class = project
+                    .main_class
+                    .clone()
+                    .or_else(|| build::detect_main_class(&dir))
+                    .unwrap_or_else(|| "Main".to_string());
+                if let Err(e) = build::verify_start(&dir, &main_class, toolchain.as_ref()) {
+                    eprintln!("[ERROR] Verificación de arranque fallida: {}", e);
+                    continue;
+                }
+                println!(
+                    "[OK] Verificación completada para '{}': compilación correcta y aplicación arrancada temporalmente.",
+                    project.name
+                );
             }
         }
         cli::Commands::Sync { all, member } => {
@@ -892,11 +1327,11 @@ async fn main() {
             }
         }
         cli::Commands::Check => {
-            if let Err(e) = SystemChecker::run_check(Path::new("."), &cache_manager, &toolchain_manager).await {
+            if let Err(e) =
+                SystemChecker::run_check(Path::new("."), &cache_manager, &toolchain_manager).await
+            {
                 eprintln!("[ERROR] Error durante el diagnostico: {}", e);
             }
         }
     }
 }
-
-

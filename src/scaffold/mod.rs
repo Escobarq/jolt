@@ -1,13 +1,13 @@
 pub mod ide_config;
 pub mod templates;
 
-use dialoguer::{theme::ColorfulTheme, Input, Select};
+use dialoguer::{Input, Select, theme::ColorfulTheme};
 use std::fs;
 use std::io::IsTerminal;
 use std::path::Path;
 
 pub use ide_config::ensure_ide_configuration;
-pub use templates::{print_available_templates, AVAILABLE_TEMPLATES};
+pub use templates::{AVAILABLE_TEMPLATES, print_available_templates};
 
 pub fn init_project(
     name: Option<&str>,
@@ -50,7 +50,9 @@ pub fn init_project(
         );
 
         println!("[OK] Workspace Monorepo '{}' creado exitosamente.", ws_name);
-        println!("     Siguiente paso: Crea módulos dentro con 'jolt init <modulo>' o 'jolt init <modulo> --template <plantilla>'");
+        println!(
+            "     Siguiente paso: Crea módulos dentro con 'jolt init <modulo>' o 'jolt init <modulo> --template <plantilla>'"
+        );
         return Ok(());
     }
 
@@ -110,14 +112,20 @@ pub fn init_project(
             .default("app".to_string())
             .interact_text()?;
         let p = Path::new(&input_name);
-        let base_name = p.file_name().and_then(|f| f.to_str()).unwrap_or(&input_name);
+        let base_name = p
+            .file_name()
+            .and_then(|f| f.to_str())
+            .unwrap_or(&input_name);
         (p.to_path_buf(), base_name.to_string())
     } else {
         (std::path::PathBuf::from("app"), "app".to_string())
     };
 
     // 4. Resolver Paquete Java / Namespace
-    let sanitized_pkg_name: String = project_name.chars().filter(|c| c.is_alphanumeric() || *c == '_').collect();
+    let sanitized_pkg_name: String = project_name
+        .chars()
+        .filter(|c| c.is_alphanumeric() || *c == '_')
+        .collect();
     let default_pkg = if existing_ws.is_some() {
         format!("org.app.{}", sanitized_pkg_name.to_lowercase())
     } else {
@@ -126,14 +134,22 @@ pub fn init_project(
 
     let resolved_pkg: Option<String> = if let Some(p) = package {
         let trimmed = p.trim().to_string();
-        if trimmed.is_empty() { None } else { Some(trimmed) }
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed)
+        }
     } else if is_interactive && name.is_none() {
         let pkg_input: String = Input::with_theme(&ColorfulTheme::default())
             .with_prompt("Paquete raíz Java (namespace FQCN)")
             .default(default_pkg)
             .interact_text()?;
         let trimmed = pkg_input.trim().to_string();
-        if trimmed.is_empty() { None } else { Some(trimmed) }
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed)
+        }
     } else {
         None
     };
@@ -169,7 +185,15 @@ pub fn init_project(
         "minimal".to_string()
     };
 
-    let valid_templates = ["minimal", "cli", "javafx", "swing", "web", "spring", "spring-boot"];
+    let valid_templates = [
+        "minimal",
+        "cli",
+        "javafx",
+        "swing",
+        "web",
+        "spring",
+        "spring-boot",
+    ];
     if !valid_templates.contains(&tmpl.as_str()) {
         println!("[ERROR] Plantilla '{}' no reconocida.", tmpl);
         print_available_templates();
@@ -200,22 +224,23 @@ pub fn init_project(
     }
 
     // Configurar rutas de directorios de fuentes según el paquete
-    let (src_main_java, src_test_java, pkg_stmt, main_class_name) = if let Some(ref pkg) = resolved_pkg {
-        let pkg_rel = pkg.replace('.', "/");
-        (
-            base_dir.join("src/main/java").join(&pkg_rel),
-            base_dir.join("src/test/java").join(&pkg_rel),
-            format!("package {};\n\n", pkg),
-            format!("{}.Main", pkg),
-        )
-    } else {
-        (
-            base_dir.join("src/main/java"),
-            base_dir.join("src/test/java"),
-            String::new(),
-            "Main".to_string(),
-        )
-    };
+    let (src_main_java, src_test_java, pkg_stmt, main_class_name) =
+        if let Some(ref pkg) = resolved_pkg {
+            let pkg_rel = pkg.replace('.', "/");
+            (
+                base_dir.join("src/main/java").join(&pkg_rel),
+                base_dir.join("src/test/java").join(&pkg_rel),
+                format!("package {};\n\n", pkg),
+                format!("{}.Main", pkg),
+            )
+        } else {
+            (
+                base_dir.join("src/main/java"),
+                base_dir.join("src/test/java"),
+                String::new(),
+                "Main".to_string(),
+            )
+        };
 
     // Crear la estructura de carpetas estándar
     fs::create_dir_all(&src_main_java)?;
@@ -264,7 +289,10 @@ pub fn init_project(
             );
             let meta_inf_dir = base_dir.join("src/main/resources/META-INF/native-image");
             fs::create_dir_all(&meta_inf_dir)?;
-            fs::write(base_dir.join("src/main/resources/reflect-config.json"), &reflect_json)?;
+            fs::write(
+                base_dir.join("src/main/resources/reflect-config.json"),
+                &reflect_json,
+            )?;
             fs::write(meta_inf_dir.join("reflect-config.json"), &reflect_json)?;
         }
         "javafx" => {
@@ -285,7 +313,10 @@ pub fn init_project(
                 pkg_stmt
             );
             fs::write(src_main_java.join("Main.java"), main_content)?;
-            fs::write(base_dir.join("src/main/resources/style.css"), include_str!("../../templates/javafx/src/main/resources/style.css"))?;
+            fs::write(
+                base_dir.join("src/main/resources/style.css"),
+                include_str!("../../templates/javafx/src/main/resources/style.css"),
+            )?;
         }
         "swing" => {
             let toml_content = format!(
@@ -299,7 +330,10 @@ pub fn init_project(
                 pkg_stmt
             );
             fs::write(src_main_java.join("Main.java"), main_content)?;
-            fs::write(base_dir.join("src/main/resources/app.properties"), include_str!("../../templates/swing/src/main/resources/app.properties"))?;
+            fs::write(
+                base_dir.join("src/main/resources/app.properties"),
+                include_str!("../../templates/swing/src/main/resources/app.properties"),
+            )?;
 
             let test_content = format!(
                 "{}import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.assertNotNull;\n\npublic class SwingAppTest {{\n    @Test\n    void testAppLoads() {{\n        assertNotNull(\"Swing app test\");\n    }}\n}}\n",
@@ -319,7 +353,10 @@ pub fn init_project(
                 pkg_stmt
             );
             fs::write(src_main_java.join("Main.java"), main_content)?;
-            fs::write(base_dir.join("src/main/resources/application.properties"), include_str!("../../templates/web/src/main/resources/application.properties"))?;
+            fs::write(
+                base_dir.join("src/main/resources/application.properties"),
+                include_str!("../../templates/web/src/main/resources/application.properties"),
+            )?;
 
             let test_content = format!(
                 "{}import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.assertTrue;\n\npublic class MainTest {{\n    @Test\n    void testServerLoads() {{\n        assertTrue(true, \"Javalin web app test\");\n    }}\n}}\n",
@@ -339,7 +376,10 @@ pub fn init_project(
                 pkg_stmt
             );
             fs::write(src_main_java.join("Main.java"), main_content)?;
-            fs::write(base_dir.join("src/main/resources/application.properties"), include_str!("../../templates/spring/src/main/resources/application.properties"))?;
+            fs::write(
+                base_dir.join("src/main/resources/application.properties"),
+                include_str!("../../templates/spring/src/main/resources/application.properties"),
+            )?;
 
             let test_content = format!(
                 "{}import org.junit.jupiter.api.Test;\nimport static org.junit.jupiter.api.Assertions.assertTrue;\n\npublic class SpringAppTest {{\n    @Test\n    void contextLoads() {{\n        assertTrue(true);\n    }}\n}}\n",
@@ -369,7 +409,9 @@ pub fn init_project(
     }
 
     // Auto-registrar en workspace si se creó dentro de uno
-    if let Some((root_ws_dir, _)) = crate::core::manifest::JoltManifest::find_root_workspace(&current_dir) {
+    if let Some((root_ws_dir, _)) =
+        crate::core::manifest::JoltManifest::find_root_workspace(&current_dir)
+    {
         let abs_base = if base_dir.is_relative() {
             current_dir.join(&base_dir)
         } else {
@@ -379,20 +421,33 @@ pub fn init_project(
             if let Ok(rel) = canon_base.strip_prefix(&root_ws_dir) {
                 let member_str = rel.to_string_lossy().to_string();
                 let ws_manifest = root_ws_dir.join("jolt.toml");
-                let _ = crate::core::manifest::JoltManifest::add_member_to_workspace(&ws_manifest, &member_str);
-                println!("  [OK] Módulo '{}' registrado en workspace '{}'", member_str, root_ws_dir.display());
+                let _ = crate::core::manifest::JoltManifest::add_member_to_workspace(
+                    &ws_manifest,
+                    &member_str,
+                );
+                println!(
+                    "  [OK] Módulo '{}' registrado en workspace '{}'",
+                    member_str,
+                    root_ws_dir.display()
+                );
             }
         }
     }
 
-    println!("[OK] Proyecto '{}' inicializado correctamente (Plantilla: '{}').", project_name, tmpl);
+    println!(
+        "[OK] Proyecto '{}' inicializado correctamente (Plantilla: '{}').",
+        project_name, tmpl
+    );
     if let Some(ref pkg) = resolved_pkg {
         println!("     Paquete Java configurado: {}", pkg);
     }
     if resolved_graalvm {
         println!("     ⚡ Configuración GraalVM Native Image activada por defecto.");
     }
-    println!("     Sugerencia: Ejecuta 'cd {} && jolt install' para sincronizar librerias.", project_name);
+    println!(
+        "     Sugerencia: Ejecuta 'cd {} && jolt install' para sincronizar librerias.",
+        project_name
+    );
 
     Ok(())
 }
@@ -436,17 +491,23 @@ mod tests {
             Some("org.equipo"),
             false,
             false,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(target_dir.join("jolt.toml").exists());
         let main_file = target_dir.join("src/main/java/org/equipo/demo/Main.java");
-        assert!(main_file.exists(), "Debe crear Main.java en la ruta del paquete");
+        assert!(
+            main_file.exists(),
+            "Debe crear Main.java en la ruta del paquete"
+        );
 
         let content = fs::read_to_string(main_file).unwrap();
         assert!(content.contains("package org.equipo.demo;"));
         assert!(content.contains("public class Main"));
 
-        let manifest = crate::core::manifest::JoltManifest::load_from_file(&target_dir.join("jolt.toml")).unwrap();
+        let manifest =
+            crate::core::manifest::JoltManifest::load_from_file(&target_dir.join("jolt.toml"))
+                .unwrap();
         let proj = manifest.project.as_ref().unwrap();
         assert_eq!(proj.package, Some("org.equipo.demo".to_string()));
         assert_eq!(proj.group_id, Some("org.equipo".to_string()));
@@ -464,18 +525,15 @@ mod tests {
         let target_dir = temp_dir.join("cli_app");
         let target_str = target_dir.to_str().unwrap();
 
-        init_project(
-            Some(target_str),
-            Some("cli"),
-            None,
-            None,
-            false,
-            true,
-        ).unwrap();
+        init_project(Some(target_str), Some("cli"), None, None, false, true).unwrap();
 
         assert!(target_dir.join("jolt.toml").exists());
-        let manifest = crate::core::manifest::JoltManifest::load_from_file(&target_dir.join("jolt.toml")).unwrap();
-        let gvm = manifest.graalvm_config().expect("Expected graalvm config in cli template");
+        let manifest =
+            crate::core::manifest::JoltManifest::load_from_file(&target_dir.join("jolt.toml"))
+                .unwrap();
+        let gvm = manifest
+            .graalvm_config()
+            .expect("Expected graalvm config in cli template");
         assert_eq!(gvm.enabled, Some(true));
         assert_eq!(gvm.name, Some("cli_app-cli".to_string()));
 
@@ -491,14 +549,7 @@ mod tests {
         let target_dir = temp_dir.join("web_service");
         let target_str = target_dir.to_str().unwrap();
 
-        init_project(
-            Some(target_str),
-            Some("web"),
-            None,
-            None,
-            false,
-            false,
-        ).unwrap();
+        init_project(Some(target_str), Some("web"), None, None, false, false).unwrap();
 
         assert!(target_dir.join("jolt.toml").exists());
         assert!(target_dir.join("src/test/java/MainTest.java").exists());
@@ -522,10 +573,12 @@ mod tests {
             None,
             true, // workspace = true
             false,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(ws_dir.join("jolt.toml").exists());
-        let manifest = crate::core::manifest::JoltManifest::load_from_file(&ws_dir.join("jolt.toml")).unwrap();
+        let manifest =
+            crate::core::manifest::JoltManifest::load_from_file(&ws_dir.join("jolt.toml")).unwrap();
         assert!(manifest.is_workspace());
         assert_eq!(manifest.workspace.unwrap().members.len(), 0);
 

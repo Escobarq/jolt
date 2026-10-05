@@ -77,7 +77,8 @@ pub fn build_classpath(project_dir: &Path, include_classes: bool) -> String {
     if let Ok(manifest) = crate::core::manifest::JoltManifest::load_from_file(&manifest_path) {
         if let Some(deps) = &manifest.dependencies {
             for (_name, spec) in deps {
-                let (_ver, local_path_opt) = crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
+                let (_ver, local_path_opt) =
+                    crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
                 if let Some(rel_path) = local_path_opt {
                     let dep_dir = project_dir.join(&rel_path);
                     let dep_classes = dep_dir.join("target").join("classes");
@@ -127,7 +128,8 @@ pub fn build_test_classpath(project_dir: &Path, include_classes: bool) -> String
     if let Ok(manifest) = crate::core::manifest::JoltManifest::load_from_file(&manifest_path) {
         if let Some(deps) = &manifest.dependencies {
             for (_name, spec) in deps {
-                let (_ver, local_path_opt) = crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
+                let (_ver, local_path_opt) =
+                    crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
                 if let Some(rel_path) = local_path_opt {
                     let dep_dir = project_dir.join(&rel_path);
                     let dep_classes = dep_dir.join("target").join("classes");
@@ -153,7 +155,8 @@ pub fn compile(
     if let Ok(manifest) = crate::core::manifest::JoltManifest::load_from_file(&manifest_path) {
         if let Some(deps) = &manifest.dependencies {
             for (_name, spec) in deps {
-                let (_ver, local_path_opt) = crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
+                let (_ver, local_path_opt) =
+                    crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
                 if let Some(rel_path) = local_path_opt {
                     let dep_dir = project_dir.join(&rel_path);
                     let dep_manifest_path = dep_dir.join("jolt.toml");
@@ -254,13 +257,15 @@ pub fn detect_main_class(project_dir: &Path) -> Option<String> {
                         for line in content.lines() {
                             let trimmed = line.trim();
                             if trimmed.starts_with("package ") && trimmed.ends_with(';') {
-                                package_name = Some(
-                                    trimmed[8..trimmed.len() - 1].trim().to_string()
-                                );
+                                package_name =
+                                    Some(trimmed[8..trimmed.len() - 1].trim().to_string());
                             }
                             if class_name.is_none() {
                                 if let Some(pos) = trimmed.find("class ") {
-                                    if !trimmed.starts_with("//") && !trimmed.starts_with("/*") && !trimmed.starts_with('*') {
+                                    if !trimmed.starts_with("//")
+                                        && !trimmed.starts_with("/*")
+                                        && !trimmed.starts_with('*')
+                                    {
                                         let after_class = trimmed[pos + 6..].trim();
                                         let name = after_class
                                             .split(|c: char| !c.is_alphanumeric() && c != '_')
@@ -275,7 +280,10 @@ pub fn detect_main_class(project_dir: &Path) -> Option<String> {
                         }
 
                         let resolved_class = class_name.or_else(|| {
-                            file_path.file_stem().and_then(|s| s.to_str()).map(|s| s.to_string())
+                            file_path
+                                .file_stem()
+                                .and_then(|s| s.to_str())
+                                .map(|s| s.to_string())
                         });
 
                         if let Some(cls) = resolved_class {

@@ -21,7 +21,12 @@ pub fn find_makensis_binary() -> Option<PathBuf> {
         }
 
         if let Some(home) = dirs::home_dir() {
-            let scoop_nsis = home.join("scoop").join("apps").join("nsis").join("current").join("makensis.exe");
+            let scoop_nsis = home
+                .join("scoop")
+                .join("apps")
+                .join("nsis")
+                .join("current")
+                .join("makensis.exe");
             if scoop_nsis.is_file() {
                 return Some(scoop_nsis);
             }
@@ -50,7 +55,8 @@ pub fn generate_nsis_script(
     license_path: Option<&Path>,
     output_installer: &Path,
 ) -> String {
-    let is_per_machine = scope.eq_ignore_ascii_case("per-machine") || scope.eq_ignore_ascii_case("admin");
+    let is_per_machine =
+        scope.eq_ignore_ascii_case("per-machine") || scope.eq_ignore_ascii_case("admin");
     let exec_level = if is_per_machine { "admin" } else { "user" };
     let reg_root = if is_per_machine { "HKLM" } else { "HKCU" };
     let default_dir = if is_per_machine {
@@ -98,10 +104,7 @@ pub fn generate_nsis_script(
             "    CreateShortCut \"$DESKTOP\\{}.lnk\" \"$INSTDIR\\{}\" \"\" \"$INSTDIR\\{}\" 0\n",
             app_name, exe_name, exe_name
         ));
-        uninstall_shortcuts_code.push_str(&format!(
-            "    Delete \"$DESKTOP\\{}.lnk\"\n",
-            app_name
-        ));
+        uninstall_shortcuts_code.push_str(&format!("    Delete \"$DESKTOP\\{}.lnk\"\n", app_name));
     }
 
     let (path_add_code, path_remove_code) = if add_to_path {

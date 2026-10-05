@@ -17,7 +17,12 @@ pub fn find_upx_binary() -> Option<PathBuf> {
             if scoop_shim.is_file() {
                 return Some(scoop_shim);
             }
-            let local_scoop = home.join("AppData").join("Local").join("scoop").join("shims").join("upx.exe");
+            let local_scoop = home
+                .join("AppData")
+                .join("Local")
+                .join("scoop")
+                .join("shims")
+                .join("upx.exe");
             if local_scoop.is_file() {
                 return Some(local_scoop);
             }
@@ -37,16 +42,24 @@ pub fn compress_with_upx(
     custom_args: Option<&[String]>,
     verbose: bool,
 ) -> Result<(u64, u64, usize), Box<dyn Error + Send + Sync>> {
-    let upx_bin = find_upx_binary().ok_or("UPX no está instalado o no se encuentra en el sistema")?;
+    let upx_bin =
+        find_upx_binary().ok_or("UPX no está instalado o no se encuentra en el sistema")?;
 
     let mut targets = Vec::new();
     if target_dir_or_file.is_file() {
         targets.push(target_dir_or_file.to_path_buf());
     } else if target_dir_or_file.is_dir() {
-        for entry in WalkDir::new(target_dir_or_file).into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(target_dir_or_file)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
             let p = entry.path();
             if p.is_file() {
-                let ext = p.extension().and_then(|e| e.to_str()).unwrap_or("").to_lowercase();
+                let ext = p
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .unwrap_or("")
+                    .to_lowercase();
                 if ext == "exe" || ext == "dll" || ext == "so" {
                     targets.push(p.to_path_buf());
                 }
@@ -88,7 +101,10 @@ pub fn compress_with_upx(
             let pct = 100.0 - (new_len as f64 / orig_len as f64 * 100.0);
             println!(
                 "       [UPX] {} ({:.2} MB -> {:.2} MB, -{:.1}%)",
-                target.file_name().and_then(|f| f.to_str()).unwrap_or("archivo"),
+                target
+                    .file_name()
+                    .and_then(|f| f.to_str())
+                    .unwrap_or("archivo"),
                 orig_len as f64 / (1024.0 * 1024.0),
                 new_len as f64 / (1024.0 * 1024.0),
                 pct

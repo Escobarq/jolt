@@ -51,7 +51,10 @@ jolt run --watch
 # 4. Ejecutar pruebas unitarias integradas (JUnit 5)
 jolt test
 
-# 5. Compilar Fat-JAR autónomo, Binario Nativo GraalVM o Instalador
+# 5. Verificar dependencias, compilación, pruebas y arranque
+jolt verify
+
+# 6. Compilar Fat-JAR autónomo, Binario Nativo GraalVM o Instalador
 jolt build --standalone
 jolt build --native            # 🚀 Binario nativo instantáneo con GraalVM Native Image
 jolt build --installer         # 📦 Instalador nativo (.msi / NSIS .exe)

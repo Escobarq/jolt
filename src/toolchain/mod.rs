@@ -4,7 +4,10 @@ pub mod downloader;
 use std::error::Error;
 use std::path::PathBuf;
 
-pub use detector::{detect_java_vendor, discover_system_jdks, find_system_jdk, inspect_jdk_dir, parse_java_major_version};
+pub use detector::{
+    detect_java_vendor, discover_system_jdks, find_system_jdk, inspect_jdk_dir,
+    parse_java_major_version,
+};
 pub use downloader::{download_and_extract_jdk, find_binaries_in_dir};
 
 #[derive(Debug, Clone)]
@@ -125,7 +128,11 @@ impl ToolchainManager {
     ) -> Result<Toolchain, Box<dyn Error + Send + Sync>> {
         // 1. Revisar caché local de Jolt
         if let Some(toolchain) = self.find_cached_jdk(requested_version) {
-            println!("⚡ Usando JDK desde caché de Jolt: {} en {}", toolchain.version, toolchain.java_bin.display());
+            println!(
+                "⚡ Usando JDK desde caché de Jolt: {} en {}",
+                toolchain.version,
+                toolchain.java_bin.display()
+            );
             return Ok(toolchain);
         }
 
@@ -143,7 +150,10 @@ impl ToolchainManager {
 
         // 3. Si no hay JDK compatible
         if allow_download {
-            println!("🌐 Descargando OpenJDK Temurin {} para tu arquitectura...", requested_version);
+            println!(
+                " Descargando OpenJDK Temurin {} para tu arquitectura...",
+                requested_version
+            );
             download_and_extract_jdk(&self.client, &self.jdks_root, requested_version).await
         } else {
             let discovered = self.discover_system_jdks();
@@ -194,15 +204,27 @@ mod tests {
     fn test_parse_version_formats() {
         assert_eq!(parse_java_major_version("javac 25.0.4"), Some(25));
         assert_eq!(parse_java_major_version("javac 21.0.2"), Some(21));
-        assert_eq!(parse_java_major_version("openjdk version \"17.0.9\" 2023-10-17"), Some(17));
-        assert_eq!(parse_java_major_version("java version \"1.8.0_351\""), Some(8));
+        assert_eq!(
+            parse_java_major_version("openjdk version \"17.0.9\" 2023-10-17"),
+            Some(17)
+        );
+        assert_eq!(
+            parse_java_major_version("java version \"1.8.0_351\""),
+            Some(8)
+        );
         assert_eq!(parse_java_major_version("javac 17"), Some(17));
     }
 
     #[test]
     fn test_detect_vendors() {
-        assert_eq!(detect_java_vendor("Java(TM) SE Runtime Environment Oracle GraalVM 25.0.4+7.1"), "Oracle GraalVM");
-        assert_eq!(detect_java_vendor("OpenJDK Runtime Environment Temurin-21.0.2+13"), "Eclipse Temurin");
+        assert_eq!(
+            detect_java_vendor("Java(TM) SE Runtime Environment Oracle GraalVM 25.0.4+7.1"),
+            "Oracle GraalVM"
+        );
+        assert_eq!(
+            detect_java_vendor("OpenJDK Runtime Environment Temurin-21.0.2+13"),
+            "Eclipse Temurin"
+        );
         assert_eq!(detect_java_vendor("Corretto-17.0.9.8.1"), "Amazon Corretto");
         assert_eq!(detect_java_vendor("Zulu21.32+17-CA"), "Azul Zulu");
     }
@@ -211,7 +233,10 @@ mod tests {
     fn test_find_system_jdk() {
         let manager = ToolchainManager::new();
         let toolchain = manager.find_system_jdk("21");
-        assert!(toolchain.is_some(), "Debe detectar un JDK compatible >= 21 si existe");
+        assert!(
+            toolchain.is_some(),
+            "Debe detectar un JDK compatible >= 21 si existe"
+        );
         let tc = toolchain.unwrap();
         assert!(tc.major_version >= 21);
     }

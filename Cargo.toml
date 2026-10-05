@@ -2,6 +2,18 @@
 name = "jolt"
 version = "0.7.2"
 edition = "2024"
+description = "Gestor de paquetes y herramientas para proyectos Java"
+repository = "https://github.com/Escobarq/jolt"
+exclude = [
+    ".agents/**",
+    ".tgrep/**",
+    "dist/**",
+    "graphify-out/**",
+    "installer/**",
+    "openspec/**",
+    "scripts/**",
+    "target/**",
+]
 
 [dependencies]
 clap = { version = "4.6.6", features = ["derive"] }
@@ -21,4 +33,3 @@ toml = "1.1.4"
 toml_edit = "0.25.13"
 walkdir = "2.5.0"
 zip = "8.6.0"
-

@@ -77,7 +77,9 @@ impl SystemChecker {
         if let Some(ver) = Self::get_command_version("javac", "-version") {
             println!("  [OK]    Java Compiler (javac):     {}", ver);
         } else {
-            println!("  [WARN]  Java Compiler (javac):     No detectado en PATH (Jolt auto-aprovisionara JDK)");
+            println!(
+                "  [WARN]  Java Compiler (javac):     No detectado en PATH (Jolt auto-aprovisionara JDK)"
+            );
         }
 
         // Java Archiver
@@ -96,16 +98,23 @@ impl SystemChecker {
             } else {
                 "app-image"
             };
-            println!("  [OK]    Java Packager (jpackage):  {} (Formatos soportados: {})", ver, formats);
+            println!(
+                "  [OK]    Java Packager (jpackage):  {} (Formatos soportados: {})",
+                ver, formats
+            );
         } else {
-            println!("  [WARN]  Java Packager (jpackage):  No detectado en PATH (requiere JDK 14+)");
+            println!(
+                "  [WARN]  Java Packager (jpackage):  No detectado en PATH (requiere JDK 14+)"
+            );
         }
 
         // GraalVM Native Image
         if let Some(ver) = Self::get_command_version("native-image", "--version") {
             println!("  [OK]    GraalVM Native Image:      {}", ver);
         } else {
-            println!("  [INFO]  GraalVM Native Image:      No detectado en PATH (opcional para compilación con 'jolt build --native')");
+            println!(
+                "  [INFO]  GraalVM Native Image:      No detectado en PATH (opcional para compilación con 'jolt build --native')"
+            );
         }
 
         // Rust Toolchain
@@ -123,21 +132,39 @@ impl SystemChecker {
 
         // NSIS Compiler (makensis)
         if let Some(makensis_path) = crate::packaging::find_makensis_binary() {
-            let ver = Self::get_command_version(makensis_path.to_str().unwrap_or("makensis"), "/VERSION")
-                .or_else(|| Self::get_command_version(makensis_path.to_str().unwrap_or("makensis"), "-VERSION"))
-                .unwrap_or_else(|| "Instalado".to_string());
-            println!("  [OK]    NSIS Compiler (makensis):  {} ({})", ver, makensis_path.display());
+            let ver =
+                Self::get_command_version(makensis_path.to_str().unwrap_or("makensis"), "/VERSION")
+                    .or_else(|| {
+                        Self::get_command_version(
+                            makensis_path.to_str().unwrap_or("makensis"),
+                            "-VERSION",
+                        )
+                    })
+                    .unwrap_or_else(|| "Instalado".to_string());
+            println!(
+                "  [OK]    NSIS Compiler (makensis):  {} ({})",
+                ver,
+                makensis_path.display()
+            );
         } else {
-            println!("  [WARN]  NSIS Compiler (makensis):  No detectado (requerido para instaladores .exe NSIS en Windows)");
+            println!(
+                "  [WARN]  NSIS Compiler (makensis):  No detectado (requerido para instaladores .exe NSIS en Windows)"
+            );
         }
 
         // UPX Compressor
         if let Some(upx_path) = crate::packaging::find_upx_binary() {
             let ver = Self::get_command_version(upx_path.to_str().unwrap_or("upx"), "--version")
                 .unwrap_or_else(|| "Instalado".to_string());
-            println!("  [OK]    UPX Compressor (upx):      {} ({})", ver, upx_path.display());
+            println!(
+                "  [OK]    UPX Compressor (upx):      {} ({})",
+                ver,
+                upx_path.display()
+            );
         } else {
-            println!("  [WARN]  UPX Compressor (upx):      No detectado en PATH / Scoop (opcional para compresión de binarios)");
+            println!(
+                "  [WARN]  UPX Compressor (upx):      No detectado en PATH / Scoop (opcional para compresión de binarios)"
+            );
         }
 
         // Caché Global de Jolt
@@ -152,7 +179,10 @@ impl SystemChecker {
                     Self::format_bytes(bytes)
                 );
             } else {
-                println!("  [INFO]  Cache Global de Jolt:      Aun no inicializada ({})", jolt_cache.display());
+                println!(
+                    "  [INFO]  Cache Global de Jolt:      Aun no inicializada ({})",
+                    jolt_cache.display()
+                );
             }
 
             let jolt_toolchains = home.join(".jolt").join("toolchains");
@@ -166,7 +196,10 @@ impl SystemChecker {
                     }
                 }
                 if !toolchains.is_empty() {
-                    println!("  [OK]    JDKs Aprovisionados:       {}", toolchains.join(", "));
+                    println!(
+                        "  [OK]    JDKs Aprovisionados:       {}",
+                        toolchains.join(", ")
+                    );
                 }
             }
         }
@@ -185,22 +218,46 @@ impl SystemChecker {
         match crate::core::manifest::JoltManifest::load_from_file(&manifest_path) {
             Ok(manifest) => {
                 if manifest.is_workspace() {
-                    let members = manifest.workspace.as_ref().map(|w| &w.members).cloned().unwrap_or_default();
+                    let members = manifest
+                        .workspace
+                        .as_ref()
+                        .map(|w| &w.members)
+                        .cloned()
+                        .unwrap_or_default();
                     println!("  [OK]    Manifiesto 'jolt.toml':    Workspace Monorepo Valido");
-                    println!("          - Miembros Registrados:    {} submodulo(s)", members.len());
+                    println!(
+                        "          - Miembros Registrados:    {} submodulo(s)",
+                        members.len()
+                    );
                     for m in &members {
                         let member_dir = project_dir.join(m);
                         let member_manifest = member_dir.join("jolt.toml");
                         if member_manifest.exists() {
-                            if let Ok(sub_m) = crate::core::manifest::JoltManifest::load_from_file(&member_manifest) {
-                                let proj_name = sub_m.project.as_ref().map(|p| p.name.as_str()).unwrap_or(m.as_str());
-                                let pkg = sub_m.project.as_ref().and_then(|p| p.package.as_deref()).unwrap_or("(paquete raiz)");
-                                println!("            └── [OK] {} (paquete: {}) en {}", proj_name, pkg, m);
+                            if let Ok(sub_m) = crate::core::manifest::JoltManifest::load_from_file(
+                                &member_manifest,
+                            ) {
+                                let proj_name = sub_m
+                                    .project
+                                    .as_ref()
+                                    .map(|p| p.name.as_str())
+                                    .unwrap_or(m.as_str());
+                                let pkg = sub_m
+                                    .project
+                                    .as_ref()
+                                    .and_then(|p| p.package.as_deref())
+                                    .unwrap_or("(paquete raiz)");
+                                println!(
+                                    "            └── [OK] {} (paquete: {}) en {}",
+                                    proj_name, pkg, m
+                                );
                             } else {
                                 println!("            └── [ERROR] {} (error en jolt.toml)", m);
                             }
                         } else {
-                            println!("            └── [WARN] {} (directorio o jolt.toml no encontrado)", m);
+                            println!(
+                                "            └── [WARN] {} (directorio o jolt.toml no encontrado)",
+                                m
+                            );
                         }
                     }
                     println!("\n[OK] Diagnostico del Workspace completado.");
@@ -238,17 +295,29 @@ impl SystemChecker {
                 println!("  [INFO]  Estructura del Codigo:");
                 println!(
                     "          - Codigo fuente:           {} ({} archivo(s) .java)",
-                    if main_java.exists() { "src/main/java/" } else { "src/main/java/ (no encontrado)" },
+                    if main_java.exists() {
+                        "src/main/java/"
+                    } else {
+                        "src/main/java/ (no encontrado)"
+                    },
                     main_count
                 );
                 println!(
                     "          - Recursos estaticos:      {} ({} archivo(s))",
-                    if main_res.exists() { "src/main/resources/" } else { "src/main/resources/ (opcional)" },
+                    if main_res.exists() {
+                        "src/main/resources/"
+                    } else {
+                        "src/main/resources/ (opcional)"
+                    },
                     res_count
                 );
                 println!(
                     "          - Pruebas unitarias:       {} ({} archivo(s) de test)",
-                    if test_java.exists() { "src/test/java/" } else { "src/test/java/ (opcional)" },
+                    if test_java.exists() {
+                        "src/test/java/"
+                    } else {
+                        "src/test/java/ (opcional)"
+                    },
                     test_count
                 );
 
@@ -257,16 +326,26 @@ impl SystemChecker {
                 let mut ok_deps = 0;
 
                 if let Some(deps) = manifest.dependencies {
-                    println!("  [INFO]  Dependencias de Produccion ({} declaradas):", deps.len());
+                    println!(
+                        "  [INFO]  Dependencias de Produccion ({} declaradas):",
+                        deps.len()
+                    );
                     for (dep_name, spec) in deps {
-                        let (version_opt, local_path) = crate::core::manifest::JoltManifest::parse_dependency_spec(&spec);
+                        let (version_opt, local_path) =
+                            crate::core::manifest::JoltManifest::parse_dependency_spec(&spec);
                         if let Some(path) = local_path {
                             let dep_dir = project_dir.join(&path);
                             if dep_dir.exists() {
-                                println!("          [OK]    {} = {{ path = \"{}\" }} (Modulo local)", dep_name, path);
+                                println!(
+                                    "          [OK]    {} = {{ path = \"{}\" }} (Modulo local)",
+                                    dep_name, path
+                                );
                                 ok_deps += 1;
                             } else {
-                                println!("          [ERROR] {} = {{ path = \"{}\" }} (Ruta no existe)", dep_name, path);
+                                println!(
+                                    "          [ERROR] {} = {{ path = \"{}\" }} (Ruta no existe)",
+                                    dep_name, path
+                                );
                                 missing_deps.push(format!("{} (local path)", dep_name));
                             }
                             continue;
@@ -278,20 +357,32 @@ impl SystemChecker {
                                 let artifact_id = parts[1];
                                 let ver_parts: Vec<&str> = version_spec.split(':').collect();
                                 let ver = ver_parts[0];
-                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+                                let classifier = if ver_parts.len() > 1 {
+                                    Some(ver_parts[1])
+                                } else {
+                                    None
+                                };
 
                                 let file_name = match classifier {
                                     Some(c) => format!("{}-{}-{}.jar", artifact_id, ver, c),
                                     None => format!("{}-{}.jar", artifact_id, ver),
                                 };
 
-                                let module_jar = project_dir.join(".jolt").join("modules").join(&file_name);
+                                let module_jar =
+                                    project_dir.join(".jolt").join("modules").join(&file_name);
                                 if module_jar.exists() {
-                                    println!("          [OK]    {} = \"{}\" (Enlazado)", dep_name, version_spec);
+                                    println!(
+                                        "          [OK]    {} = \"{}\" (Enlazado)",
+                                        dep_name, version_spec
+                                    );
                                     ok_deps += 1;
                                 } else {
-                                    println!("          [ERROR] {} = \"{}\" (No instalado)", dep_name, version_spec);
-                                    missing_deps.push(format!("{} = \"{}\"", dep_name, version_spec));
+                                    println!(
+                                        "          [ERROR] {} = \"{}\" (No instalado)",
+                                        dep_name, version_spec
+                                    );
+                                    missing_deps
+                                        .push(format!("{} = \"{}\"", dep_name, version_spec));
                                 }
                             }
                         }
@@ -301,16 +392,26 @@ impl SystemChecker {
                 }
 
                 if let Some(dev_deps) = manifest.dev_dependencies {
-                    println!("  [INFO]  Dependencias de Desarrollo ({} declaradas):", dev_deps.len());
+                    println!(
+                        "  [INFO]  Dependencias de Desarrollo ({} declaradas):",
+                        dev_deps.len()
+                    );
                     for (dep_name, spec) in dev_deps {
-                        let (version_opt, local_path) = crate::core::manifest::JoltManifest::parse_dependency_spec(&spec);
+                        let (version_opt, local_path) =
+                            crate::core::manifest::JoltManifest::parse_dependency_spec(&spec);
                         if let Some(path) = local_path {
                             let dep_dir = project_dir.join(&path);
                             if dep_dir.exists() {
-                                println!("          [OK]    {} = {{ path = \"{}\" }} (Modulo local dev)", dep_name, path);
+                                println!(
+                                    "          [OK]    {} = {{ path = \"{}\" }} (Modulo local dev)",
+                                    dep_name, path
+                                );
                                 ok_deps += 1;
                             } else {
-                                println!("          [ERROR] {} = {{ path = \"{}\" }} (Ruta no existe)", dep_name, path);
+                                println!(
+                                    "          [ERROR] {} = {{ path = \"{}\" }} (Ruta no existe)",
+                                    dep_name, path
+                                );
                                 missing_deps.push(format!("{} (dev local path)", dep_name));
                             }
                             continue;
@@ -322,20 +423,34 @@ impl SystemChecker {
                                 let artifact_id = parts[1];
                                 let ver_parts: Vec<&str> = version_spec.split(':').collect();
                                 let ver = ver_parts[0];
-                                let classifier = if ver_parts.len() > 1 { Some(ver_parts[1]) } else { None };
+                                let classifier = if ver_parts.len() > 1 {
+                                    Some(ver_parts[1])
+                                } else {
+                                    None
+                                };
 
                                 let file_name = match classifier {
                                     Some(c) => format!("{}-{}-{}.jar", artifact_id, ver, c),
                                     None => format!("{}-{}.jar", artifact_id, ver),
                                 };
 
-                                let module_jar = project_dir.join(".jolt").join("dev-modules").join(&file_name);
+                                let module_jar = project_dir
+                                    .join(".jolt")
+                                    .join("dev-modules")
+                                    .join(&file_name);
                                 if module_jar.exists() {
-                                    println!("          [OK]    {} = \"{}\" (Enlazado en dev-modules)", dep_name, version_spec);
+                                    println!(
+                                        "          [OK]    {} = \"{}\" (Enlazado en dev-modules)",
+                                        dep_name, version_spec
+                                    );
                                     ok_deps += 1;
                                 } else {
-                                    println!("          [ERROR] {} = \"{}\" (No instalado en dev-modules)", dep_name, version_spec);
-                                    missing_deps.push(format!("{} = \"{}\" (dev)", dep_name, version_spec));
+                                    println!(
+                                        "          [ERROR] {} = \"{}\" (No instalado en dev-modules)",
+                                        dep_name, version_spec
+                                    );
+                                    missing_deps
+                                        .push(format!("{} = \"{}\" (dev)", dep_name, version_spec));
                                 }
                             }
                         }
@@ -350,18 +465,34 @@ impl SystemChecker {
                 let eclipse_classpath = project_dir.join(".classpath");
 
                 println!("  [INFO]  Integracion con Editor / IDE:");
-                if vscode_settings.exists() && eclipse_classpath.exists() && eclipse_project.exists() {
-                    println!("          [OK]    VS Code y Java Language Server (.vscode/, .classpath, .project)");
+                if vscode_settings.exists()
+                    && eclipse_classpath.exists()
+                    && eclipse_project.exists()
+                {
+                    println!(
+                        "          [OK]    VS Code y Java Language Server (.vscode/, .classpath, .project)"
+                    );
                 } else {
                     println!("          [WARN]  Configuracion de IDE incompleta o ausente");
-                    println!("                  Sugerencia: Ejecuta 'jolt sync' para autoconfigurar VS Code y Language Server.");
+                    println!(
+                        "                  Sugerencia: Ejecuta 'jolt sync' para autoconfigurar VS Code y Language Server."
+                    );
                 }
 
                 if !missing_deps.is_empty() {
-                    println!("\n  [WARN]  Se encontraron {} dependencias sin sincronizar ({} listas).", missing_deps.len(), ok_deps);
-                    println!("          Sugerencia: Ejecuta 'jolt sync' para descargarlas y sincronizar el IDE.");
+                    println!(
+                        "\n  [WARN]  Se encontraron {} dependencias sin sincronizar ({} listas).",
+                        missing_deps.len(),
+                        ok_deps
+                    );
+                    println!(
+                        "          Sugerencia: Ejecuta 'jolt sync' para descargarlas y sincronizar el IDE."
+                    );
                 } else {
-                    println!("\n[OK] Proyecto saludable con {} dependencia(s) sincronizadas.", ok_deps);
+                    println!(
+                        "\n[OK] Proyecto saludable con {} dependencia(s) sincronizadas.",
+                        ok_deps
+                    );
                 }
             }
             Err(e) => {
@@ -370,7 +501,6 @@ impl SystemChecker {
         }
 
         Ok(())
-
     }
 }
 

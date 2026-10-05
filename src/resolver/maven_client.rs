@@ -2,8 +2,8 @@ use serde::Deserialize;
 use std::collections::HashSet;
 use std::error::Error;
 
-use super::{Dependency, DependencyNode, SearchResultItem};
 use super::pom_parser::parse_pom_dependencies;
+use super::{Dependency, DependencyNode, SearchResultItem};
 
 #[derive(Deserialize, Debug)]
 struct MavenSearchResponse {
@@ -37,6 +37,101 @@ pub struct MavenClient {
     client: reqwest::Client,
     search_base_url: String,
     repo_base_url: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    use std::thread;
+
+    fn pom(dependencies: &str) -> String {
+        format!(
+            r#"<project>
+                <dependencies>{dependencies}</dependencies>
+            </project>"#
+        )
+    }
+
+    fn dependency(group: &str, artifact: &str, version: &str, extra: &str) -> String {
+        format!(
+            "<dependency><groupId>{group}</groupId><artifactId>{artifact}</artifactId><version>{version}</version>{extra}</dependency>"
+        )
+    }
+
+    #[tokio::test]
+    async fn resolves_transitive_dependencies_and_skips_non_runtime_scopes() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+
+        let server = thread::spawn(move || {
+            for _ in 0..3 {
+                let (mut stream, _) = listener.accept().unwrap();
+                let mut request = [0_u8; 2048];
+                let bytes_read = stream.read(&mut request).unwrap();
+                let request = String::from_utf8_lossy(&request[..bytes_read]);
+                let path = request
+                    .lines()
+                    .next()
+                    .and_then(|line| line.split_whitespace().nth(1))
+                    .unwrap_or_default();
+
+                let body = match path {
+                    "/com/example/root/1.0/root-1.0.pom" => pom(&format!(
+                        "{}{}",
+                        dependency("com.example", "child", "1.0", ""),
+                        dependency("com.example", "provided", "1.0", "<scope>provided</scope>")
+                    )),
+                    "/com/example/child/1.0/child-1.0.pom" => pom(&format!(
+                        "{}{}",
+                        dependency("com.example", "grandchild", "1.0", ""),
+                        dependency("com.example", "test-only", "1.0", "<scope>test</scope>")
+                    )),
+                    "/com/example/grandchild/1.0/grandchild-1.0.pom" => pom(""),
+                    _ => panic!("unexpected POM request: {path}"),
+                };
+
+                write!(
+                    stream,
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                    body.len(),
+                    body
+                )
+                .unwrap();
+            }
+        });
+
+        let client = MavenClient {
+            client: reqwest::Client::new(),
+            search_base_url: String::new(),
+            repo_base_url: format!("http://{}", address),
+        };
+        let dependencies = client
+            .resolve_dependencies(&[(
+                "com.example".to_string(),
+                "root".to_string(),
+                "1.0".to_string(),
+            )])
+            .await
+            .unwrap();
+
+        server.join().unwrap();
+
+        let coordinates: Vec<_> = dependencies
+            .iter()
+            .map(|dependency| {
+                (
+                    dependency.group_id.as_str(),
+                    dependency.artifact_id.as_str(),
+                )
+            })
+            .collect();
+        assert_eq!(
+            coordinates,
+            vec![("com.example", "child"), ("com.example", "grandchild"),]
+        );
+    }
 }
 
 impl Default for MavenClient {
@@ -105,7 +200,10 @@ impl MavenClient {
         let mut results = Vec::new();
         for doc in resp.response.docs {
             if let (Some(group_id), Some(artifact_id)) = (doc.g, doc.a) {
-                let version = doc.latest_version.or(doc.v).unwrap_or_else(|| "latest".to_string());
+                let version = doc
+                    .latest_version
+                    .or(doc.v)
+                    .unwrap_or_else(|| "latest".to_string());
                 results.push(SearchResultItem {
                     group_id,
                     artifact_id,
@@ -156,7 +254,8 @@ impl MavenClient {
         artifact_id: &str,
         version: &str,
     ) -> Result<Vec<u8>, Box<dyn Error + Send + Sync>> {
-        self.download_jar_with_classifier(group_id, artifact_id, version, None).await
+        self.download_jar_with_classifier(group_id, artifact_id, version, None)
+            .await
     }
 
     /// Descarga el binario JAR con clasificador de plataforma opcional (ej. linux, mac, win)
@@ -202,40 +301,57 @@ impl MavenClient {
         parse_pom_dependencies(xml_content)
     }
 
-    /// Construye el árbol de dependencias transitivas (hasta 1 nivel de profundidad)
+    /// Resuelve todas las dependencias compilables del grafo Maven.
+    pub async fn resolve_dependencies(
+        &self,
+        roots: &[(String, String, String)],
+    ) -> Result<Vec<Dependency>, Box<dyn Error + Send + Sync>> {
+        let mut resolved = Vec::new();
+        let mut visited = HashSet::new();
+        let mut queue = roots.to_vec();
+        while let Some((group_id, artifact_id, version)) = queue.pop() {
+            let key = format!("{}:{}:{}", group_id, artifact_id, version);
+            if !visited.insert(key) {
+                continue;
+            }
+            let pom = self.fetch_pom(&group_id, &artifact_id, &version).await?;
+            for dep in parse_pom_dependencies(&pom)? {
+                if matches!(dep.scope.as_deref(), Some("test" | "provided" | "system")) {
+                    continue;
+                }
+                queue.push((
+                    dep.group_id.clone(),
+                    dep.artifact_id.clone(),
+                    dep.version.clone(),
+                ));
+                resolved.push(dep);
+            }
+        }
+        Ok(resolved)
+    }
+
+    /// Construye el árbol de dependencias transitivas completo.
     pub async fn fetch_dependency_tree(
         &self,
         group_id: &str,
         artifact_id: &str,
         version: &str,
     ) -> Result<DependencyNode, Box<dyn Error + Send + Sync>> {
-        let pom = self.fetch_pom(group_id, artifact_id, version).await?;
-        let deps = parse_pom_dependencies(&pom)?;
-
-        let mut child_nodes = Vec::new();
-        let mut visited = HashSet::new();
-
-        for dep in deps {
-            // Ignorar dependencias con scope test o opcionales por defecto
-            if let Some(ref scope) = dep.scope {
-                if scope == "test" || scope == "provided" {
-                    continue;
-                }
-            }
-
-            if !dep.version.is_empty() && !dep.version.starts_with('$') {
-                let key = format!("{}:{}", dep.group_id, dep.artifact_id);
-                if !visited.contains(&key) {
-                    visited.insert(key);
-                    child_nodes.push(DependencyNode {
-                        group_id: dep.group_id,
-                        artifact_id: dep.artifact_id,
-                        version: dep.version,
-                        dependencies: Vec::new(),
-                    });
-                }
-            }
-        }
+        let roots = vec![(
+            group_id.to_string(),
+            artifact_id.to_string(),
+            version.to_string(),
+        )];
+        let deps = self.resolve_dependencies(&roots).await?;
+        let child_nodes = deps
+            .into_iter()
+            .map(|dep| DependencyNode {
+                group_id: dep.group_id,
+                artifact_id: dep.artifact_id,
+                version: dep.version,
+                dependencies: Vec::new(),
+            })
+            .collect();
 
         Ok(DependencyNode {
             group_id: group_id.to_string(),

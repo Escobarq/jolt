@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use std::fs;
 use std::path::Path;
-use toml_edit::{DocumentMut, value, Item};
+use toml_edit::{DocumentMut, Item, value};
 
 #[derive(Debug, Deserialize, PartialEq, Clone, Default)]
 pub struct Workspace {
@@ -83,7 +83,9 @@ impl JoltManifest {
 
     /// Retorna la configuración de GraalVM (a nivel raíz o dentro de package)
     pub fn graalvm_config(&self) -> Option<&GraalVmConfig> {
-        self.graalvm.as_ref().or_else(|| self.package.as_ref().and_then(|p| p.graalvm.as_ref()))
+        self.graalvm
+            .as_ref()
+            .or_else(|| self.package.as_ref().and_then(|p| p.graalvm.as_ref()))
     }
 
     /// Extrae la versión y/o la ruta local de una especificación de dependencia TOML
@@ -91,8 +93,14 @@ impl JoltManifest {
         match val {
             toml::Value::String(s) => (Some(s.clone()), None),
             toml::Value::Table(t) => {
-                let version = t.get("version").and_then(|v| v.as_str()).map(|s| s.to_string());
-                let path = t.get("path").and_then(|v| v.as_str()).map(|s| s.to_string());
+                let version = t
+                    .get("version")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string());
+                let path = t
+                    .get("path")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string());
                 (version, path)
             }
             _ => (None, None),
@@ -102,7 +110,9 @@ impl JoltManifest {
     /// Busca hacia arriba en la jerarquía de directorios si existe un workspace raíz
     pub fn find_root_workspace(start_dir: &Path) -> Option<(std::path::PathBuf, JoltManifest)> {
         let mut curr = if start_dir.is_relative() {
-            std::env::current_dir().unwrap_or_else(|_| start_dir.to_path_buf()).join(start_dir)
+            std::env::current_dir()
+                .unwrap_or_else(|_| start_dir.to_path_buf())
+                .join(start_dir)
         } else {
             start_dir.to_path_buf()
         };
@@ -168,7 +178,9 @@ impl JoltManifest {
     }
 
     /// Crea un archivo `jolt.toml` para un workspace monorepo
-    pub fn create_workspace_file(manifest_path: &Path) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub fn create_workspace_file(
+        manifest_path: &Path,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let content = r#"[workspace]
 members = []
 "#;
@@ -186,7 +198,11 @@ members = []
         let content = fs::read_to_string(manifest_path)?;
         let mut doc = content.parse::<DocumentMut>()?;
 
-        let table_key = if is_dev { "dev-dependencies" } else { "dependencies" };
+        let table_key = if is_dev {
+            "dev-dependencies"
+        } else {
+            "dependencies"
+        };
 
         if !doc.contains_key(table_key) {
             doc[table_key] = Item::Table(toml_edit::Table::new());
@@ -201,7 +217,10 @@ members = []
     }
 
     /// Remueve una dependencia de jolt.toml conservando formato y comentarios
-    pub fn remove_dependency_from_file(manifest_path: &Path, group_artifact: &str) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+    pub fn remove_dependency_from_file(
+        manifest_path: &Path,
+        group_artifact: &str,
+    ) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
         let content = fs::read_to_string(manifest_path)?;
         let mut doc = content.parse::<DocumentMut>()?;
 
@@ -227,7 +246,9 @@ members = []
     }
 
     /// Carga y parsea el archivo jolt.toml
-    pub fn load_from_file(manifest_path: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+    pub fn load_from_file(
+        manifest_path: &Path,
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let content = fs::read_to_string(manifest_path)?;
         let manifest: JoltManifest = toml::from_str(&content)?;
         Ok(manifest)
@@ -262,14 +283,20 @@ mod tests {
         assert_eq!(proj.java_version, Some("21".to_string()));
 
         let deps = manifest.dependencies.expect("Missing dependencies");
-        let (guava_ver, _) = JoltManifest::parse_dependency_spec(deps.get("com.google.guava:guava").unwrap());
+        let (guava_ver, _) =
+            JoltManifest::parse_dependency_spec(deps.get("com.google.guava:guava").unwrap());
         assert_eq!(guava_ver, Some("33.0.0-jre".to_string()));
 
-        let (spring_ver, _) = JoltManifest::parse_dependency_spec(deps.get("org.springframework.boot:spring-boot-starter-web").unwrap());
+        let (spring_ver, _) = JoltManifest::parse_dependency_spec(
+            deps.get("org.springframework.boot:spring-boot-starter-web")
+                .unwrap(),
+        );
         assert_eq!(spring_ver, Some("3.2.0".to_string()));
 
         let dev_deps = manifest.dev_dependencies.expect("Missing dev-dependencies");
-        let (junit_ver, _) = JoltManifest::parse_dependency_spec(dev_deps.get("org.junit.jupiter:junit-jupiter").unwrap());
+        let (junit_ver, _) = JoltManifest::parse_dependency_spec(
+            dev_deps.get("org.junit.jupiter:junit-jupiter").unwrap(),
+        );
         assert_eq!(junit_ver, Some("5.10.1".to_string()));
     }
 
@@ -305,25 +332,52 @@ version = "0.1.0"
         fs::write(&manifest_file, initial_toml).unwrap();
 
         // Add regular dependency
-        JoltManifest::add_dependency_to_file(&manifest_file, "com.google.guava:guava", "33.0.0-jre", false).unwrap();
+        JoltManifest::add_dependency_to_file(
+            &manifest_file,
+            "com.google.guava:guava",
+            "33.0.0-jre",
+            false,
+        )
+        .unwrap();
         // Add dev dependency
-        JoltManifest::add_dependency_to_file(&manifest_file, "org.junit.jupiter:junit-jupiter-api", "5.10.2", true).unwrap();
+        JoltManifest::add_dependency_to_file(
+            &manifest_file,
+            "org.junit.jupiter:junit-jupiter-api",
+            "5.10.2",
+            true,
+        )
+        .unwrap();
 
         let manifest = JoltManifest::load_from_file(&manifest_file).unwrap();
         let deps = manifest.dependencies.expect("expected dependencies");
-        let (guava_ver, _) = JoltManifest::parse_dependency_spec(deps.get("com.google.guava:guava").unwrap());
+        let (guava_ver, _) =
+            JoltManifest::parse_dependency_spec(deps.get("com.google.guava:guava").unwrap());
         assert_eq!(guava_ver, Some("33.0.0-jre".to_string()));
 
-        let dev_deps = manifest.dev_dependencies.expect("expected dev-dependencies");
-        let (junit_ver, _) = JoltManifest::parse_dependency_spec(dev_deps.get("org.junit.jupiter:junit-jupiter-api").unwrap());
+        let dev_deps = manifest
+            .dev_dependencies
+            .expect("expected dev-dependencies");
+        let (junit_ver, _) = JoltManifest::parse_dependency_spec(
+            dev_deps.get("org.junit.jupiter:junit-jupiter-api").unwrap(),
+        );
         assert_eq!(junit_ver, Some("5.10.2".to_string()));
 
         // Remove dev dependency
-        let removed = JoltManifest::remove_dependency_from_file(&manifest_file, "org.junit.jupiter:junit-jupiter-api").unwrap();
+        let removed = JoltManifest::remove_dependency_from_file(
+            &manifest_file,
+            "org.junit.jupiter:junit-jupiter-api",
+        )
+        .unwrap();
         assert!(removed);
 
         let manifest_after = JoltManifest::load_from_file(&manifest_file).unwrap();
-        assert!(manifest_after.dev_dependencies.as_ref().map(|d| d.is_empty()).unwrap_or(true));
+        assert!(
+            manifest_after
+                .dev_dependencies
+                .as_ref()
+                .map(|d| d.is_empty())
+                .unwrap_or(true)
+        );
 
         let _ = fs::remove_dir_all(&temp_dir);
     }
@@ -360,7 +414,10 @@ version = "0.1.0"
         assert_eq!(pkg.dest, Some("dist".to_string()));
         assert_eq!(
             pkg.java_options,
-            Some(vec!["-Xmx512m".to_string(), "-Dfile.encoding=UTF-8".to_string()])
+            Some(vec![
+                "-Xmx512m".to_string(),
+                "-Dfile.encoding=UTF-8".to_string()
+            ])
         );
     }
 
@@ -391,7 +448,10 @@ version = "0.1.0"
         assert_eq!(pkg.r#type, Some("nsis".to_string()));
         let win = pkg.windows.expect("Expected windows configuration");
         assert_eq!(win.upx, Some(true));
-        assert_eq!(win.upx_args, Some(vec!["--best".to_string(), "--lzma".to_string()]));
+        assert_eq!(
+            win.upx_args,
+            Some(vec!["--best".to_string(), "--lzma".to_string()])
+        );
         assert_eq!(win.installer, Some("nsis".to_string()));
         assert_eq!(win.add_to_path, Some(true));
         assert_eq!(win.desktop_shortcut, Some(true));
@@ -465,14 +525,26 @@ version = "0.1.0"
         resources_config = "resource-config.json"
         "#;
 
-        let manifest = JoltManifest::parse(toml_content).expect("Failed to parse toml with graalvm");
+        let manifest =
+            JoltManifest::parse(toml_content).expect("Failed to parse toml with graalvm");
         let gvm = manifest.graalvm_config().expect("Expected graalvm config");
         assert_eq!(gvm.enabled, Some(true));
         assert_eq!(gvm.main_class, Some("com.example.Main".to_string()));
         assert_eq!(gvm.name, Some("native-app-bin".to_string()));
-        assert_eq!(gvm.args, Some(vec!["--no-fallback".to_string(), "-H:+ReportExceptionStackTraces".to_string()]));
-        assert_eq!(gvm.reflection_config, Some("reflect-config.json".to_string()));
-        assert_eq!(gvm.resources_config, Some("resource-config.json".to_string()));
+        assert_eq!(
+            gvm.args,
+            Some(vec![
+                "--no-fallback".to_string(),
+                "-H:+ReportExceptionStackTraces".to_string()
+            ])
+        );
+        assert_eq!(
+            gvm.reflection_config,
+            Some("reflect-config.json".to_string())
+        );
+        assert_eq!(
+            gvm.resources_config,
+            Some("resource-config.json".to_string())
+        );
     }
 }
-

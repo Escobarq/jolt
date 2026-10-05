@@ -1,4 +1,4 @@
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::fs;
 use std::path::Path;
 
@@ -62,7 +62,10 @@ pub fn ensure_ide_configuration(
                 for entry in entries.flatten() {
                     let p = entry.path();
                     if p.extension().and_then(|s| s.to_str()) == Some("jar") {
-                        referenced_libs.push(format!(".jolt/modules/{}", entry.file_name().to_string_lossy()));
+                        referenced_libs.push(format!(
+                            ".jolt/modules/{}",
+                            entry.file_name().to_string_lossy()
+                        ));
                     }
                 }
             }
@@ -73,7 +76,10 @@ pub fn ensure_ide_configuration(
                 for entry in entries.flatten() {
                     let p = entry.path();
                     if p.extension().and_then(|s| s.to_str()) == Some("jar") {
-                        referenced_libs.push(format!(".jolt/dev-modules/{}", entry.file_name().to_string_lossy()));
+                        referenced_libs.push(format!(
+                            ".jolt/dev-modules/{}",
+                            entry.file_name().to_string_lossy()
+                        ));
                     }
                 }
             }
@@ -105,7 +111,10 @@ pub fn ensure_ide_configuration(
 
         // Output path
         if !obj.contains_key("java.project.outputPath") {
-            obj.insert("java.project.outputPath".to_string(), json!("target/classes"));
+            obj.insert(
+                "java.project.outputPath".to_string(),
+                json!("target/classes"),
+            );
         }
 
         // Automatic build configuration updates
@@ -115,7 +124,10 @@ pub fn ensure_ide_configuration(
         );
     }
 
-    fs::write(&settings_path, serde_json::to_string_pretty(&settings_json)? + "\n")?;
+    fs::write(
+        &settings_path,
+        serde_json::to_string_pretty(&settings_json)? + "\n",
+    )?;
 
     // 2. .vscode/extensions.json (Recomendaciones de extensiones para Java y TOML)
     let extensions_path = vscode_dir.join("extensions.json");
@@ -141,7 +153,11 @@ pub fn ensure_ide_configuration(
         let mut recs: Vec<String> = obj
             .get("recommendations")
             .and_then(|v| v.as_array())
-            .map(|arr| arr.iter().filter_map(|x| x.as_str().map(|s| s.to_string())).collect())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|x| x.as_str().map(|s| s.to_string()))
+                    .collect()
+            })
             .unwrap_or_default();
 
         for rec in &default_recs {
@@ -152,7 +168,10 @@ pub fn ensure_ide_configuration(
         obj.insert("recommendations".to_string(), json!(recs));
     }
 
-    fs::write(&extensions_path, serde_json::to_string_pretty(&ext_json)? + "\n")?;
+    fs::write(
+        &extensions_path,
+        serde_json::to_string_pretty(&ext_json)? + "\n",
+    )?;
 
     // 3. .project (Descriptor Eclipse / Java Language Server para VS Code)
     let project_file = project_dir.join(".project");
@@ -191,7 +210,10 @@ pub fn ensure_ide_configuration(
         cp_entries.push(r#"	<classpathentry kind="src" path="src/main/resources"/>"#.to_string());
     }
     if project_dir.join("src/test/java").exists() {
-        cp_entries.push(r#"	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>"#.to_string());
+        cp_entries.push(
+            r#"	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>"#
+                .to_string(),
+        );
     }
     if project_dir.join("src/test/resources").exists() {
         cp_entries.push(r#"	<classpathentry kind="src" output="target/test-classes" path="src/test/resources"/>"#.to_string());
@@ -201,11 +223,17 @@ pub fn ensure_ide_configuration(
     }
     if cp_entries.is_empty() {
         cp_entries.push(r#"	<classpathentry kind="src" path="src/main/java"/>"#.to_string());
-        cp_entries.push(r#"	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>"#.to_string());
+        cp_entries.push(
+            r#"	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>"#
+                .to_string(),
+        );
     }
 
     // JRE Container
-    cp_entries.push(r#"	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>"#.to_string());
+    cp_entries.push(
+        r#"	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>"#
+            .to_string(),
+    );
 
     // JARs en .jolt/modules y .jolt/dev-modules
     let mut jar_paths = Vec::new();
@@ -215,7 +243,10 @@ pub fn ensure_ide_configuration(
             for entry in entries.flatten() {
                 let p = entry.path();
                 if p.extension().and_then(|s| s.to_str()) == Some("jar") {
-                    jar_paths.push(format!(".jolt/modules/{}", entry.file_name().to_string_lossy()));
+                    jar_paths.push(format!(
+                        ".jolt/modules/{}",
+                        entry.file_name().to_string_lossy()
+                    ));
                 }
             }
         }
@@ -226,7 +257,10 @@ pub fn ensure_ide_configuration(
             for entry in entries.flatten() {
                 let p = entry.path();
                 if p.extension().and_then(|s| s.to_str()) == Some("jar") {
-                    jar_paths.push(format!(".jolt/dev-modules/{}", entry.file_name().to_string_lossy()));
+                    jar_paths.push(format!(
+                        ".jolt/dev-modules/{}",
+                        entry.file_name().to_string_lossy()
+                    ));
                 }
             }
         }

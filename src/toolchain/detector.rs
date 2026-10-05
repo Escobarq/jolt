@@ -9,7 +9,8 @@ use super::{InstalledJdk, Toolchain};
 pub fn parse_java_major_version(version_output: &str) -> Option<u32> {
     for line in version_output.lines() {
         for word in line.split_whitespace() {
-            let clean = word.trim_matches(|c: char| c == '"' || c == '\'' || c == ',' || !c.is_ascii_graphic());
+            let clean = word
+                .trim_matches(|c: char| c == '"' || c == '\'' || c == ',' || !c.is_ascii_graphic());
             let num_part = clean.trim_start_matches(|c: char| !c.is_ascii_digit());
             if num_part.is_empty() {
                 continue;
@@ -18,13 +19,19 @@ pub fn parse_java_major_version(version_output: &str) -> Option<u32> {
             if let Some(first) = parts.next() {
                 if first == "1" {
                     if let Some(second) = parts.next() {
-                        let clean_sec = second.split(|c: char| !c.is_ascii_digit()).next().unwrap_or("");
+                        let clean_sec = second
+                            .split(|c: char| !c.is_ascii_digit())
+                            .next()
+                            .unwrap_or("");
                         if let Ok(v) = clean_sec.parse::<u32>() {
                             return Some(v);
                         }
                     }
                 } else {
-                    let clean_first = first.split(|c: char| !c.is_ascii_digit()).next().unwrap_or("");
+                    let clean_first = first
+                        .split(|c: char| !c.is_ascii_digit())
+                        .next()
+                        .unwrap_or("");
                     if let Ok(v) = clean_first.parse::<u32>() {
                         if v >= 1 {
                             return Some(v);
@@ -128,7 +135,13 @@ pub fn inspect_jdk_dir(dir: &Path) -> Option<InstalledJdk> {
     let java_out = Command::new(&java_bin).arg("-version").output().ok();
     let combined_java = java_out
         .as_ref()
-        .map(|o| format!("{} {}", String::from_utf8_lossy(&o.stdout), String::from_utf8_lossy(&o.stderr)))
+        .map(|o| {
+            format!(
+                "{} {}",
+                String::from_utf8_lossy(&o.stdout),
+                String::from_utf8_lossy(&o.stderr)
+            )
+        })
         .unwrap_or_default();
 
     let vendor = detect_java_vendor(&format!("{} {}", combined_javac, combined_java));
@@ -156,7 +169,11 @@ pub fn inspect_jdk_dir(dir: &Path) -> Option<InstalledJdk> {
     };
 
     Some(InstalledJdk {
-        version_raw: if version_raw.is_empty() { format!("Java {}", major_version) } else { version_raw },
+        version_raw: if version_raw.is_empty() {
+            format!("Java {}", major_version)
+        } else {
+            version_raw
+        },
         major_version,
         vendor,
         home_dir: clean_path(&home_dir),
@@ -178,7 +195,10 @@ pub fn discover_system_jdks() -> Vec<InstalledJdk> {
         let canon = p.canonicalize().unwrap_or_else(|_| p.to_path_buf());
         if visited.insert(canon.clone()) {
             if let Some(jdk) = inspect_jdk_dir(&canon) {
-                let canon_home = jdk.home_dir.canonicalize().unwrap_or_else(|_| jdk.home_dir.clone());
+                let canon_home = jdk
+                    .home_dir
+                    .canonicalize()
+                    .unwrap_or_else(|_| jdk.home_dir.clone());
                 if known_homes.insert(canon_home) {
                     list.push(jdk);
                 }
@@ -201,7 +221,11 @@ pub fn discover_system_jdks() -> Vec<InstalledJdk> {
     // 3. Binarios en PATH (javac)
     if let Ok(path_var) = std::env::var("PATH") {
         for entry in std::env::split_paths(&path_var) {
-            let javac_exe = if cfg!(windows) { entry.join("javac.exe") } else { entry.join("javac") };
+            let javac_exe = if cfg!(windows) {
+                entry.join("javac.exe")
+            } else {
+                entry.join("javac")
+            };
             if javac_exe.exists() {
                 let home = entry.parent().unwrap_or(&entry);
                 check_candidate(home, &mut jdks);
@@ -226,12 +250,20 @@ pub fn discover_system_jdks() -> Vec<InstalledJdk> {
             standard_roots.push(PathBuf::from(&prog_files).join("GraalVm"));
         }
         if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
-            standard_roots.push(PathBuf::from(&local_app_data).join("Programs").join("Eclipse Adoptium"));
+            standard_roots.push(
+                PathBuf::from(&local_app_data)
+                    .join("Programs")
+                    .join("Eclipse Adoptium"),
+            );
         }
     } else if cfg!(target_os = "macos") {
         standard_roots.push(PathBuf::from("/Library/Java/JavaVirtualMachines"));
         if let Some(home) = dirs::home_dir() {
-            standard_roots.push(home.join("Library").join("Java").join("JavaVirtualMachines"));
+            standard_roots.push(
+                home.join("Library")
+                    .join("Java")
+                    .join("JavaVirtualMachines"),
+            );
             standard_roots.push(home.join(".sdkman").join("candidates").join("java"));
         }
     } else {
@@ -267,9 +299,9 @@ pub fn discover_system_jdks() -> Vec<InstalledJdk> {
 
 /// Detecta si el sistema anfitrión cuenta con un JDK compatible
 pub fn find_system_jdk(requested_version: &str) -> Option<Toolchain> {
-    let target_major = requested_version.parse::<u32>().unwrap_or_else(|_| {
-        parse_java_major_version(requested_version).unwrap_or(21)
-    });
+    let target_major = requested_version
+        .parse::<u32>()
+        .unwrap_or_else(|_| parse_java_major_version(requested_version).unwrap_or(21));
 
     let system_jdks = discover_system_jdks();
 

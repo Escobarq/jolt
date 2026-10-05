@@ -4,8 +4,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tar::Archive;
 
-use super::detector::parse_java_major_version;
 use super::Toolchain;
+use super::detector::parse_java_major_version;
 
 /// Descarga y descomprime OpenJDK desde la API de Adoptium Temurin
 pub async fn download_and_extract_jdk(
@@ -72,7 +72,14 @@ pub async fn download_and_extract_jdk(
 }
 
 pub fn find_binaries_in_dir(dir: &Path) -> Option<(PathBuf, PathBuf, PathBuf, PathBuf)> {
-    fn scan(d: &Path) -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
+    fn scan(
+        d: &Path,
+    ) -> (
+        Option<PathBuf>,
+        Option<PathBuf>,
+        Option<PathBuf>,
+        Option<PathBuf>,
+    ) {
         let mut java = None;
         let mut javac = None;
         let mut jar = None;
@@ -83,10 +90,18 @@ pub fn find_binaries_in_dir(dir: &Path) -> Option<(PathBuf, PathBuf, PathBuf, Pa
                 let p = entry.path();
                 if p.is_dir() {
                     let (c_java, c_javac, c_jar, c_jpackage) = scan(&p);
-                    if java.is_none() { java = c_java; }
-                    if javac.is_none() { javac = c_javac; }
-                    if jar.is_none() { jar = c_jar; }
-                    if jpackage.is_none() { jpackage = c_jpackage; }
+                    if java.is_none() {
+                        java = c_java;
+                    }
+                    if javac.is_none() {
+                        javac = c_javac;
+                    }
+                    if jar.is_none() {
+                        jar = c_jar;
+                    }
+                    if jpackage.is_none() {
+                        jpackage = c_jpackage;
+                    }
                 } else if let Some(name) = p.file_name().and_then(|s| s.to_str()) {
                     if name == "java" || name == "java.exe" {
                         java = Some(p.clone());

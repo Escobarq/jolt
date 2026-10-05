@@ -29,6 +29,8 @@ javafx_demo/
 test_*/
 
 # ── Herramientas de AI / editores ─────────────────────────────
+.tgrep/
+.agents/skills/tgrep/
 .gemini/
 .opencode/
 .cursor/

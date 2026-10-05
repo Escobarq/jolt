@@ -10,6 +10,7 @@ pub struct Dependency {
     pub artifact_id: String,
     pub version: String,
     pub scope: Option<String>,
+    pub optional: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,21 +54,33 @@ mod tests {
                     <version>5.10.1</version>
                     <scope>test</scope>
                 </dependency>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                    <version>2.17.0</version>
+                    <optional>true</optional>
+                </dependency>
             </dependencies>
         </project>
         "#;
 
         let deps = parse_pom_dependencies(sample_pom).expect("Failed to parse POM");
-        assert_eq!(deps.len(), 2);
+        assert_eq!(deps.len(), 3);
 
         assert_eq!(deps[0].group_id, "com.google.guava");
         assert_eq!(deps[0].artifact_id, "guava");
         assert_eq!(deps[0].version, "33.0.0-jre");
         assert_eq!(deps[0].scope, None);
+        assert!(!deps[0].optional);
 
         assert_eq!(deps[1].group_id, "org.junit.jupiter");
         assert_eq!(deps[1].artifact_id, "junit-jupiter");
         assert_eq!(deps[1].version, "5.10.1");
         assert_eq!(deps[1].scope, Some("test".to_string()));
+        assert!(!deps[1].optional);
+
+        assert_eq!(deps[2].group_id, "com.fasterxml.jackson.core");
+        assert_eq!(deps[2].artifact_id, "jackson-databind");
+        assert!(deps[2].optional);
     }
 }

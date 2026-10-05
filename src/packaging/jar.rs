@@ -60,12 +60,12 @@ pub fn build_standalone_jar(
     let target_dir = project_dir.join("target");
     fs::create_dir_all(&target_dir)?;
 
-    let standalone_jar_path = target_dir.join(format!("{}-{}-standalone.jar", project_name, version));
+    let standalone_jar_path =
+        target_dir.join(format!("{}-{}-standalone.jar", project_name, version));
     let file = File::create(&standalone_jar_path)?;
     let mut zip = ZipWriter::new(file);
 
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
     let mut added_entries = HashSet::new();
 
@@ -84,7 +84,10 @@ pub fn build_standalone_jar(
     // 2. Añadir clases y recursos del proyecto desde target/classes
     let classes_dir = target_dir.join("classes");
     if classes_dir.is_dir() {
-        for entry in WalkDir::new(&classes_dir).into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(&classes_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
             let path = entry.path();
             if let Ok(rel_path) = path.strip_prefix(&classes_dir) {
                 let rel_str = rel_path.to_string_lossy().replace('\\', "/");
@@ -111,16 +114,23 @@ pub fn build_standalone_jar(
     if let Ok(manifest) = crate::core::manifest::JoltManifest::load_from_file(&manifest_path) {
         if let Some(deps) = &manifest.dependencies {
             for (_name, spec) in deps {
-                let (_ver, local_path_opt) = crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
+                let (_ver, local_path_opt) =
+                    crate::core::manifest::JoltManifest::parse_dependency_spec(spec);
                 if let Some(rel_path) = local_path_opt {
                     let dep_dir = project_dir.join(&rel_path);
                     let dep_classes = dep_dir.join("target").join("classes");
                     if dep_classes.is_dir() {
-                        for entry in WalkDir::new(&dep_classes).into_iter().filter_map(|e| e.ok()) {
+                        for entry in WalkDir::new(&dep_classes)
+                            .into_iter()
+                            .filter_map(|e| e.ok())
+                        {
                             let path = entry.path();
                             if let Ok(rel_path) = path.strip_prefix(&dep_classes) {
                                 let rel_str = rel_path.to_string_lossy().replace('\\', "/");
-                                if !rel_str.is_empty() && path.is_file() && !added_entries.contains(&rel_str) {
+                                if !rel_str.is_empty()
+                                    && path.is_file()
+                                    && !added_entries.contains(&rel_str)
+                                {
                                     added_entries.insert(rel_str.clone());
                                     zip.start_file(&rel_str, options)?;
                                     let mut f = File::open(path)?;
@@ -150,13 +160,13 @@ pub fn build_standalone_jar(
                                     let name = zip_entry.name().to_string();
 
                                     // Filtrar firmas digitales y manifiestos de librerías para evitar SecurityException
-                                    if name.starts_with("META-INF/") && (
-                                        name.ends_with(".SF") ||
-                                        name.ends_with(".DSA") ||
-                                        name.ends_with(".RSA") ||
-                                        name == "META-INF/MANIFEST.MF" ||
-                                        name == "META-INF/INDEX.LIST"
-                                    ) {
+                                    if name.starts_with("META-INF/")
+                                        && (name.ends_with(".SF")
+                                            || name.ends_with(".DSA")
+                                            || name.ends_with(".RSA")
+                                            || name == "META-INF/MANIFEST.MF"
+                                            || name == "META-INF/INDEX.LIST")
+                                    {
                                         continue;
                                     }
 

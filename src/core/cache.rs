@@ -69,7 +69,8 @@ impl CacheManager {
         version: &str,
         classifier: Option<&str>,
     ) -> bool {
-        self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier).exists()
+        self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier)
+            .exists()
     }
 
     /// Guarda los bytes del JAR en la caché global tras calcular su hash SHA-256
@@ -93,7 +94,8 @@ impl CacheManager {
         classifier: Option<&str>,
         bytes: &[u8],
     ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
-        let jar_path = self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
+        let jar_path =
+            self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
         if let Some(parent) = jar_path.parent() {
             fs::create_dir_all(parent)?;
         }
@@ -140,7 +142,8 @@ impl CacheManager {
         version: &str,
         classifier: Option<&str>,
     ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
-        let cached_jar = self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
+        let cached_jar =
+            self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
         if !cached_jar.exists() {
             return Err(format!("El archivo JAR en caché no existe: {:?}", cached_jar).into());
         }
@@ -176,7 +179,14 @@ impl CacheManager {
         version: &str,
         classifier: Option<&str>,
     ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
-        self.link_to_project_dir_with_classifier(project_dir, "modules", group_id, artifact_id, version, classifier)
+        self.link_to_project_dir_with_classifier(
+            project_dir,
+            "modules",
+            group_id,
+            artifact_id,
+            version,
+            classifier,
+        )
     }
 }
 

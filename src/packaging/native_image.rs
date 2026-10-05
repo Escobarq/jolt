@@ -3,8 +3,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use crate::toolchain::Toolchain;
 use super::jar::build_standalone_jar;
+use crate::toolchain::Toolchain;
 
 /// Compila la aplicación a un binario nativo autónomo usando GraalVM Native Image
 pub fn build_native_image(
@@ -45,7 +45,8 @@ pub fn build_native_image(
         })?;
 
     println!("⚡ Compilando Fat-JAR previo para GraalVM Native Image...");
-    let target_jar = build_standalone_jar(project_dir, project_name, version, main_class, toolchain)?;
+    let target_jar =
+        build_standalone_jar(project_dir, project_name, version, main_class, toolchain)?;
 
     let dist_dir = project_dir.join("dist");
     fs::create_dir_all(&dist_dir)?;
@@ -73,7 +74,10 @@ pub fn build_native_image(
     let clean_target_jar = clean_path(&abs_target_jar);
     let clean_native_image_bin = clean_path(&native_image_bin);
 
-    println!("🚀 Invocando GraalVM Native Image para generar binario nativo '{}'...", bin_name);
+    println!(
+        "🚀 Invocando GraalVM Native Image para generar binario nativo '{}'...",
+        bin_name
+    );
     println!("   Ejecutable: {}", clean_native_image_bin.display());
 
     let mut cmd = Command::new(&clean_native_image_bin);
@@ -100,7 +104,10 @@ pub fn build_native_image(
                 PathBuf::from(refl)
             };
             let clean_refl = clean_path(&refl_path);
-            cmd.arg(format!("-H:ReflectionConfigurationFiles={}", clean_refl.display()));
+            cmd.arg(format!(
+                "-H:ReflectionConfigurationFiles={}",
+                clean_refl.display()
+            ));
         }
         if let Some(res) = &cfg.resources_config {
             let res_path = if Path::new(res).is_relative() {
@@ -110,13 +117,20 @@ pub fn build_native_image(
                 PathBuf::from(res)
             };
             let clean_res = clean_path(&res_path);
-            cmd.arg(format!("-H:ResourceConfigurationFiles={}", clean_res.display()));
+            cmd.arg(format!(
+                "-H:ResourceConfigurationFiles={}",
+                clean_res.display()
+            ));
         }
     }
 
     let status = cmd.status()?;
     if !status.success() {
-        return Err(format!("Fallo en la compilación nativa con GraalVM (código: {:?})", status.code()).into());
+        return Err(format!(
+            "Fallo en la compilación nativa con GraalVM (código: {:?})",
+            status.code()
+        )
+        .into());
     }
 
     let out_binary = if cfg!(windows) {
@@ -125,6 +139,9 @@ pub fn build_native_image(
         dist_dir.join(bin_name)
     };
 
-    println!("✅ Binario nativo generado exitosamente en: {}", out_binary.display());
+    println!(
+        "✅ Binario nativo generado exitosamente en: {}",
+        out_binary.display()
+    );
     Ok(out_binary)
 }

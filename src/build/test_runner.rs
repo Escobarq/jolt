@@ -3,8 +3,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use crate::toolchain::Toolchain;
 use super::compiler::{build_test_classpath, collect_java_files, compile};
+use crate::toolchain::Toolchain;
 
 /// Compila los archivos de prueba en `src/test/` colocando los .class en `target/test-classes/`
 pub fn compile_tests(
@@ -48,8 +48,10 @@ pub fn compile_tests(
         .unwrap_or_else(|| Path::new("javac"));
 
     let mut cmd = Command::new(javac_path);
-    cmd.arg("-d").arg(&target_test_classes)
-        .arg("-cp").arg(&test_cp);
+    cmd.arg("-d")
+        .arg(&target_test_classes)
+        .arg("-cp")
+        .arg(&test_cp);
 
     for file in &test_files {
         cmd.arg(file);
@@ -78,7 +80,12 @@ pub fn run_tests(
     let base_cp = build_test_classpath(project_dir, false);
 
     let separator = if cfg!(windows) { ";" } else { ":" };
-    let mut scan_cp = format!("{}{}{}", target_test_classes.display(), separator, target_classes.display());
+    let mut scan_cp = format!(
+        "{}{}{}",
+        target_test_classes.display(),
+        separator,
+        target_classes.display()
+    );
     if !base_cp.is_empty() {
         scan_cp = format!("{}{}{}", scan_cp, separator, base_cp);
     }
@@ -88,9 +95,11 @@ pub fn run_tests(
         .unwrap_or_else(|| Path::new("java"));
 
     let mut cmd = Command::new(java_path);
-    cmd.arg("-jar").arg(junit_jar)
+    cmd.arg("-jar")
+        .arg(junit_jar)
         .arg("execute")
-        .arg("--class-path").arg(&scan_cp)
+        .arg("--class-path")
+        .arg(&scan_cp)
         .arg("--scan-class-path")
         .arg("--disable-banner")
         .arg("--details=tree");
@@ -99,7 +108,11 @@ pub fn run_tests(
     let status = child.wait()?;
 
     if !status.success() {
-        return Err(format!("Las pruebas unitarias terminaron con errores (código: {:?})", status.code()).into());
+        return Err(format!(
+            "Las pruebas unitarias terminaron con errores (código: {:?})",
+            status.code()
+        )
+        .into());
     }
 
     Ok(())

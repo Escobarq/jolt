@@ -190,6 +190,15 @@ pub enum Commands {
         #[arg(long = "download-jdk")]
         download_jdk: bool,
     },
+    /// Verifica una aplicación compilándola, probándola y arrancándola brevemente
+    Verify {
+        /// Módulo específico del workspace a verificar
+        #[arg(short = 'p', long = "member", alias = "pkg")]
+        member: Option<String>,
+        /// Permite descargar automáticamente un JDK si no hay uno compatible instalado
+        #[arg(long = "download-jdk")]
+        download_jdk: bool,
+    },
     /// Sincroniza dependencias del proyecto y regenera la configuración para VS Code / IDEs
     Sync {
         /// Sincroniza todos los módulos del workspace
@@ -203,3 +212,25 @@ pub enum Commands {
     Check,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::{Cli, Commands};
+    use clap::Parser;
+
+    #[test]
+    fn parses_verify_command_options() {
+        let cli = Cli::try_parse_from(["jolt", "verify", "--member", "web-app", "--download-jdk"])
+            .expect("verify command should parse");
+
+        match cli.command {
+            Commands::Verify {
+                member,
+                download_jdk,
+            } => {
+                assert_eq!(member.as_deref(), Some("web-app"));
+                assert!(download_jdk);
+            }
+            command => panic!("expected Verify, got {command:?}"),
+        }
+    }
+}
