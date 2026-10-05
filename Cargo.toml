@@ -1,6 +1,6 @@
 [package]
 name = "jolt"
-version = "0.7.2"
+version = "0.7.3"
 edition = "2024"
 description = "Gestor de paquetes y herramientas para proyectos Java"
 repository = "https://github.com/Escobarq/jolt"
