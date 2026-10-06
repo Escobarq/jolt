@@ -180,7 +180,7 @@ async fn install_resolved_in_dir(
     for dep in transitive {
         let key = format!("{}:{}:{}", dep.group_id, dep.artifact_id, dep.version);
         if installed.insert(key) {
-            install_one_dependency(
+            match install_one_dependency(
                 project_dir,
                 cache_manager,
                 maven_client,
@@ -188,18 +188,27 @@ async fn install_resolved_in_dir(
                 &dep.version,
                 false,
             )
-            .await?;
-            let checksum = CacheManager::compute_file_sha256(&cache_manager.get_jar_path(
-                &dep.group_id,
-                &dep.artifact_id,
-                &dep.version,
-            ))?;
-            lock.add_or_update_package(LockedPackage {
-                name: format!("{}:{}", dep.group_id, dep.artifact_id),
-                version: dep.version.clone(),
-                checksum,
-                dependencies: Vec::new(),
-            });
+            .await {
+                Ok(_) => {
+                    let checksum = CacheManager::compute_file_sha256(&cache_manager.get_jar_path(
+                        &dep.group_id,
+                        &dep.artifact_id,
+                        &dep.version,
+                    ))?;
+                    lock.add_or_update_package(LockedPackage {
+                        name: format!("{}:{}", dep.group_id, dep.artifact_id),
+                        version: dep.version.clone(),
+                        checksum,
+                        dependencies: Vec::new(),
+                    });
+                }
+                Err(e) => {
+                    eprintln!(
+                        "[WARN] No se pudo instalar dependencia transitiva '{}:{}': {}",
+                        dep.group_id, dep.artifact_id, e
+                    );
+                }
+            }
         }
     }
 
@@ -1068,6 +1077,7 @@ async fn main() {
             watch,
             member,
             download_jdk,
+            args,
         } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), false, false) {
                 Ok(d) => d,
@@ -1118,7 +1128,7 @@ async fn main() {
                         .unwrap_or_else(|| "Main".to_string());
 
                     if *watch {
-                        if let Err(e) = build::run_watch(dir, &main_class, toolchain.as_ref()) {
+                        if let Err(e) = build::run_watch(dir, &main_class, toolchain.as_ref(), args) {
                             eprintln!("[ERROR] {}", e);
                         }
                     } else {
@@ -1126,7 +1136,7 @@ async fn main() {
                             "[INFO] Compilando y ejecutando '{}' con Java {}...",
                             proj.name, java_ver
                         );
-                        if let Err(e) = build::run(dir, &main_class, toolchain.as_ref()) {
+                        if let Err(e) = build::run(dir, &main_class, toolchain.as_ref(), args) {
                             eprintln!("[ERROR] {}", e);
                         }
                     }

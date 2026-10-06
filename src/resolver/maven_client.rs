@@ -314,11 +314,52 @@ impl MavenClient {
             if !visited.insert(key) {
                 continue;
             }
-            let pom = self.fetch_pom(&group_id, &artifact_id, &version).await?;
-            for dep in parse_pom_dependencies(&pom)? {
-                if matches!(dep.scope.as_deref(), Some("test" | "provided" | "system")) {
+            let pom = match self.fetch_pom(&group_id, &artifact_id, &version).await {
+                Ok(p) => p,
+                Err(e) => {
+                    let is_root = roots
+                        .iter()
+                        .any(|(g, a, v)| g == &group_id && a == &artifact_id && v == &version);
+                    if is_root {
+                        return Err(e);
+                    } else {
+                        eprintln!(
+                            "[WARN] No se pudo obtener POM para dependencia transitiva '{}:{}:{}': {}",
+                            group_id, artifact_id, version, e
+                        );
+                        continue;
+                    }
+                }
+            };
+
+            let parsed = match parse_pom_dependencies(&pom) {
+                Ok(deps) => deps,
+                Err(e) => {
+                    eprintln!(
+                        "[WARN] Error al analizar POM '{}:{}:{}': {}",
+                        group_id, artifact_id, version, e
+                    );
                     continue;
                 }
+            };
+
+            for dep in parsed {
+                // Ignorar scopes de desarrollo / no compilables
+                if matches!(
+                    dep.scope.as_deref(),
+                    Some("test" | "provided" | "system" | "import")
+                ) {
+                    continue;
+                }
+                // Las dependencias opcionales no se propagan a proyectos consumidores
+                if dep.optional {
+                    continue;
+                }
+                // Ignorar si la versión está vacía o es un placeholder no resuelto
+                if dep.version.is_empty() || dep.version.starts_with("${") {
+                    continue;
+                }
+
                 queue.push((
                     dep.group_id.clone(),
                     dep.artifact_id.clone(),

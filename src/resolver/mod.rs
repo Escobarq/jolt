@@ -83,4 +83,61 @@ mod tests {
         assert_eq!(deps[2].artifact_id, "jackson-databind");
         assert!(deps[2].optional);
     }
+
+    #[test]
+    fn test_parse_pom_ignores_dependency_management_and_resolves_properties() {
+        let pom_with_mgmt = r#"
+        <project xmlns="http://maven.apache.org/POM/4.0.0">
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>org.example</groupId>
+            <artifactId>complex-app</artifactId>
+            <version>2.5.0</version>
+            <properties>
+                <spring.version>6.1.4</spring.version>
+            </properties>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                        <version>${spring.version}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-web</artifactId>
+                    <version>${spring.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.example</groupId>
+                    <artifactId>self-module</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.unversioned</groupId>
+                    <artifactId>missing-ver</artifactId>
+                </dependency>
+            </dependencies>
+        </project>
+        "#;
+
+        let deps = parse_pom_dependencies(pom_with_mgmt).expect("Failed to parse POM with management");
+        // Should only contain spring-web (with resolved version 6.1.4) and self-module (with resolved 2.5.0)
+        // plexus-utils (in dependencyManagement) and missing-ver (no version) must be excluded!
+        assert_eq!(deps.len(), 2);
+
+        assert_eq!(deps[0].group_id, "org.springframework");
+        assert_eq!(deps[0].artifact_id, "spring-web");
+        assert_eq!(deps[0].version, "6.1.4");
+
+        assert_eq!(deps[1].group_id, "org.example");
+        assert_eq!(deps[1].artifact_id, "self-module");
+        assert_eq!(deps[1].version, "2.5.0");
+    }
 }

@@ -14,6 +14,7 @@ pub fn run(
     project_dir: &Path,
     main_class: &str,
     toolchain: Option<&Toolchain>,
+    args: &[String],
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     // Asegurar que esté compilado
     compile(project_dir, toolchain)?;
@@ -29,6 +30,9 @@ pub fn run(
         cmd.arg("-cp").arg(&classpath);
     }
     cmd.arg(main_class);
+    if !args.is_empty() {
+        cmd.args(args);
+    }
 
     // Heredar stdio para streaming interactivo en tiempo real
     let mut child = cmd.spawn()?;
@@ -50,6 +54,7 @@ pub fn spawn_process(
     project_dir: &Path,
     main_class: &str,
     toolchain: Option<&Toolchain>,
+    args: &[String],
 ) -> Result<std::process::Child, Box<dyn Error + Send + Sync>> {
     let classpath = build_classpath(project_dir, true);
     let java_path = toolchain
@@ -61,6 +66,9 @@ pub fn spawn_process(
         cmd.arg("-cp").arg(&classpath);
     }
     cmd.arg(main_class);
+    if !args.is_empty() {
+        cmd.args(args);
+    }
 
     let child = cmd.spawn()?;
     Ok(child)
@@ -131,6 +139,7 @@ pub fn run_watch(
     project_dir: &Path,
     main_class: &str,
     toolchain: Option<&Toolchain>,
+    args: &[String],
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     println!("[INFO] Modo Watch activado. Observando cambios en 'src/' y 'jolt.toml'...");
 
@@ -139,7 +148,7 @@ pub fn run_watch(
         eprintln!("[ERROR] Error de compilacion inicial:\n{}", e);
     }
 
-    let mut current_child = match spawn_process(project_dir, main_class, toolchain) {
+    let mut current_child = match spawn_process(project_dir, main_class, toolchain, args) {
         Ok(child) => Some(child),
         Err(e) => {
             eprintln!("[WARN] No se pudo iniciar el proceso Java inicial: {}", e);
@@ -184,7 +193,7 @@ pub fn run_watch(
                     match compile(project_dir, toolchain) {
                         Ok(_) => {
                             println!("[INFO] Reiniciando aplicacion...");
-                            match spawn_process(project_dir, main_class, toolchain) {
+                            match spawn_process(project_dir, main_class, toolchain, args) {
                                 Ok(child) => current_child = Some(child),
                                 Err(e) => eprintln!("[ERROR] Error al reiniciar: {}", e),
                             }

@@ -177,6 +177,9 @@ pub enum Commands {
         /// Permite descargar automáticamente un JDK si no hay uno compatible instalado
         #[arg(long = "download-jdk")]
         download_jdk: bool,
+        /// Argumentos pasados a la aplicación Java (después de '--')
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+        args: Vec<String>,
     },
     /// Ejecuta las pruebas unitarias del proyecto con JUnit 5 integrado
     Test {
@@ -231,6 +234,20 @@ mod tests {
                 assert!(download_jdk);
             }
             command => panic!("expected Verify, got {command:?}"),
+        }
+    }
+
+    #[test]
+    fn parses_run_command_arguments() {
+        let cli = Cli::try_parse_from(["jolt", "run", "--", "--name", "Gamer", "-v"])
+            .expect("run command should parse trailing arguments");
+
+        match cli.command {
+            Commands::Run { args, watch, .. } => {
+                assert!(!watch);
+                assert_eq!(args, vec!["--name", "Gamer", "-v"]);
+            }
+            command => panic!("expected Run, got {command:?}"),
         }
     }
 }

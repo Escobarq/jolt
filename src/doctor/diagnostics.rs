@@ -9,12 +9,42 @@ pub struct SystemChecker;
 impl SystemChecker {
     /// Ejecuta una utilidad del sistema y devuelve su primera línea de versión
     pub fn get_command_version(cmd_name: &str, version_flag: &str) -> Option<String> {
-        let output = Command::new(cmd_name).arg(version_flag).output().ok()?;
-        let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let extract_version = |output: std::process::Output| -> Option<String> {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            let raw = if !stdout.is_empty() { stdout } else { stderr };
+            raw.lines().next().map(|s| s.trim().to_string())
+        };
 
-        let raw = if !stdout.is_empty() { stdout } else { stderr };
-        raw.lines().next().map(|s| s.trim().to_string())
+        if let Ok(output) = Command::new(cmd_name).arg(version_flag).output() {
+            if let Some(ver) = extract_version(output) {
+                if !ver.is_empty() {
+                    return Some(ver);
+                }
+            }
+        }
+
+        // Si falló y es rustc o cargo, buscar en ~/.cargo/bin
+        if cmd_name == "rustc" || cmd_name == "cargo" {
+            if let Some(home) = dirs::home_dir() {
+                let cargo_bin = home.join(".cargo").join("bin").join(if cfg!(windows) {
+                    format!("{}.exe", cmd_name)
+                } else {
+                    cmd_name.to_string()
+                });
+                if cargo_bin.exists() {
+                    if let Ok(output) = Command::new(&cargo_bin).arg(version_flag).output() {
+                        if let Some(ver) = extract_version(output) {
+                            if !ver.is_empty() {
+                                return Some(ver);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        None
     }
 
     /// Calcula el tamaño total y la cantidad de archivos dentro de un directorio

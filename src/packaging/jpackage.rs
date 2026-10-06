@@ -460,7 +460,6 @@ pub fn package_native_app(
 mod tests {
     use super::*;
     use std::fs;
-    use std::path::Path;
 
     #[test]
     fn test_compress_to_tar_gz() {

@@ -59,6 +59,12 @@ if (-not $NoUpx) {
 
 # 2. Compilar binario de Jolt en modo Release
 Write-Host "`n[2/4] Compilando Jolt CLI en modo release con Cargo..." -ForegroundColor Yellow
+if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+    $CargoBin = "$env:USERPROFILE\.cargo\bin"
+    if (Test-Path "$CargoBin\cargo.exe") {
+        $env:PATH = "$CargoBin;$env:PATH"
+    }
+}
 cargo build --release
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Fallo al compilar Jolt con cargo build --release"
@@ -92,6 +98,16 @@ if (-not (Test-Path $DistDir)) {
 
 $NsisScript = "installer\windows\jolt_installer.nsi"
 $NsisArgs = @()
+
+$CargoTomlPath = "Cargo.toml"
+if (Test-Path $CargoTomlPath) {
+    $CargoToml = Get-Content $CargoTomlPath -Raw
+    if ($CargoToml -match 'version\s*=\s*"([^"]+)"') {
+        $DetectedVersion = $matches[1]
+        $NsisArgs += "/DPRODUCT_VERSION=$DetectedVersion"
+        Write-Host "  [OK] Versión detectada en Cargo.toml: v$DetectedVersion" -ForegroundColor Cyan
+    }
+}
 
 if ($InstallerName) {
     $FinalName = $InstallerName
