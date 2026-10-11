@@ -8,7 +8,7 @@ Proporciona detección inteligente de JDKs instalados en el sistema anfitrión (
 ### Requirement: Detección multinivel de JDKs locales
 El sistema SHALL inspeccionar ordenadamente las siguientes fuentes para descubrir instalaciones de Java locales:
 1. Variables de entorno `GRAALVM_HOME` y `JAVA_HOME`.
-2. Ejecutables `java` y `javac` accesibles en el `PATH` del sistema.
+2. Ejecutables `javac` accesibles en el `PATH` del sistema, validando también la presencia de `java`.
 3. Directorios de instalación estándar del sistema operativo según la plataforma (en Windows: `C:\Program Files\Java`, `C:\Program Files\GraalVm`, `C:\Program Files\Eclipse Adoptium`, etc.; en Linux: `/usr/lib/jvm`, `/opt/java`; en macOS: `/Library/Java/JavaVirtualMachines`).
 
 #### Scenario: Detección exitosa de GraalVM u OpenJDK en PATH o variables de entorno

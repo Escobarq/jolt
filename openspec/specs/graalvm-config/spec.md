@@ -6,11 +6,12 @@ Permite configurar parámetros de compilación de binarios nativos con GraalVM N
 ## Requirements
 
 ### Requirement: Esquema de configuración GraalVM en jolt.toml
-El sistema SHALL permitir la definición de una tabla `[graalvm]` (y opcionalmente `[package.graalvm]`) en `jolt.toml` con opciones para el compilador `native-image`, incluyendo: `enabled` (booleano), `args` (lista de argumentos para native-image), `main_class` (opcional), `name` / `binary_name` (opcional), `reflection_config` (opcional) y `resources_config` (opcional).
+El sistema SHALL permitir la definición de una tabla `[graalvm]` (y opcionalmente `[package.graalvm]`) en `jolt.toml` con opciones para el compilador `native-image`, incluyendo `enabled`, `args`, `main_class`, `name`, `reflection_config` y `resources_config`. Todas las opciones, salvo las listas y cadenas explícitamente configuradas, serán opcionales.
 
 #### Scenario: Carga exitosa de configuración GraalVM desde jolt.toml
 - **WHEN** un manifiesto `jolt.toml` define `[graalvm]` con `args = ["--no-fallback"]`
 - **THEN** el parser de Jolt deserializa correctamente las opciones en la estructura de manifiesto del proyecto
+- **AND** `JoltManifest::graalvm_config()` prioriza la tabla raíz `[graalvm]` sobre `[package.graalvm]`
 
 ### Requirement: Detección del ejecutable native-image
 El sistema SHALL buscar el binario `native-image` en las siguientes ubicaciones prioritarias:
