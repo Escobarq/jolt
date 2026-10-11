@@ -1,30 +1,33 @@
 # Graph Report - jolt  (2026-10-11)
 
 ## Corpus Check
-- 96 files · ~50,747 words
+- 119 files · ~57,134 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 15 file(s) not represented in the graph (top: .toml 7, .properties 3, (none) 2)
+- Unclassified: 18 file(s) not represented in the graph (top: .toml 7, (none) 3, .properties 3)
 
 ## Summary
-- 488 nodes · 646 edges · 60 communities (23 shown, 37 thin omitted)
+- 551 nodes · 705 edges · 64 communities (24 shown, 40 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 32 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `00a469cc`
+- Built from commit: `d5f30c6c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - MavenClient
+- Joltv documentation
 - Toolchain
-- path
 - manifest.rs
 - CacheManager
 - scaffold/mod.rs
 - org.junit.jupiter.api.Test
+- DocsLayout.astro
 - App.java
 - lockfile.rs
+- AGENTS.md
+- CLAUDE.md
 - 3. Módulo Y: Formateador Integrado de Código Java (`jolt fmt`)
 - Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs Java
 - Archivo de Modulo O: Gestion de Dev-Dependencies, Menu Interactivo y Soporte IDE (v0.2.0)
@@ -48,6 +51,7 @@
 - Module L Documentation
 - Module M Documentation
 - Module N Documentation
+- tsconfig.json
 - Benchmark Output Results
 - Phase 1 Documentation
 - Phase 2 Documentation
@@ -87,8 +91,6 @@
 10. `init_project()` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `build_jar()` --references--> `Toolchain`  [EXTRACTED]
-  src/packaging/jar.rs → src/toolchain/mod.rs
 - `package_native_app()` --calls--> `find_makensis_binary()`  [INFERRED]
   src/packaging/jpackage.rs → src/packaging/nsis.rs
 - `init_project()` --calls--> `print_available_templates()`  [INFERRED]
@@ -97,6 +99,8 @@
   AGENTS.md → GEMINI.md
 - `install_in_dir()` --references--> `CacheManager`  [EXTRACTED]
   src/main.rs → src/core/cache.rs
+- `install_one_dependency()` --references--> `CacheManager`  [EXTRACTED]
+  src/main.rs → src/core/cache.rs
 
 ## Import Cycles
 - 2-file cycle: `src/toolchain/downloader.rs -> src/toolchain/mod.rs -> src/toolchain/downloader.rs`
@@ -104,27 +108,23 @@
 ## Hyperedges (group relationships)
 - **Jolt Modules** — docs_archive_modulo_a_cli_scaffolding_modulo_a, docs_archive_modulo_b_maven_resolver_modulo_b, docs_archive_modulo_c_cache_storage_modulo_c, docs_archive_modulo_d_toolchain_provisioner_modulo_d, docs_archive_modulo_e_build_run_engine_modulo_e, docs_archive_modulo_f_i_fatjar_resources_modulo_f, docs_archive_modulo_f_i_fatjar_resources_modulo_i, docs_archive_modulo_g_unit_testing_modulo_g, docs_archive_modulo_h_watch_mode_modulo_h, docs_archive_modulo_j_system_project_check_modulo_j, docs_archive_modulo_k_lockfile_modulo_k, docs_archive_modulo_l_templates_modulo_l, docs_archive_modulo_m_remove_dependency_modulo_m, docs_archive_modulo_n_search_modulo_n [EXTRACTED 1.00]
 
-## Communities (60 total, 37 thin omitted)
+## Communities (64 total, 40 thin omitted)
 
 ### Community 0 - "MavenClient"
 Cohesion: 0.10
 Nodes (14): install_in_dir(), install_one_dependency(), install_resolved_in_dir(), main(), resolve_target_directories(), sync_in_dir(), dependency(), MavenClient (+6 more)
 
-### Community 1 - "Toolchain"
-Cohesion: 0.13
-Nodes (11): detect_java_vendor(), discover_system_jdks(), find_system_jdk(), inspect_jdk_dir(), parse_java_major_version(), download_and_extract_jdk(), find_binaries_in_dir(), InstalledJdk (+3 more)
+### Community 1 - "Joltv documentation"
+Cohesion: 0.29
+Nodes (6): Deployment base path, Documentation map, Joltv documentation, Local development, Production build, Project structure
 
-### Community 2 - "path"
-Cohesion: 0.10
-Nodes (11): build_jar(), build_standalone_jar(), compress_to_tar_gz(), package_native_app(), test_compress_to_tar_gz(), test_generate_nsis_script_content(), build_native_image(), find_makensis_binary() (+3 more)
+### Community 2 - "Toolchain"
+Cohesion: 0.06
+Nodes (23): SystemChecker, build_jar(), build_standalone_jar(), compress_to_tar_gz(), package_native_app(), test_compress_to_tar_gz(), test_generate_nsis_script_content(), build_native_image() (+15 more)
 
 ### Community 3 - "manifest.rs"
 Cohesion: 0.15
 Nodes (14): GraalVmConfig, JoltManifest, PackageConfig, Project, test_add_and_remove_dev_dependency(), test_parse_basic_manifest(), test_parse_dependency_with_path(), test_parse_graalvm_config() (+6 more)
-
-### Community 4 - "CacheManager"
-Cohesion: 0.17
-Nodes (3): CacheManager, test_cache_save_and_link(), SystemChecker
 
 ### Community 5 - "scaffold/mod.rs"
 Cohesion: 0.21
@@ -133,6 +133,10 @@ Nodes (9): ensure_ide_configuration(), init_project(), test_ensure_ide_configura
 ### Community 6 - "org.junit.jupiter.api.Test"
 Cohesion: 0.16
 Nodes (5): MainTest, AppTest, SpringAppTest, SwingAppTest, MainTest
+
+### Community 7 - "DocsLayout.astro"
+Cohesion: 0.05
+Nodes (21): configuredHosts, dependencies, astro, @fontsource/roboto, remixicon, devDependencies, @types/node, engines (+13 more)
 
 ### Community 9 - "lockfile.rs"
 Cohesion: 0.22
@@ -149,6 +153,10 @@ Nodes (3): Modulo P: Comando `jolt sync` y Autoconfiguracion de VS Code e IDEs J
 ### Community 15 - "1. Modulo Q: Empaquetado Binario Nativo Multiplataforma (`jolt package`)"
 Cohesion: 0.40
 Nodes (4): 1. Modulo Q: Empaquetado Binario Nativo Multiplataforma (`jolt package`), Capacidades:, Jolt - Especificaciones Tecnicas Fase 4, Tareas implementadas:
+
+### Community 35 - "tsconfig.json"
+Cohesion: 0.40
+Nodes (4): exclude, extends, include, astro/tsconfigs/strict
 
 ### Community 48 - "Jolt - Especificaciones Tecnicas Fase 5"
 Cohesion: 0.25
@@ -199,24 +207,24 @@ Cohesion: 0.10
 Nodes (12): 1. Soporte de configuración GraalVM en jolt.toml, 2. Detección inteligente de JDKs locales en ToolchainManager, 3. Integración de GraalVM Native Image y comandos CLI, 4. Verificación y pruebas de integración, architecture-modularity Specification, Purpose, Requirement: Organización modular de la base de código en subdirectorios, Requirement: Punto de entrada unificado y despacho de comandos (+4 more)
 
 ## Knowledge Gaps
-- **50 isolated node(s):** `jolt`, `com.example:maven-test`, `Init`, `Add`, `Search` (+45 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 225 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **52 isolated node(s):** `jolt`, `com.example:maven-test`, `@types/node`, `astro/tsconfigs/strict`, `Init` (+47 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 273 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **40 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `CacheManager` connect `CacheManager` to `MavenClient`, `path`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **What connects `jolt`, `com.example:maven-test`, `Init` to the rest of the system?**
-  _50 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `CacheManager` connect `CacheManager` to `MavenClient`, `Toolchain`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **What connects `jolt`, `com.example:maven-test`, `@types/node` to the rest of the system?**
+  _52 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MavenClient` be split into smaller, more focused modules?**
   _Cohesion score 0.1028225806451613 - nodes in this community are weakly interconnected._
 - **Why does `MavenClient` connect `MavenClient` to `pom_parser.rs`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Should `Toolchain` be split into smaller, more focused modules?**
-  _Cohesion score 0.12903225806451613 - nodes in this community are weakly interconnected._
-- **Should `path` be split into smaller, more focused modules?**
-  _Cohesion score 0.09716599190283401 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.056576576576576575 - nodes in this community are weakly interconnected._
 - **Should `manifest.rs` be split into smaller, more focused modules?**
   _Cohesion score 0.1452991452991453 - nodes in this community are weakly interconnected._
+- **Should `DocsLayout.astro` be split into smaller, more focused modules?**
+  _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._

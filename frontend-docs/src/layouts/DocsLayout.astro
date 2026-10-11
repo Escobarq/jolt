@@ -1,0 +1,187 @@
+---
+import "remixicon/fonts/remixicon.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import "../styles/global.css";
+
+const { title, description, lang = "es", toc = [] } = Astro.props;
+const english = lang === "en";
+const locale = english ? "en" : "es";
+const base = import.meta.env.BASE_URL.endsWith("/")
+	? import.meta.env.BASE_URL
+	: `${import.meta.env.BASE_URL}/`;
+const link = (path) => `${base}${locale}${path}`;
+---
+
+<!doctype html>
+<html lang={locale}>
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content={description} />
+		<title>{title} · Jolt</title>
+	</head>
+	<body>
+		<header class="topbar">
+			<a class="brand" href={link("/")}>
+				<i class="ri-cup-line brand-mark" aria-hidden="true"></i>
+				<span>Jolt</span>
+			</a>
+			<span class="brand-tag">
+				{english ? "Java tooling" : "Herramientas Java"}
+			</span>
+			<nav aria-label={english ? "Main navigation" : "Navegación principal"}>
+				<a href={link("/docs/quickstart/")}>
+					{english ? "Docs" : "Documentación"}
+				</a>
+				<a href="https://github.com/Escobarq/jolt">GitHub</a>
+				<a class="language" href={`${base}${english ? "es" : "en"}/`}>
+					{english ? "ES" : "EN"}
+				</a>
+			</nav>
+		</header>
+		<div class="shell">
+			<aside class="sidebar">
+				<p class="sidebar-label">
+					{english ? "Documentation" : "Documentación"}
+				</p>
+				<a href={link("/docs/quickstart/")}>
+					<i class="ri-rocket-line" aria-hidden="true"></i>
+					{english ? "Quick start" : "Inicio rápido"}
+				</a>
+				<a href={link("/docs/cli/")}>
+					<i class="ri-terminal-box-line" aria-hidden="true"></i>
+					{english ? "CLI reference" : "Referencia CLI"}
+				</a>
+				<a href={link("/docs/configuration/")}>
+					<i class="ri-settings-3-line" aria-hidden="true"></i>
+					{english ? "Configuration" : "Configuración"}
+				</a>
+				<a href={link("/docs/architecture/")}>
+					<i class="ri-node-tree" aria-hidden="true"></i>
+					{english ? "Architecture" : "Arquitectura"}
+				</a>
+				<a href={link("/docs/toolchains/")}>
+					<i class="ri-java-line" aria-hidden="true"></i>
+					{english ? "JDK & GraalVM" : "JDK y GraalVM"}
+				</a>
+				<a href={link("/docs/contributing/")}>
+					<i class="ri-git-merge-line" aria-hidden="true"></i>
+					{english ? "Contributing" : "Contribuir"}
+				</a>
+			</aside>
+			<main>
+				<div class="breadcrumbs">
+					<a href={link("/")}>Jolt</a>
+					<i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+					<span>Docs</span>
+				</div>
+				<p class="eyebrow">Jolt · {english ? "Guide" : "Guía"}</p>
+				<h1>{title}</h1>
+				<slot />
+				{toc.length > 0 && (
+					<nav
+						class="toc-inline"
+						aria-label={english ? "On this page" : "En esta página"}
+					>
+						<strong>
+							{english ? "On this page" : "En esta página"}
+						</strong>
+						{toc.map((item) => (
+							<a href={`#${item.id}`}>{item.label}</a>
+						))}
+					</nav>
+				)}
+			</main>
+			{toc.length > 0 && (
+				<aside class="right-rail">
+					<p>{english ? "On this page" : "En esta página"}</p>
+					{toc.map((item) => (
+						<a href={`#${item.id}`}>{item.label}</a>
+					))}
+				</aside>
+			)}
+		</div>
+		<footer>
+			<span>
+				<i class="ri-open-source-line" aria-hidden="true"></i> Jolt ·
+				open source Java tooling
+			</span>
+			<a href="https://github.com/Escobarq/jolt">
+				<i class="ri-github-line" aria-hidden="true"></i> Source on
+				GitHub
+			</a>
+		</footer>
+		<script is:inline>
+			(() => {
+				const english = document.documentElement.lang === "en";
+				const copyLabel = english ? "Copy" : "Copiar";
+				const copiedLabel = english ? "Copied" : "Copiado";
+				const terminalLabel = english ? "Terminal" : "Terminal";
+
+				const fallbackCopy = (text) => {
+					const textarea = document.createElement("textarea");
+					textarea.value = text;
+					textarea.setAttribute("readonly", "");
+					textarea.style.position = "fixed";
+					textarea.style.opacity = "0";
+					document.body.appendChild(textarea);
+					textarea.select();
+					const copied = document.execCommand("copy");
+					textarea.remove();
+					return copied;
+				};
+
+				document.querySelectorAll("main pre").forEach((pre) => {
+					const code = pre.querySelector("code");
+					if (!code || pre.parentElement?.classList.contains("code-block")) return;
+
+					const wrapper = document.createElement("div");
+					wrapper.className = "code-block";
+					pre.parentNode.insertBefore(wrapper, pre);
+					wrapper.appendChild(pre);
+
+					const toolbar = document.createElement("div");
+					toolbar.className = "code-toolbar";
+					toolbar.innerHTML = `
+						<span class="code-language"><i class="ri-terminal-line" aria-hidden="true"></i>${terminalLabel}</span>
+						<button class="copy-button" type="button" aria-label="${copyLabel}">
+							<i class="ri-file-copy-line" aria-hidden="true"></i>
+							<span>${copyLabel}</span>
+						</button>
+					`;
+					wrapper.insertBefore(toolbar, pre);
+
+					const button = toolbar.querySelector("button");
+					button.addEventListener("click", async () => {
+						const text = code.textContent.replace(/\n$/, "");
+						let copied = false;
+						try {
+							if (navigator.clipboard?.writeText) {
+								await navigator.clipboard.writeText(text);
+								copied = true;
+							}
+						} catch {
+							copied = false;
+						}
+						if (!copied) copied = fallbackCopy(text);
+						if (!copied) return;
+
+						button.classList.add("copied");
+						button.setAttribute("aria-label", copiedLabel);
+						button.querySelector("i").className = "ri-check-line";
+						button.querySelector("span").textContent = copiedLabel;
+						window.setTimeout(() => {
+							button.classList.remove("copied");
+							button.setAttribute("aria-label", copyLabel);
+							button.querySelector("i").className = "ri-file-copy-line";
+							button.querySelector("span").textContent = copyLabel;
+						}, 1800);
+					});
+				});
+			})();
+		</script>
+	</body>
+</html>

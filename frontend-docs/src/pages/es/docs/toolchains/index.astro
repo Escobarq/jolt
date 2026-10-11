@@ -1,0 +1,22 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="es" title="JDK y GraalVM" description="Toolchains Java para Joltv." toc={[{ id: 'busqueda', label: 'Orden de búsqueda' }, { id: 'compatibilidad', label: 'Compatibilidad' }, { id: 'descarga', label: 'Descarga explícita' }, { id: 'native-image', label: 'Native Image' }]}>
+	<p class="lead">Joltv intenta reutilizar las herramientas Java que ya tienes instaladas y solo descarga un JDK cuando lo autorizas explícitamente.</p>
+	<h2 id="busqueda">Orden de búsqueda</h2>
+	<ol class="step-list"><li><code>GRAALVM_HOME</code> y <code>JAVA_HOME</code>.</li><li>El ejecutable <code>javac</code> en el <code>PATH</code>, validando también <code>java</code>.</li><li>Rutas estándar del sistema, como <code>C:\Program Files\Java</code>, <code>/usr/lib/jvm</code> o las instalaciones de macOS.</li></ol>
+	<pre><code>jolt check</code></pre>
+	<h2 id="compatibilidad">Compatibilidad de versiones</h2>
+	<p>La versión mayor declarada en <code>[project].java_version</code> se compara con los JDK disponibles. Una versión instalada igual o superior puede reutilizarse cuando es compatible.</p>
+	<table class="doc-table"><thead><tr><th>Configuración</th><th>Resultado</th></tr></thead><tbody><tr><td><code>java_version = "21"</code></td><td>Busca JDK 21 o una versión posterior compatible.</td></tr><tr><td>GraalVM disponible</td><td>Se prioriza para builds Native Image.</td></tr><tr><td>Ningún JDK compatible</td><td>Se muestra un error con la versión solicitada y las rutas revisadas.</td></tr></tbody></table>
+	<h2 id="descarga">Descarga explícita</h2>
+	<p>Joltv no descarga JDKs silenciosamente. Autoriza la descarga de Temurin con el flag correspondiente:</p>
+	<pre><code>jolt build --download-jdk
+jolt run --download-jdk
+jolt test --download-jdk</code></pre>
+	<h2 id="native-image">GraalVM Native Image</h2>
+	<p>Cuando <code>native-image</code> está disponible en el toolchain detectado, puedes generar un ejecutable autónomo:</p>
+	<pre><code>jolt build --native
+jolt build --native --download-jdk</code></pre>
+	<p>El resultado se escribe en <code>dist/</code>. Los argumentos adicionales se configuran en la tabla <code>[graalvm]</code> del manifiesto.</p>
+</DocsLayout>

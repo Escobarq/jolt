@@ -1,0 +1,22 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="en" title="JDK & GraalVM" description="Java toolchains for Joltv." toc={[{ id: 'discovery', label: 'Discovery order' }, { id: 'compatibility', label: 'Compatibility' }, { id: 'download', label: 'Explicit downloads' }, { id: 'native-image', label: 'Native Image' }]}>
+	<p class="lead">Joltv reuses the Java tools already installed on your machine and only downloads a JDK when you explicitly allow it.</p>
+	<h2 id="discovery">Discovery order</h2>
+	<ol class="step-list"><li><code>GRAALVM_HOME</code> and <code>JAVA_HOME</code>.</li><li>The <code>javac</code> executable on <code>PATH</code>, also validating <code>java</code>.</li><li>Standard system locations such as <code>C:\Program Files\Java</code>, <code>/usr/lib/jvm</code>, or macOS installations.</li></ol>
+	<pre><code>jolt check</code></pre>
+	<h2 id="compatibility">Version compatibility</h2>
+	<p>The major version declared in <code>[project].java_version</code> is compared with available JDKs. An equal or newer compatible installation can be reused.</p>
+	<table class="doc-table"><thead><tr><th>Configuration</th><th>Result</th></tr></thead><tbody><tr><td><code>java_version = "21"</code></td><td>Looks for JDK 21 or a compatible newer version.</td></tr><tr><td>GraalVM available</td><td>Preferred for Native Image builds.</td></tr><tr><td>No compatible JDK</td><td>Reports the requested version and inspected locations.</td></tr></tbody></table>
+	<h2 id="download">Explicit downloads</h2>
+	<p>Joltv never downloads JDKs silently. Explicitly allow a Temurin download with the flag:</p>
+	<pre><code>jolt build --download-jdk
+jolt run --download-jdk
+jolt test --download-jdk</code></pre>
+	<h2 id="native-image">GraalVM Native Image</h2>
+	<p>When <code>native-image</code> is available in the detected toolchain, generate a standalone executable:</p>
+	<pre><code>jolt build --native
+jolt build --native --download-jdk</code></pre>
+	<p>The output is written to <code>dist/</code>. Additional arguments belong in the manifest's <code>[graalvm]</code> table.</p>
+</DocsLayout>

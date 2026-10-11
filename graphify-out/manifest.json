@@ -586,5 +586,155 @@
     "seen": 1791730983.391289,
     "ast_hash": "2ea0d2e006e8d7d271073ffa9515dd77",
     "semantic_hash": ""
+  },
+  ".github/workflows/joltv-pages.yml": {
+    "mtime": 1791739114.7504473,
+    "seen": 1791739151.4006171,
+    "ast_hash": "91ebe451889e85fd852d3da5daf207ff",
+    "semantic_hash": ""
+  },
+  "frontend-docs/.github/context-mode/sessions/stats-pid-14836.json": {
+    "mtime": 1791732893.4418073,
+    "seen": 1791737169.4773934,
+    "ast_hash": "4386c42a1cb073520a81de0a41363ace",
+    "semantic_hash": ""
+  },
+  "frontend-docs/astro.config.mjs": {
+    "mtime": 1791739754.3175046,
+    "seen": 1791739770.2789319,
+    "ast_hash": "198ca4174cb4bf449021ce90b1c85041",
+    "semantic_hash": ""
+  },
+  "frontend-docs/package.json": {
+    "mtime": 1791739688.689968,
+    "seen": 1791739770.2789376,
+    "ast_hash": "3cc686911c5f07853d2add85d3afba76",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/layouts/DocsLayout.astro": {
+    "mtime": 1791738628.6934114,
+    "seen": 1791738637.5198562,
+    "ast_hash": "1badd9b66646b6f49d1a9af66c9c8b0f",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/en/docs/architecture/index.astro": {
+    "mtime": 1791734886.968102,
+    "seen": 1791737169.4774837,
+    "ast_hash": "cc051fb638d47d4951cf7bdae5f74df9",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/en/docs/cli/index.astro": {
+    "mtime": 1791737691.3377106,
+    "seen": 1791737698.9690683,
+    "ast_hash": "7b44e688ae6c54dd49f0334491faf561",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/en/docs/configuration/index.astro": {
+    "mtime": 1791734886.9387481,
+    "seen": 1791737169.4774957,
+    "ast_hash": "9e84ed1fb542cda0e153168f277a26d2",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/en/docs/contributing/index.astro": {
+    "mtime": 1791735074.9883711,
+    "seen": 1791737169.4774988,
+    "ast_hash": "c643d125bbd79ba9e29ee06ac8035323",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/en/docs/quickstart/index.astro": {
+    "mtime": 1791737877.1655982,
+    "seen": 1791737886.7754765,
+    "ast_hash": "6f507189ce9b0133f7a6cc4d503f35ba",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/en/docs/toolchains/index.astro": {
+    "mtime": 1791734902.0021663,
+    "seen": 1791737169.4775064,
+    "ast_hash": "004feee407dc873608986bed3836626f",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/en/index.astro": {
+    "mtime": 1791736598.9337094,
+    "seen": 1791737169.4775097,
+    "ast_hash": "e2b5bc2c49b99b5ef2344801e96ec591",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/es/docs/architecture/index.astro": {
+    "mtime": 1791734886.954453,
+    "seen": 1791737169.4775126,
+    "ast_hash": "e174fdf90fe6a20fb5432a2b1528ffdf",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/es/docs/cli/index.astro": {
+    "mtime": 1791737691.3300638,
+    "seen": 1791737698.9691005,
+    "ast_hash": "eecda7d2d69853bbcb1798880ea0ff55",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/es/docs/configuration/index.astro": {
+    "mtime": 1791734886.9190247,
+    "seen": 1791737169.477518,
+    "ast_hash": "33f38743e91bb538539992cf250fd6ec",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/es/docs/contributing/index.astro": {
+    "mtime": 1791735071.5095367,
+    "seen": 1791737169.477522,
+    "ast_hash": "27754505f457ea6dd47244aea2ee9c30",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/es/docs/quickstart/index.astro": {
+    "mtime": 1791737877.1525033,
+    "seen": 1791737886.7755003,
+    "ast_hash": "1108a657d016c1e10b5fc67fc19c79d3",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/es/docs/toolchains/index.astro": {
+    "mtime": 1791734901.9915218,
+    "seen": 1791737169.4775283,
+    "ast_hash": "c96c06fd2da00c06028e7bb53e8015ea",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/es/index.astro": {
+    "mtime": 1791736589.8876705,
+    "seen": 1791737169.4775312,
+    "ast_hash": "3797f6474ebaf631dae32e2dc25bfd22",
+    "semantic_hash": ""
+  },
+  "frontend-docs/src/pages/index.astro": {
+    "mtime": 1791739114.736045,
+    "seen": 1791739151.400323,
+    "ast_hash": "d7e625479c6f1cb7f2af58d16f3f61ab",
+    "semantic_hash": ""
+  },
+  "frontend-docs/tsconfig.json": {
+    "mtime": 1791473750.0,
+    "seen": 1791737169.4775364,
+    "ast_hash": "1d3613ac08bdda17e2b82251613dbc21",
+    "semantic_hash": ""
+  },
+  "frontend-docs/AGENTS.md": {
+    "mtime": 1791732541.955562,
+    "seen": 1791737169.4779675,
+    "ast_hash": "4d944a80d98bf8891d5b10081a86d3e1",
+    "semantic_hash": ""
+  },
+  "frontend-docs/CLAUDE.md": {
+    "mtime": 1791732541.955562,
+    "seen": 1791737169.4779718,
+    "ast_hash": "4d944a80d98bf8891d5b10081a86d3e1",
+    "semantic_hash": ""
+  },
+  "frontend-docs/README.md": {
+    "mtime": 1791739754.3210402,
+    "seen": 1791739770.2794495,
+    "ast_hash": "78b939ebc06fde07f2d15dc4d3c8e8d6",
+    "semantic_hash": ""
+  },
+  "frontend-docs/public/favicon.svg": {
+    "mtime": 1791473750.0,
+    "seen": 1791737169.4780195,
+    "ast_hash": "8c13f40658976ea1dfb8ba37a8be0e8d",
+    "semantic_hash": ""
   }
 }

@@ -1,0 +1,22 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="en" title="Architecture" description="Joltv modular architecture." toc={[{ id: 'overview', label: 'Overview' }, { id: 'modules', label: 'Modules' }, { id: 'flow', label: 'Execution flow' }, { id: 'extend', label: 'Extending the CLI' }]}>
+	<p class="lead">Joltv is built in Rust and separates the user experience, dependency resolution, compilation, and packaging into focused modules.</p>
+	<h2 id="overview">Overview</h2>
+	<pre><code>CLI (clap)
+  └── main.rs: command orchestration
+       ├── core: manifests, lockfile, and cache
+       ├── resolver: Maven Central and POMs
+       ├── build: javac, execution, and JUnit
+       ├── packaging: JARs, Native Image, installers
+       ├── toolchain: JDK discovery and downloads
+       ├── scaffold: templates and IDE config
+       └── doctor: environment diagnostics</code></pre>
+	<h2 id="modules">Main modules</h2>
+	<table class="doc-table"><thead><tr><th>Module</th><th>Responsibility</th><th>Key files</th></tr></thead><tbody><tr><td><code>core</code></td><td>Canonical types and persistence.</td><td><code>manifest.rs</code>, <code>lockfile.rs</code>, <code>cache.rs</code></td></tr><tr><td><code>cli</code></td><td>Commands, arguments, and flags.</td><td><code>args.rs</code>, <code>mod.rs</code></td></tr><tr><td><code>build</code></td><td>Compilation, execution, and tests.</td><td><code>compiler.rs</code>, <code>runner.rs</code>, <code>test_runner.rs</code></td></tr><tr><td><code>resolver</code></td><td>Maven downloads and analysis.</td><td><code>maven_client.rs</code>, <code>pom_parser.rs</code></td></tr><tr><td><code>packaging</code></td><td>Distributable artifacts.</td><td><code>jar.rs</code>, <code>native_image.rs</code>, <code>jpackage.rs</code></td></tr><tr><td><code>toolchain</code></td><td>Local and remote JDKs.</td><td><code>detector.rs</code>, <code>downloader.rs</code></td></tr></tbody></table>
+	<h2 id="flow">Execution flow</h2>
+	<ol class="step-list"><li>Clap parses the command and its options.</li><li>The manifest is loaded from the current directory or workspace root.</li><li>The toolchain manager selects a compatible JDK.</li><li>The resolver prepares dependencies and the build invokes Java tools.</li><li>The result is written to <code>target/</code> or <code>dist/</code>.</li></ol>
+	<h2 id="extend">Extending the CLI</h2>
+	<p>Declare new command interfaces in <code>src/cli/args.rs</code>, keep behavior in the appropriate domain module, and expose public APIs through its <code>mod.rs</code>. Avoid placing compilation or packaging logic directly in <code>main.rs</code>.</p>
+</DocsLayout>

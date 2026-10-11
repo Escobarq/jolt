@@ -1,0 +1,85 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="es" title="Referencia del CLI" description="Referencia completa de comandos, aliases, argumentos y flags de Jolt 0.7.3." toc={[{ id: 'sintaxis', label: 'Sintaxis y ayuda' }, { id: 'proyecto', label: 'Proyecto y workspace' }, { id: 'dependencias', label: 'Dependencias' }, { id: 'calidad', label: 'Ejecución y calidad' }, { id: 'build', label: 'Build y empaquetado' }, { id: 'diagnostico', label: 'Diagnóstico' }]}>
+	<p class="lead">Esta página documenta los comandos que acepta el ejecutable <code>jolt</code>, incluidos sus aliases, flags cortos, valores y defaults.</p>
+	<div class="notice"><strong>Fuente de verdad:</strong> la ayuda de tu instalación siempre tiene prioridad. Consulta <code>jolt --version</code> y <code>jolt &lt;comando&gt; --help</code> si tu versión difiere.</div>
+
+	<h2 id="sintaxis">Sintaxis y ayuda</h2>
+	<pre><code>jolt &lt;comando&gt; [opciones] [argumentos]
+jolt --version
+jolt --help
+jolt build --help</code></pre>
+	<p>Los argumentos posicionales son obligatorios salvo que se indique lo contrario. Un flag booleano se activa al escribirlo; no recibe <code>true</code> o <code>false</code>.</p>
+
+	<h2 id="proyecto">Proyecto y workspace</h2>
+	<table class="doc-table"><thead><tr><th>Comando</th><th>Argumentos y flags</th><th>Descripción y ejemplo</th></tr></thead><tbody>
+		<tr><td><code>init [name]</code></td><td><code>-t, --template &lt;TEMPLATE&gt;</code><br><code>-l, --list-templates</code><br><code>-p, --package &lt;PACKAGE&gt;</code><br><code>-g, --group-id &lt;GROUP_ID&gt;</code><br><code>--workspace</code><br><code>--graalvm</code> (alias <code>--native</code>)</td><td>Crea un proyecto o workspace. Plantillas: <code>minimal</code>, <code>cli</code>, <code>javafx</code>, <code>swing</code>, <code>web</code>, <code>spring</code>.<br><code>jolt init app -t cli -p com.example.app -g com.example --graalvm</code></td></tr>
+		<tr><td><code>build</code></td><td><code>-s, --standalone</code><br><code>--package</code><br><code>--installer</code><br><code>-n, --name &lt;NAME&gt;</code> (alias <code>--installer-name</code>)<br><code>--upx</code><br><code>--native</code><br><code>--download-jdk</code><br><code>--add-to-path</code><br><code>--scope &lt;SCOPE&gt;</code><br><code>--all</code><br><code>-p, --member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)</td><td>Compila y puede producir Fat-JAR, binario Native Image o instalador. <code>SCOPE</code>: <code>per-user</code> o <code>per-machine</code>.<br><code>jolt build --installer --name MiApp --scope per-user</code></td></tr>
+	</tbody></table>
+
+	<h2 id="dependencias">Dependencias</h2>
+	<table class="doc-table"><thead><tr><th>Comando</th><th>Argumentos y flags</th><th>Aliases y ejemplo</th></tr></thead><tbody>
+		<tr><td><code>add &lt;dependency&gt;</code></td><td>Coordenada <code>groupId:artifactId[:version]</code>.<br><code>-D, --dev</code><br><code>--member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)</td><td><code>jolt add org.junit.jupiter:junit-jupiter-api --dev</code></td></tr>
+		<tr><td><code>remove &lt;dependency&gt;</code></td><td>Coordenada <code>groupId:artifactId</code>.<br><code>--member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)</td><td>Alias: <code>rm</code>.<br><code>jolt rm com.google.code.gson:gson</code></td></tr>
+		<tr><td><code>search &lt;query&gt;</code></td><td><code>-l, --limit &lt;LIMIT&gt;</code> (default: <code>10</code>)</td><td>Alias: <code>find</code>.<br><code>jolt search gson --limit 5</code></td></tr>
+		<tr><td><code>install</code></td><td><code>--locked</code><br><code>--all</code><br><code>-p, --package &lt;MEMBER&gt;</code> (aliases: <code>--member</code>)</td><td><code>--locked</code> falla si la resolución no coincide con <code>jolt.lock</code>.<br><code>jolt install --all --locked</code></td></tr>
+		<tr><td><code>sync</code></td><td><code>--all</code><br><code>-p, --member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)</td><td>Regenera la configuración para VS Code/IDEs.<br><code>jolt sync --member api</code></td></tr>
+	</tbody></table>
+	<h3>Agregar una dependencia paso a paso</h3>
+	<p>Usa <code>groupId:artifactId</code> para dejar que Jolt resuelva la versión, o añade <code>:version</code> para fijarla explícitamente. El flag <code>--dev</code> (<code>-D</code>) coloca la dependencia en <code>[dev-dependencies]</code>; no es lo mismo que una dependencia de runtime.</p>
+	<pre><code># Runtime: se necesita al ejecutar la aplicación
+jolt add com.google.code.gson:gson
+
+# Desarrollo/pruebas: se agrega a [dev-dependencies]
+jolt add org.junit.jupiter:junit-jupiter-api:5.11.0 --dev
+# La forma corta equivalente:
+jolt add org.junit.jupiter:junit-jupiter-api -D
+
+# Verifica que quedó en el archivo correcto
+Select-String -Path jolt.toml -Pattern "dev-dependencies|junit"</code></pre>
+	<p>Después de agregarla, ejecuta <code>jolt install</code> para resolver y descargar el árbol de dependencias. Jolt actualiza <code>jolt.toml</code> y genera o actualiza <code>jolt.lock</code>; conserva ese lockfile en control de versiones.</p>
+	<pre><code>jolt add org.junit.jupiter:junit-jupiter-engine:5.11.0 --dev
+jolt install
+jolt test</code></pre>
+	<div class="notice"><strong>¿Qué comando debo usar?</strong> Usa una dependencia normal para librerías que tu aplicación necesita en producción; usa <code>--dev</code> para JUnit, Mockito, herramientas de análisis o cualquier librería usada solo durante desarrollo y pruebas.</div>
+	<h3>Dependencias dentro de un workspace</h3>
+	<p>Desde la raíz de un workspace, indica el módulo con <code>--member</code> (o su alias <code>--pkg</code>). El módulo debe existir en el manifiesto del workspace.</p>
+	<pre><code># Dependencia de runtime del módulo api
+jolt add com.fasterxml.jackson.core:jackson-databind --member api
+
+# Dependencia de pruebas del módulo api
+jolt add org.junit.jupiter:junit-jupiter-api:5.11.0 --dev --member api
+
+# Instalar todos los módulos
+jolt install --all</code></pre>
+	<h3>Buscar y eliminar</h3>
+	<pre><code># Buscar coordenadas en Maven Central (10 resultados por defecto)
+jolt search junit
+jolt search junit --limit 20
+
+# Eliminar una dependencia; no se incluye la versión
+jolt remove com.google.code.gson:gson
+# Alias equivalente
+jolt rm com.google.code.gson:gson</code></pre>
+	<p><strong>Importante:</strong> <code>remove</code> recibe solo <code>groupId:artifactId</code>. Si la dependencia pertenece a un módulo, repite el selector: <code>jolt remove org.junit.jupiter:junit-jupiter-api --member api</code>. No existe un comando separado para “actualizar”: cambia la versión en <code>jolt.toml</code> y vuelve a ejecutar <code>jolt install</code>.</p>
+
+	<h2 id="calidad">Ejecución y calidad</h2>
+	<table class="doc-table"><thead><tr><th>Comando</th><th>Flags</th><th>Comportamiento</th></tr></thead><tbody>
+		<tr><td><code>run</code></td><td><code>-w, --watch</code><br><code>-p, --member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)<br><code>--download-jdk</code><br><code>-- [ARGS...]</code></td><td>Ejecuta la app. Todo lo que aparece después de <code>--</code> se entrega a Java, incluso si empieza con guion.<br><code>jolt run --watch -- --profile dev -v</code></td></tr>
+		<tr><td><code>test</code></td><td><code>--all</code><br><code>-p, --member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)<br><code>--download-jdk</code></td><td>Ejecuta pruebas unitarias con JUnit 5.<br><code>jolt test --member core</code></td></tr>
+		<tr><td><code>verify</code></td><td><code>-p, --member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)<br><code>--download-jdk</code></td><td>Compila, prueba y arranca brevemente la aplicación.<br><code>jolt verify --download-jdk</code></td></tr>
+	</tbody></table>
+
+	<h2 id="build">Build y empaquetado</h2>
+	<table class="doc-table"><thead><tr><th>Comando</th><th>Flags</th><th>Valores / resultado</th></tr></thead><tbody>
+		<tr><td><code>package</code></td><td><code>-t, --type &lt;TYPE&gt;</code><br><code>-o, --output &lt;DEST&gt;</code> (alias <code>--dest</code>)<br><code>-n, --name &lt;NAME&gt;</code><br><code>-v, --app-version &lt;VERSION&gt;</code><br><code>-m, --main-class &lt;CLASS&gt;</code><br><code>-i, --icon &lt;PATH&gt;</code><br><code>--java-options &lt;OPTIONS&gt;</code><br><code>--upx</code> / <code>--no-upx</code><br><code>--add-to-path</code><br><code>--scope &lt;SCOPE&gt;</code><br><code>-p, --member &lt;MEMBER&gt;</code> (alias <code>--pkg</code>)<br><code>--verbose</code></td><td><code>TYPE</code>: <code>msi</code>, <code>app-image</code>, <code>nsis</code> o <code>exe</code>. Default: <code>app-image</code> (Windows: <code>msi</code>). <code>DEST</code> default: <code>dist/</code>. <code>SCOPE</code>: <code>per-user</code> o <code>per-machine</code>.<br><code>jolt package --type nsis --output dist --main-class com.example.Main --verbose</code></td></tr>
+	</tbody></table>
+	<p><code>package</code> también acepta los aliases <code>pkg</code> y <code>bundle</code>. En <code>build</code>, <code>--package</code> delega en el empaquetado nativo; no debe confundirse con el argumento <code>--package</code> de <code>init</code>.</p>
+
+	<h2 id="diagnostico">Diagnóstico</h2>
+	<table class="doc-table"><thead><tr><th>Comando</th><th>Flags</th><th>Qué revisa</th></tr></thead><tbody><tr><td><code>check</code></td><td>Ninguno</td><td>Java, Rust, caché y salud del proyecto actual.</td></tr></tbody></table>
+	<pre><code>jolt check
+jolt verify --download-jdk</code></pre>
+	<p>La descarga automática de Temurin nunca ocurre silenciosamente: solo se solicita con <code>--download-jdk</code>, disponible en <code>build</code>, <code>run</code>, <code>test</code> y <code>verify</code>.</p>
+</DocsLayout>

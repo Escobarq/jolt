@@ -1,0 +1,45 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="en" title="Configuration" description="Configure Joltv projects with jolt.toml." toc={[{ id: 'manifest', label: 'Manifest' }, { id: 'dependencies', label: 'Dependencies' }, { id: 'graalvm', label: 'GraalVM' }, { id: 'packaging', label: 'Packaging' }]}>
+	<p class="lead">The <code>jolt.toml</code> file describes project identity, Java version, dependencies, and packaging behavior.</p>
+	<div class="notice"><strong>Recommendation:</strong> keep <code>jolt.lock</code> under version control for repeatable dependency resolution.</div>
+	<h2 id="manifest">Minimal manifest</h2>
+	<pre><code>[project]
+name = "my-app"
+version = "1.0.0"
+java_version = "21"
+main_class = "com.example.App"
+package = "com.example"
+
+[dependencies]
+"com.google.code.gson:gson" = "2.14.0"</code></pre>
+	<table class="doc-table"><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody><tr><td><code>name</code></td><td>Project name and default artifact name.</td></tr><tr><td><code>version</code></td><td>Version used by builds and packages.</td></tr><tr><td><code>java_version</code></td><td>Required JDK major version; Java 21 is the default.</td></tr><tr><td><code>main_class</code></td><td>Class containing the application <code>main</code> method.</td></tr><tr><td><code>package</code></td><td>Root Java namespace for templates and scaffolding.</td></tr></tbody></table>
+	<h2 id="dependencies">Dependencies</h2>
+	<p>Coordinates use Maven notation: <code>groupId:artifactId</code>, optionally followed by a version.</p>
+	<pre><code>[dependencies]
+"org.apache.commons:commons-lang3" = "3.17.0"
+"org.openjfx:javafx-controls" = "21.0.2:windows"
+
+[dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.11.0"</code></pre>
+	<p>Regular dependencies are available at runtime. Development dependencies are reserved for tests and tooling.</p>
+	<h2 id="graalvm">GraalVM Native Image</h2>
+	<pre><code>[graalvm]
+enabled = false
+name = "my-app"
+args = ["--no-fallback", "-H:+ReportExceptionStackTraces"]
+reflection_config = "reflect-config.json"
+resources_config = "resource-config.json"</code></pre>
+	<p>You can also define <code>[package.graalvm]</code>. The root <code>[graalvm]</code> table takes priority.</p>
+	<h2 id="packaging">Packaging</h2>
+	<pre><code>[package]
+type = "nsis"
+name = "MyApplication"
+dest = "dist"
+
+[package.windows]
+upx = true
+add_to_path = true
+desktop_shortcut = true</code></pre>
+</DocsLayout>

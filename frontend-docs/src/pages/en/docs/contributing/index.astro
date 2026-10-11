@@ -1,0 +1,27 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="en" title="Contributing" description="Contribute to the open Jolt repository." toc={[{ id: 'repository', label: 'Current repository' }, { id: 'before', label: 'Before you start' }, { id: 'validate', label: 'Validate changes' }, { id: 'document', label: 'Document features' }]}>
+	<p class="lead">The current project lives in <strong>Jolt</strong>. Review the code, open issues, and propose changes at <a href="https://github.com/Escobarq/jolt">github.com/Escobarq/jolt</a>.</p>
+	<div class="notice"><strong>Name transition:</strong> these docs use the future <code>Joltv</code> brand, while the repository, source code, and executable are still named <code>jolt</code>. The rename will happen later.</div>
+	<h2 id="repository">Current repository</h2>
+	<p>Clone the original repository and work from its root:</p>
+	<pre><code>git clone https://github.com/Escobarq/jolt.git
+cd jolt</code></pre>
+	<p>Main areas include:</p>
+	<ul><li><code>src/</code>: Rust CLI implementation.</li><li><code>tests/</code>: integration tests, when available.</li><li><code>docs/</code>: technical documentation and module records.</li><li><code>openspec/</code>: specifications and planned changes.</li><li><code>Joltv/</code>: Astro documentation site.</li></ul>
+	<h2 id="before">Before you start</h2>
+	<ul><li>Read the <a href="https://github.com/Escobarq/jolt">repository README</a> and specifications in <code>openspec/specs/</code>.</li><li>Search existing issues and pull requests before opening a new one.</li><li>For larger changes, describe the goal, impact, and validation strategy first.</li></ul>
+	<h2 id="validate">Validate changes</h2>
+	<pre><code>cargo fmt --check
+cargo test
+openspec validate --all
+cd Joltv
+npm install
+npm run build</code></pre>
+	<p>Run Rust commands from the repository root. Run Astro commands inside <code>Joltv/</code>. If you change code or documentation structure, regenerate the graph from the root:</p>
+	<pre><code>graphify update .</code></pre>
+	<h2 id="document">Document a feature</h2>
+	<ol class="step-list"><li>Explain the problem and expected workflow.</li><li>Add a minimal copy-paste example.</li><li>Document related errors, requirements, and flags.</li><li>Include the version or experimental status where relevant.</li></ol>
+	<p>Site pages live in <code>Joltv/src/pages/es/</code> and <code>Joltv/src/pages/en/</code>. Keep both versions synchronized and use the shared layout.</p>
+</DocsLayout>

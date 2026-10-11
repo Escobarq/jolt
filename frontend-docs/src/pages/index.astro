@@ -1,0 +1,9 @@
+---
+import DocsLayout from '../layouts/DocsLayout.astro';
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+<DocsLayout lang="es" title="Jolt para Java, sin fricción" description="Documentación oficial de Jolt, el gestor de proyectos y dependencias Java de nueva generación ultrarrápido desarrollado en Rust.">
+	<div class="hero"><h2>Un flujo moderno para proyectos Java.</h2><p>Jolt reúne resolución de dependencias, compilación, ejecución con recarga en caliente, pruebas y empaquetado nativo en una herramienta única y ultrarrápida desarrollada en Rust.</p><div class="actions"><a class="button" href={`${base}es/`}>Comenzar</a><a class="button secondary" href={`${base}en/`}>Read in English</a></div></div>
+	<h2>Documentación para construir mejor</h2><p>Aprende a gestionar proyectos, configurar dependencias, compilar binarios nativos con GraalVM y generar instaladores con el CLI <code>jolt</code>.</p>
+	<div class="card-grid"><div class="card"><h3>Rápido</h3><p>Resolución e instalación de dependencias en milisegundos con caché global y lockfile determinista.</p></div><div class="card"><h3>Completo</h3><p>Desde <code>init</code> interactivo hasta GraalVM Native Image, instaladores NSIS / MSI y monorepos.</p></div><div class="card"><h3>Abierto</h3><p>Arquitectura modular en Rust, integración con IDEs sin plugins pesados y código abierto.</p></div></div>
+</DocsLayout>

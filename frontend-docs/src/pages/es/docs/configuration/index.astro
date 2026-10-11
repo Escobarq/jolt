@@ -1,0 +1,45 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="es" title="Configuración" description="Configura proyectos Joltv con jolt.toml." toc={[{ id: 'manifesto', label: 'Manifiesto' }, { id: 'dependencias', label: 'Dependencias' }, { id: 'graalvm', label: 'GraalVM' }, { id: 'empaquetado', label: 'Empaquetado' }]}>
+	<p class="lead">El archivo <code>jolt.toml</code> describe la identidad del proyecto, la versión de Java, sus dependencias y cómo se empaqueta.</p>
+	<div class="notice"><strong>Recomendación:</strong> conserva <code>jolt.lock</code> en control de versiones para repetir exactamente las resoluciones.</div>
+	<h2 id="manifesto">Manifiesto mínimo</h2>
+	<pre><code>[project]
+name = "mi-aplicacion"
+version = "1.0.0"
+java_version = "21"
+main_class = "com.example.App"
+package = "com.example"
+
+[dependencies]
+"com.google.code.gson:gson" = "2.14.0"</code></pre>
+	<table class="doc-table"><thead><tr><th>Campo</th><th>Descripción</th></tr></thead><tbody><tr><td><code>name</code></td><td>Nombre del proyecto y valor predeterminado para artefactos.</td></tr><tr><td><code>version</code></td><td>Versión usada por builds y paquetes.</td></tr><tr><td><code>java_version</code></td><td>Versión mayor de JDK requerida; por defecto se usa Java 21.</td></tr><tr><td><code>main_class</code></td><td>Clase con el método <code>main</code> de la aplicación.</td></tr><tr><td><code>package</code></td><td>Namespace Java raíz para plantillas y scaffolding.</td></tr></tbody></table>
+	<h2 id="dependencias">Dependencias</h2>
+	<p>Las coordenadas siguen el formato Maven <code>groupId:artifactId</code> y opcionalmente una versión.</p>
+	<pre><code>[dependencies]
+"org.apache.commons:commons-lang3" = "3.17.0"
+"org.openjfx:javafx-controls" = "21.0.2:windows"
+
+[dev-dependencies]
+"org.junit.jupiter:junit-jupiter-api" = "5.11.0"</code></pre>
+	<p>Las dependencias normales se incluyen en el runtime. Las de desarrollo se reservan para pruebas y herramientas.</p>
+	<h2 id="graalvm">GraalVM Native Image</h2>
+	<pre><code>[graalvm]
+enabled = false
+name = "mi-app"
+args = ["--no-fallback", "-H:+ReportExceptionStackTraces"]
+reflection_config = "reflect-config.json"
+resources_config = "resource-config.json"</code></pre>
+	<p>También puedes definir la tabla como <code>[package.graalvm]</code>. La configuración raíz <code>[graalvm]</code> tiene prioridad.</p>
+	<h2 id="empaquetado">Empaquetado</h2>
+	<pre><code>[package]
+type = "nsis"
+name = "MiAplicacion"
+dest = "dist"
+
+[package.windows]
+upx = true
+add_to_path = true
+desktop_shortcut = true</code></pre>
+</DocsLayout>

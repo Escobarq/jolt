@@ -1,0 +1,22 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="es" title="Arquitectura" description="Arquitectura modular de Joltv." toc={[{ id: 'vision', label: 'Visión general' }, { id: 'modulos', label: 'Módulos' }, { id: 'flujo', label: 'Flujo de ejecución' }, { id: 'extender', label: 'Extender el CLI' }]}>
+	<p class="lead">Joltv está construido en Rust y separa la experiencia de usuario, la resolución de dependencias, la compilación y el empaquetado en módulos especializados.</p>
+	<h2 id="vision">Visión general</h2>
+	<pre><code>CLI (clap)
+  └── main.rs: orquesta el comando
+       ├── core: manifiestos, lockfile y caché
+       ├── resolver: Maven Central y POMs
+       ├── build: javac, ejecución y JUnit
+       ├── packaging: JAR, Native Image e instaladores
+       ├── toolchain: detección y descarga de JDK
+       ├── scaffold: templates y configuración IDE
+       └── doctor: diagnóstico del entorno</code></pre>
+	<h2 id="modulos">Módulos principales</h2>
+	<table class="doc-table"><thead><tr><th>Módulo</th><th>Responsabilidad</th><th>Archivos clave</th></tr></thead><tbody><tr><td><code>core</code></td><td>Tipos canónicos y persistencia.</td><td><code>manifest.rs</code>, <code>lockfile.rs</code>, <code>cache.rs</code></td></tr><tr><td><code>cli</code></td><td>Comandos, argumentos y flags.</td><td><code>args.rs</code>, <code>mod.rs</code></td></tr><tr><td><code>build</code></td><td>Compilación, ejecución y pruebas.</td><td><code>compiler.rs</code>, <code>runner.rs</code>, <code>test_runner.rs</code></td></tr><tr><td><code>resolver</code></td><td>Descarga y análisis Maven.</td><td><code>maven_client.rs</code>, <code>pom_parser.rs</code></td></tr><tr><td><code>packaging</code></td><td>Artefactos distribuibles.</td><td><code>jar.rs</code>, <code>native_image.rs</code>, <code>jpackage.rs</code></td></tr><tr><td><code>toolchain</code></td><td>JDKs locales y remotos.</td><td><code>detector.rs</code>, <code>downloader.rs</code></td></tr></tbody></table>
+	<h2 id="flujo">Flujo de ejecución</h2>
+	<ol class="step-list"><li>Clap analiza el comando y sus opciones.</li><li>El manifiesto se carga desde el directorio actual o el workspace raíz.</li><li>El toolchain manager selecciona un JDK compatible.</li><li>El resolver prepara dependencias y el build ejecuta las herramientas Java.</li><li>El resultado se entrega en <code>target/</code> o <code>dist/</code>.</li></ol>
+	<h2 id="extender">Extender el CLI</h2>
+	<p>Los nuevos comandos deben declarar su interfaz en <code>src/cli/args.rs</code>, mantener la lógica en el módulo de dominio adecuado y exponerse mediante su <code>mod.rs</code>. Evita colocar lógica de compilación o empaquetado directamente en <code>main.rs</code>.</p>
+</DocsLayout>

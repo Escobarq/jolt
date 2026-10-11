@@ -1,0 +1,27 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+---
+<DocsLayout lang="es" title="Contribuir" description="Contribuye al repositorio abierto de Jolt." toc={[{ id: 'repositorio', label: 'Repositorio actual' }, { id: 'antes', label: 'Antes de empezar' }, { id: 'validar', label: 'Validar cambios' }, { id: 'documentar', label: 'Documentar' }]}>
+	<p class="lead">El proyecto actual vive en <strong>Jolt</strong>. Puedes revisar el código, abrir issues y proponer cambios desde <a href="https://github.com/Escobarq/jolt">github.com/Escobarq/jolt</a>.</p>
+	<div class="notice"><strong>Nota sobre el nombre:</strong> esta documentación usa la marca futura <code>Joltv</code>, pero el repositorio, el código y el ejecutable todavía se llaman <code>jolt</code>. El renombrado se hará posteriormente.</div>
+	<h2 id="repositorio">Repositorio actual</h2>
+	<p>Clona el repositorio original y trabaja desde su raíz:</p>
+	<pre><code>git clone https://github.com/Escobarq/jolt.git
+cd jolt</code></pre>
+	<p>Las áreas principales son:</p>
+	<ul><li><code>src/</code>: implementación Rust del CLI.</li><li><code>tests/</code>: pruebas de integración, cuando estén disponibles.</li><li><code>docs/</code>: documentación técnica y registros de módulos.</li><li><code>openspec/</code>: especificaciones y cambios planificados.</li><li><code>Joltv/</code>: sitio Astro de documentación.</li></ul>
+	<h2 id="antes">Antes de empezar</h2>
+	<ul><li>Revisa el <a href="https://github.com/Escobarq/jolt">README del repositorio</a> y las especificaciones en <code>openspec/specs/</code>.</li><li>Busca issues y pull requests existentes antes de abrir uno nuevo.</li><li>Para cambios grandes, describe primero el objetivo, el impacto y la estrategia de validación.</li></ul>
+	<h2 id="validar">Validar cambios</h2>
+	<pre><code>cargo fmt --check
+cargo test
+openspec validate --all
+	cd Joltv
+	npm install
+npm run build</code></pre>
+	<p>Ejecuta los comandos de Rust desde la raíz del repositorio. Ejecuta los comandos de Astro dentro de <code>Joltv/</code>. Si actualizas código o documentación estructural, regenera también el grafo desde la raíz:</p>
+	<pre><code>graphify update .</code></pre>
+	<h2 id="documentar">Documentar una funcionalidad</h2>
+	<ol class="step-list"><li>Explica el problema y el flujo esperado.</li><li>Añade un ejemplo mínimo que se pueda copiar.</li><li>Documenta errores, requisitos y flags relacionados.</li><li>Incluye la versión o el estado experimental cuando corresponda.</li></ol>
+	<p>Las páginas del sitio viven en <code>Joltv/src/pages/es/</code> y <code>Joltv/src/pages/en/</code>. Mantén ambas versiones sincronizadas y usa el layout compartido.</p>
+</DocsLayout>

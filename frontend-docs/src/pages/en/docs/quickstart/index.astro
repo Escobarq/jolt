@@ -1,0 +1,97 @@
+---
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+<DocsLayout lang="en" title="Quick start" description="A general guide to install, verify, and use Jolt from scratch." toc={[{ id: 'what-is', label: 'What is Jolt' }, { id: 'requirements', label: 'Requirements' }, { id: 'install', label: 'Install' }, { id: 'verify', label: 'Version and help' }, { id: 'project', label: 'First project' }, { id: 'dependencies', label: 'Dependencies' }, { id: 'workflow', label: 'Daily workflow' }, { id: 'next', label: 'Next steps' }]}>
+	<p class="lead">This is the general guide: install Jolt, confirm that it works, create a Java project, and follow the complete flow through tests and artifact generation.</p>
+	<div class="notice"><strong>Conventions:</strong> run commands from a terminal. On Windows, you can use PowerShell; on macOS/Linux, use a Bash-compatible terminal. <code>jolt</code> is the project's actual executable.</div>
+
+	<h2 id="what-is">What is Jolt?</h2>
+	<p>Jolt is a Java project tool that centralizes project creation, Maven dependencies, compilation, execution, testing, and packaging. The <code>jolt.toml</code> file describes the project, while <code>jolt.lock</code> pins resolved versions.</p>
+	<div class="card-grid">
+		<div class="card"><i class="ri-download-line card-icon" aria-hidden="true"></i><h3>Install</h3><p>Get the CLI through Cargo and verify the executable.</p></div>
+		<div class="card"><i class="ri-terminal-box-line card-icon" aria-hidden="true"></i><h3>Create</h3><p>Generate a project with a template and Java namespace.</p></div>
+		<div class="card"><i class="ri-rocket-line card-icon" aria-hidden="true"></i><h3>Ship</h3><p>Run, test, compile, or package your application.</p></div>
+	</div>
+
+	<h2 id="requirements">1. Requirements</h2>
+	<table class="doc-table"><thead><tr><th>Tool</th><th>Purpose</th><th>Check</th></tr></thead><tbody>
+		<tr><td>Rust and Cargo</td><td>Build and install Jolt from source.</td><td><code>cargo --version</code></td></tr>
+		<tr><td>Git</td><td>Download the repository and manage source code.</td><td><code>git --version</code></td></tr>
+		<tr><td>JDK 21 or compatible</td><td>Compile and run Java applications. Jolt can download Temurin when explicitly authorized.</td><td><code>java --version</code></td></tr>
+	</tbody></table>
+	<p>If no compatible JDK is installed, nothing is downloaded silently. Install one yourself or use <code>--download-jdk</code> with supported commands.</p>
+
+	<h2 id="install">2. Install Jolt</h2>
+	<h3>From the repository with Cargo</h3>
+	<pre><code>git clone https://github.com/Escobarq/jolt.git
+cd jolt
+cargo install --path .</code></pre>
+	<p>This installs <code>jolt</code> into Cargo's binary directory. If the terminal cannot find it, add that directory to <code>PATH</code> and open a new terminal.</p>
+	<h3>Windows</h3>
+	<p>From the repository root, you can also generate the official installer:</p>
+	<pre><code>pwsh scripts/build-windows-installer.ps1</code></pre>
+	<p>The installer configures Jolt in the user <code>PATH</code>. The final format depends on the tools available in your environment.</p>
+
+	<h2 id="verify">3. Check version, help, and environment</h2>
+	<p>Run these checks immediately after installation. This confirms which executable you are using and shows the options supported by your version.</p>
+	<pre><code>jolt --version
+jolt --help
+jolt check
+jolt init --help</code></pre>
+	<table class="doc-table"><thead><tr><th>Command</th><th>What it shows</th></tr></thead><tbody>
+		<tr><td><code>jolt --version</code></td><td>The installed CLI version.</td></tr>
+		<tr><td><code>jolt --help</code></td><td>Available commands.</td></tr>
+		<tr><td><code>jolt &lt;command&gt; --help</code></td><td>Arguments and flags for one command, such as <code>jolt package --help</code>.</td></tr>
+		<tr><td><code>jolt check</code></td><td>The state of Java, Rust, cache, and the current project.</td></tr>
+	</tbody></table>
+
+	<h2 id="project">4. Create your first project</h2>
+	<pre><code>jolt init my-project --template cli --package com.example.app
+cd my-project</code></pre>
+	<p><code>my-project</code> is the folder name and <code>com.example.app</code> is the root Java namespace. To list the available templates:</p>
+	<pre><code>jolt init --list-templates</code></pre>
+	<p>Included templates are <code>minimal</code>, <code>cli</code>, <code>javafx</code>, <code>swing</code>, <code>web</code>, and <code>spring</code>. For example, replace <code>cli</code> with <code>javafx</code>.</p>
+
+	<h2 id="dependencies">5. Add dependencies</h2>
+	<p>Use a normal dependency at runtime. For JUnit, Mockito, or other tools used only during development, add <code>--dev</code>:</p>
+	<pre><code># Runtime dependency
+jolt add com.google.code.gson:gson
+
+# Development/testing dependency
+jolt add org.junit.jupiter:junit-jupiter-api:5.11.0 --dev
+
+# Resolve and download dependencies
+jolt install</code></pre>
+	<p>Jolt writes coordinates to <code>jolt.toml</code> and updates <code>jolt.lock</code>. Review both files and keep the lockfile under version control.</p>
+
+	<h2 id="workflow">6. Daily workflow</h2>
+	<pre><code># Run the application
+jolt run
+
+# Run and restart when files change
+jolt run --watch
+
+# Pass arguments to the Java application
+jolt run -- --profile dev
+
+# Run tests
+jolt test
+
+# Build a standalone Fat-JAR
+jolt build --standalone
+
+# Verify compilation, tests, and startup
+jolt verify</code></pre>
+	<p>If the project needs a JDK download, authorize it explicitly:</p>
+	<pre><code>jolt run --download-jdk
+jolt test --download-jdk
+jolt build --standalone --download-jdk</code></pre>
+
+	<h2 id="next">7. Next steps</h2>
+	<div class="card-grid">
+		<div class="card"><i class="ri-terminal-box-line card-icon" aria-hidden="true"></i><h3>CLI reference</h3><p>Review every flag, alias, and accepted value.</p><a href={`${base}en/docs/cli/`}>View CLI reference <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div>
+		<div class="card"><i class="ri-settings-3-line card-icon" aria-hidden="true"></i><h3>Configure jolt.toml</h3><p>Define Java, dependencies, and packaging.</p><a href={`${base}en/docs/configuration/`}>View configuration <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div>
+		<div class="card"><i class="ri-java-line card-icon" aria-hidden="true"></i><h3>JDK and GraalVM</h3><p>Understand discovery and explicit downloads.</p><a href={`${base}en/docs/toolchains/`}>View toolchains <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div>
+	</div>
+</DocsLayout>

@@ -1,0 +1,8 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+---
+<DocsLayout lang="en" title="Jolt for Java, without the friction" description="Official documentation for Jolt, the next-generation Java project and package manager built in Rust.">
+	<div class="hero"><h2><i class="ri-cup-line" aria-hidden="true"></i> A modern workflow for Java projects.</h2><p>Manage dependencies, compilation, execution, tests, and packaging with a fast Rust-powered tool.</p><div class="actions"><a class="button" href={`${base}en/docs/quickstart/`}><i class="ri-rocket-line" aria-hidden="true"></i> Get started</a><a class="button secondary" href={`${base}es/`}><i class="ri-translate-2" aria-hidden="true"></i> Español</a></div></div>
+	<h2>Explore the docs</h2><div class="card-grid"><div class="card"><i class="ri-rocket-line card-icon" aria-hidden="true"></i><h3>Get started</h3><p>Install the CLI and create your first Java project.</p><a href={`${base}en/docs/quickstart/`}>Read guide <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div><div class="card"><i class="ri-terminal-box-line card-icon" aria-hidden="true"></i><h3>CLI reference</h3><p>Learn every command and its available options.</p><a href={`${base}en/docs/cli/`}>View commands <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div><div class="card"><i class="ri-java-line card-icon" aria-hidden="true"></i><h3>Toolchains</h3><p>Configure JDKs, GraalVM, and explicit downloads.</p><a href={`${base}en/docs/toolchains/`}>Configure Java <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div></div>
+</DocsLayout>
