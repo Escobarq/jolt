@@ -7,14 +7,5 @@
     "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
-  },
-  {
-    "name": "picocli.CommandLine$AutoHelpMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
   }
 ]

@@ -80,6 +80,22 @@ La base de código de Jolt está organizada de forma modular en 8 subsistemas es
 - `jolt build [--standalone | --native | --installer]` - Empaqueta Fat-JARs, binarios GraalVM AOT o instaladores NSIS.
 - `jolt check` - Diagnóstica la salud del entorno, toolchains y dependencias.
 
+La resolución de dependencias usa una caché local de metadatos para búsquedas,
+versiones y POMs, además de la caché existente de JARs. La configuración
+opcional `[repositories]` permite que un proyecto o workspace use un proxy o
+repositorio Maven interno:
+
+```toml
+[repositories]
+search_url = "https://nexus.example.com/service/rest/v1/search"
+artifact_url = "https://nexus.example.com/repository/maven-public"
+cache_ttl_seconds = 3600
+```
+
+`jolt add` busca el `jolt.toml` del directorio actual y autodetecta el módulo
+de un workspace; `--member` sigue disponible para seleccionar un módulo de
+forma explícita.
+
 ---
 
 ## 5. Roadmap

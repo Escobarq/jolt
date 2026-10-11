@@ -1,17 +1,17 @@
 # Graph Report - jolt  (2026-10-11)
 
 ## Corpus Check
-- 119 files · ~57,134 words
+- 118 files · ~58,201 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 18 file(s) not represented in the graph (top: .toml 7, (none) 3, .properties 3)
 
 ## Summary
-- 551 nodes · 705 edges · 64 communities (24 shown, 40 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 32 edges (avg confidence: 0.9)
+- 564 nodes · 740 edges · 64 communities (25 shown, 39 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 32 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d5f30c6c`
+- Built from commit: `44b7fb5f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -79,16 +79,16 @@
 - cli/src/main/java/Main.java
 
 ## God Nodes (most connected - your core abstractions)
-1. `CacheManager` - 20 edges
-2. `MavenClient` - 18 edges
-3. `JoltManifest` - 17 edges
+1. `MavenClient` - 23 edges
+2. `CacheManager` - 20 edges
+3. `JoltManifest` - 18 edges
 4. `Toolchain` - 17 edges
 5. `Commands` - 14 edges
 6. `ToolchainManager` - 12 edges
 7. `parse_pom_dependencies()` - 10 edges
-8. `JoltLock` - 8 edges
-9. `package_native_app()` - 8 edges
-10. `init_project()` - 7 edges
+8. `init_project()` - 9 edges
+9. `JoltLock` - 8 edges
+10. `package_native_app()` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `package_native_app()` --calls--> `find_makensis_binary()`  [INFERRED]
@@ -108,11 +108,11 @@
 ## Hyperedges (group relationships)
 - **Jolt Modules** — docs_archive_modulo_a_cli_scaffolding_modulo_a, docs_archive_modulo_b_maven_resolver_modulo_b, docs_archive_modulo_c_cache_storage_modulo_c, docs_archive_modulo_d_toolchain_provisioner_modulo_d, docs_archive_modulo_e_build_run_engine_modulo_e, docs_archive_modulo_f_i_fatjar_resources_modulo_f, docs_archive_modulo_f_i_fatjar_resources_modulo_i, docs_archive_modulo_g_unit_testing_modulo_g, docs_archive_modulo_h_watch_mode_modulo_h, docs_archive_modulo_j_system_project_check_modulo_j, docs_archive_modulo_k_lockfile_modulo_k, docs_archive_modulo_l_templates_modulo_l, docs_archive_modulo_m_remove_dependency_modulo_m, docs_archive_modulo_n_search_modulo_n [EXTRACTED 1.00]
 
-## Communities (64 total, 40 thin omitted)
+## Communities (64 total, 39 thin omitted)
 
 ### Community 0 - "MavenClient"
-Cohesion: 0.10
-Nodes (14): install_in_dir(), install_one_dependency(), install_resolved_in_dir(), main(), resolve_target_directories(), sync_in_dir(), dependency(), MavenClient (+6 more)
+Cohesion: 0.09
+Nodes (17): configured_maven_client(), install_in_dir(), install_one_dependency(), install_resolved_in_dir(), main(), resolve_add_target_directory(), resolve_target_directories(), sync_in_dir() (+9 more)
 
 ### Community 1 - "Joltv documentation"
 Cohesion: 0.29
@@ -120,15 +120,19 @@ Nodes (6): Deployment base path, Documentation map, Joltv documentation, Local d
 
 ### Community 2 - "Toolchain"
 Cohesion: 0.06
-Nodes (23): SystemChecker, build_jar(), build_standalone_jar(), compress_to_tar_gz(), package_native_app(), test_compress_to_tar_gz(), test_generate_nsis_script_content(), build_native_image() (+15 more)
+Nodes (22): build_jar(), build_standalone_jar(), compress_to_tar_gz(), package_native_app(), test_compress_to_tar_gz(), test_generate_nsis_script_content(), build_native_image(), find_makensis_binary() (+14 more)
 
 ### Community 3 - "manifest.rs"
-Cohesion: 0.15
-Nodes (14): GraalVmConfig, JoltManifest, PackageConfig, Project, test_add_and_remove_dev_dependency(), test_parse_basic_manifest(), test_parse_dependency_with_path(), test_parse_graalvm_config() (+6 more)
+Cohesion: 0.13
+Nodes (17): GraalVmConfig, JoltManifest, PackageConfig, Project, RepositoryConfig, test_add_and_remove_dev_dependency(), test_moving_dependency_between_scopes_removes_stale_entry(), test_parse_basic_manifest() (+9 more)
+
+### Community 4 - "CacheManager"
+Cohesion: 0.17
+Nodes (3): CacheManager, test_cache_save_and_link(), SystemChecker
 
 ### Community 5 - "scaffold/mod.rs"
-Cohesion: 0.21
-Nodes (9): ensure_ide_configuration(), init_project(), test_ensure_ide_configuration_creates_files(), test_init_project_web_template_has_test(), test_init_project_with_graalvm(), test_init_project_with_package(), test_init_project_workspace(), AVAILABLE_TEMPLATES (+1 more)
+Cohesion: 0.19
+Nodes (11): ensure_ide_configuration(), init_project(), javafx_classifier(), test_ensure_ide_configuration_creates_files(), test_init_project_web_template_has_test(), test_init_project_with_graalvm(), test_init_project_with_package(), test_init_project_workspace() (+3 more)
 
 ### Community 6 - "org.junit.jupiter.api.Test"
 Cohesion: 0.16
@@ -200,7 +204,7 @@ Nodes (14): Cli, Commands, Add, Build, Check, Init, Install, Package (+6 more)
 
 ### Community 77 - "pom_parser.rs"
 Cohesion: 0.17
-Nodes (11): Dependency, SearchResultItem, is_in_dependency(), is_in_project_dependencies(), is_in_properties(), is_parent_group(), is_parent_version(), is_project_group() (+3 more)
+Nodes (11): Dependency, DependencyNode, is_in_dependency(), is_in_project_dependencies(), is_in_properties(), is_parent_group(), is_parent_version(), is_project_group() (+3 more)
 
 ### Community 78 - "cli/src/main/java/Main.java"
 Cohesion: 0.10
@@ -208,23 +212,23 @@ Nodes (12): 1. Soporte de configuración GraalVM en jolt.toml, 2. Detección int
 
 ## Knowledge Gaps
 - **52 isolated node(s):** `jolt`, `com.example:maven-test`, `@types/node`, `astro/tsconfigs/strict`, `Init` (+47 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 273 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **40 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 272 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **39 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `CacheManager` connect `CacheManager` to `MavenClient`, `Toolchain`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `MavenClient` connect `MavenClient` to `pom_parser.rs`?**
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **What connects `jolt`, `com.example:maven-test`, `@types/node` to the rest of the system?**
   _52 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MavenClient` be split into smaller, more focused modules?**
-  _Cohesion score 0.1028225806451613 - nodes in this community are weakly interconnected._
-- **Why does `MavenClient` connect `MavenClient` to `pom_parser.rs`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _Cohesion score 0.09102564102564102 - nodes in this community are weakly interconnected._
+- **Why does `CacheManager` connect `CacheManager` to `MavenClient`, `Toolchain`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Should `Toolchain` be split into smaller, more focused modules?**
-  _Cohesion score 0.056576576576576575 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06169772256728778 - nodes in this community are weakly interconnected._
 - **Should `manifest.rs` be split into smaller, more focused modules?**
-  _Cohesion score 0.1452991452991453 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected._
 - **Should `DocsLayout.astro` be split into smaller, more focused modules?**
   _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._

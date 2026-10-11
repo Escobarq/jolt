@@ -22,7 +22,7 @@ Este documento detalla las mejoras y refactorizaciones de arquitectura implement
 ### 1.1 Objetivos y Cambios
 - Todas las plantillas (`minimal`, `cli`, `javafx`, `swing`, `web`, `spring`) incluyen de fábrica un bloque `[graalvm]` optimizado según el tipo de aplicación:
   - **`minimal`**: Configurado para compilación nativa estándar con `--no-fallback`.
-  - **`cli` (Picocli)**: Configurado con `--initialize-at-build-time` y `-H:+ReportExceptionStackTraces` para optimizar el arranque en 5 ms de utilidades de terminal.
+  - **`cli` (TUI4J)**: Configurado con `-H:+ReportExceptionStackTraces` para aplicaciones interactivas de terminal.
   - **`web` (Javalin)**: Configurado con `--enable-http` y soporte de excepciones para microservicios ligeros.
   - **`spring` (Spring Boot 3)**: Preparado con argumentos AOT de Spring.
   - **`javafx` / `swing`**: Preparado para interfaces gráficas de usuario.

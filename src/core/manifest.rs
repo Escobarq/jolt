@@ -21,6 +21,15 @@ pub struct JoltManifest {
     pub dependencies: Option<HashMap<String, toml::Value>>,
     #[serde(rename = "dev-dependencies", default)]
     pub dev_dependencies: Option<HashMap<String, toml::Value>>,
+    #[serde(default)]
+    pub repositories: Option<RepositoryConfig>,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone, Default)]
+pub struct RepositoryConfig {
+    pub search_url: Option<String>,
+    pub artifact_url: Option<String>,
+    pub cache_ttl_seconds: Option<u64>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -212,6 +221,15 @@ members = []
             deps[group_artifact] = value(version);
         }
 
+        let other_key = if is_dev {
+            "dependencies"
+        } else {
+            "dev-dependencies"
+        };
+        if let Some(Item::Table(other)) = doc.get_mut(other_key) {
+            other.remove(group_artifact);
+        }
+
         fs::write(manifest_path, doc.to_string())?;
         Ok(())
     }
@@ -380,6 +398,58 @@ version = "0.1.0"
         );
 
         let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_moving_dependency_between_scopes_removes_stale_entry() {
+        let temp_dir = std::env::temp_dir().join("jolt_manifest_scope_test");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+        let manifest_file = temp_dir.join("jolt.toml");
+        fs::write(
+            &manifest_file,
+            "[dev-dependencies]\n\"org.example:tool\" = \"1.0.0\"\n",
+        )
+        .unwrap();
+
+        JoltManifest::add_dependency_to_file(&manifest_file, "org.example:tool", "2.0.0", false)
+            .unwrap();
+
+        let manifest = JoltManifest::load_from_file(&manifest_file).unwrap();
+        assert_eq!(
+            JoltManifest::parse_dependency_spec(
+                manifest
+                    .dependencies
+                    .as_ref()
+                    .unwrap()
+                    .get("org.example:tool")
+                    .unwrap()
+            )
+            .0,
+            Some("2.0.0".to_string())
+        );
+        assert!(
+            manifest
+                .dev_dependencies
+                .as_ref()
+                .map(|deps| !deps.contains_key("org.example:tool"))
+                .unwrap_or(true)
+        );
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_repository_configuration_parses() {
+        let manifest = JoltManifest::parse(
+            "[repositories]\nsearch_url = \"https://search.example.test\"\nartifact_url = \"https://repo.example.test\"\ncache_ttl_seconds = 60\n",
+        )
+        .unwrap();
+        let repositories = manifest.repositories.unwrap();
+        assert_eq!(
+            repositories.search_url.as_deref(),
+            Some("https://search.example.test")
+        );
+        assert_eq!(repositories.cache_ttl_seconds, Some(60));
     }
 
     #[test]

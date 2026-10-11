@@ -16,6 +16,70 @@ use clap::Parser;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+fn resolve_add_target_directory(member: Option<&str>) -> Result<PathBuf, String> {
+    let current = std::env::current_dir()
+        .map_err(|e| format!("No se pudo obtener el directorio actual: {}", e))?;
+    if let Some(member) = member {
+        let target = current.join(member);
+        if target.join("jolt.toml").exists() {
+            return Ok(target);
+        }
+        return Err(format!(
+            "No se encontró 'jolt.toml' en el módulo '{}'.",
+            target.display()
+        ));
+    }
+
+    let mut cursor = current.clone();
+    loop {
+        let manifest_path = cursor.join("jolt.toml");
+        if manifest_path.exists() {
+            let manifest = JoltManifest::load_from_file(&manifest_path)
+                .map_err(|e| format!("Error al leer {}: {}", manifest_path.display(), e))?;
+            if !manifest.is_workspace() {
+                return Ok(cursor);
+            }
+
+            let members = manifest.workspace.unwrap_or_default().members;
+            for member in &members {
+                let member_dir = cursor.join(member);
+                if (current == member_dir || current.starts_with(&member_dir))
+                    && member_dir.join("jolt.toml").exists()
+                {
+                    return Ok(member_dir);
+                }
+            }
+            if members.len() == 1 {
+                return Ok(cursor.join(&members[0]));
+            }
+            return Err("Estás en la raíz de un Workspace Monorepo. Especifica el módulo con '--member <módulo>'.".to_string());
+        }
+        if !cursor.pop() {
+            break;
+        }
+    }
+
+    Err("No se encontró 'jolt.toml' en el directorio actual ni en sus padres.".to_string())
+}
+
+fn configured_maven_client(project_dir: &Path, default: &MavenClient) -> MavenClient {
+    let project_manifest = project_dir.join("jolt.toml");
+    let project_config = JoltManifest::load_from_file(&project_manifest)
+        .ok()
+        .and_then(|manifest| manifest.repositories);
+    let workspace_config = JoltManifest::find_root_workspace(project_dir)
+        .and_then(|(_, manifest)| manifest.repositories);
+    let config = project_config.or(workspace_config);
+    match config {
+        Some(config) => default.clone().with_repositories(
+            config.search_url.as_deref(),
+            config.artifact_url.as_deref(),
+            config.cache_ttl_seconds,
+        ),
+        None => default.clone(),
+    }
+}
+
 fn resolve_target_directories(
     member: Option<&str>,
     all: bool,
@@ -188,7 +252,8 @@ async fn install_resolved_in_dir(
                 &dep.version,
                 false,
             )
-            .await {
+            .await
+            {
                 Ok(_) => {
                     let checksum = CacheManager::compute_file_sha256(&cache_manager.get_jar_path(
                         &dep.group_id,
@@ -528,11 +593,14 @@ async fn main() {
             dev,
             member,
         } => {
-            let target_dir = if let Some(m) = member {
-                PathBuf::from(m)
-            } else {
-                PathBuf::from(".")
+            let target_dir = match resolve_add_target_directory(member.as_deref()) {
+                Ok(path) => path,
+                Err(e) => {
+                    eprintln!("[ERROR] {}", e);
+                    return;
+                }
             };
+            let maven_client = configured_maven_client(&target_dir, &maven_client);
 
             let manifest_path = target_dir.join("jolt.toml");
             if !manifest_path.exists() {
@@ -597,6 +665,30 @@ async fn main() {
                 *dev,
             ) {
                 Ok(_) => {
+                    match JoltManifest::load_from_file(&manifest_path) {
+                        Ok(updated) => {
+                            let table = if *dev {
+                                updated.dev_dependencies.as_ref()
+                            } else {
+                                updated.dependencies.as_ref()
+                            };
+                            let stored = table
+                                .and_then(|deps| deps.get(&dep_key))
+                                .map(JoltManifest::parse_dependency_spec)
+                                .and_then(|(version, _)| version);
+                            if stored.as_deref() != Some(version_value.as_str()) {
+                                eprintln!(
+                                    "[ERROR] jolt.toml no confirmó la actualización de '{}'.",
+                                    dep_key
+                                );
+                                return;
+                            }
+                        }
+                        Err(e) => {
+                            eprintln!("[ERROR] No se pudo validar jolt.toml: {}", e);
+                            return;
+                        }
+                    }
                     let scope_label = if *dev {
                         "dev-dependencies"
                     } else {
@@ -652,7 +744,7 @@ async fn main() {
                     }
 
                     // Enlazar al proyecto local
-                    if let Ok(linked) = cache_manager.link_to_project_dir_with_classifier(
+                    match cache_manager.link_to_project_dir_with_classifier(
                         &target_dir,
                         target_folder,
                         group_id,
@@ -660,7 +752,8 @@ async fn main() {
                         &raw_version,
                         classifier,
                     ) {
-                        println!("[OK] Enlazado a {}", linked.display());
+                        Ok(linked) => println!("[OK] Enlazado a {}", linked.display()),
+                        Err(e) => eprintln!("[WARN] No se pudo enlazar el JAR: {}", e),
                     }
 
                     let _ = scaffold::ensure_ide_configuration(&target_dir, None);
@@ -703,7 +796,9 @@ async fn main() {
                         checksum,
                         dependencies: transitive_names,
                     });
-                    let _ = lock.save_to_file(&lock_path);
+                    if let Err(e) = lock.save_to_file(&lock_path) {
+                        eprintln!("[ERROR] No se pudo actualizar jolt.lock: {}", e);
+                    }
                 }
                 Err(e) => eprintln!("[ERROR] Error al actualizar jolt.toml: {}", e),
             }
@@ -813,7 +908,8 @@ async fn main() {
             };
 
             for dir in target_dirs {
-                if let Err(e) = install_in_dir(&dir, *locked, &cache_manager, &maven_client).await {
+                let configured = configured_maven_client(&dir, &maven_client);
+                if let Err(e) = install_in_dir(&dir, *locked, &cache_manager, &configured).await {
                     eprintln!("[ERROR] Error en {}: {}", dir.display(), e);
                 }
             }
@@ -1128,7 +1224,8 @@ async fn main() {
                         .unwrap_or_else(|| "Main".to_string());
 
                     if *watch {
-                        if let Err(e) = build::run_watch(dir, &main_class, toolchain.as_ref(), args) {
+                        if let Err(e) = build::run_watch(dir, &main_class, toolchain.as_ref(), args)
+                        {
                             eprintln!("[ERROR] {}", e);
                         }
                     } else {
@@ -1228,7 +1325,8 @@ async fn main() {
                 }
             };
             for dir in target_dirs {
-                if let Err(e) = install_in_dir(&dir, false, &cache_manager, &maven_client).await {
+                let configured = configured_maven_client(&dir, &maven_client);
+                if let Err(e) = install_in_dir(&dir, false, &cache_manager, &configured).await {
                     eprintln!("[ERROR] Instalación de {}: {}", dir.display(), e);
                     continue;
                 }
@@ -1331,7 +1429,8 @@ async fn main() {
             };
 
             for dir in target_dirs {
-                if let Err(e) = sync_in_dir(&dir, &cache_manager, &maven_client).await {
+                let configured = configured_maven_client(&dir, &maven_client);
+                if let Err(e) = sync_in_dir(&dir, &cache_manager, &configured).await {
                     eprintln!("[ERROR] Error al sincronizar {}: {}", dir.display(), e);
                 }
             }

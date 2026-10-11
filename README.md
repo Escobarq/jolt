@@ -60,6 +60,30 @@ jolt build --native            # 🚀 Binario nativo instantáneo con GraalVM Na
 jolt build --installer         # 📦 Instalador nativo (.msi / NSIS .exe)
 ```
 
+`jolt add` detecta automáticamente el módulo cuyo `jolt.toml` corresponde al
+directorio actual. En la raíz de un workspace con varios módulos se puede
+seleccionar uno explícitamente:
+
+```bash
+jolt add org.slf4j:slf4j-api --member web-api
+```
+
+Las respuestas de búsqueda, versiones y POMs se almacenan temporalmente en
+`~/.jolt/cache/v1/metadata` para evitar consultas repetidas. Los equipos que
+usen un proxy o un repositorio Maven interno pueden configurarlo en el
+`jolt.toml` del proyecto o del workspace:
+
+```toml
+[repositories]
+search_url = "https://nexus.example.com/service/rest/v1/search"
+artifact_url = "https://nexus.example.com/repository/maven-public"
+cache_ttl_seconds = 3600
+```
+
+Los valores de Maven Central se mantienen como predeterminados cuando esta
+sección no existe. La configuración del proyecto tiene prioridad sobre la del
+workspace.
+
 > 💡 **Ayuda interactiva en CLI:**
 > Toda la referencia completa y actualizada de opciones se consulta directamente en la terminal:
 > ```bash
@@ -90,7 +114,7 @@ package = "com.empresa.app"
 
 [dependencies]
 "com.google.code.gson:gson" = "2.14.0"
-"org.openjfx:javafx-controls" = "21.0.2:linux"
+"org.openjfx:javafx-controls" = "21.0.2:<linux|win|mac>"
 
 [dev-dependencies]
 "org.junit.jupiter:junit-jupiter-api" = "5.10.2"

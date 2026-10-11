@@ -29,7 +29,7 @@ Este documento detalla la arquitectura y diseno tecnico para las siguientes func
 - [x] Flag `--template` / `-t` en `src/cli.rs`.
 - [x] Plantillas soportadas en `src/scaffold.rs`:
   - `minimal`: Java estandar + JUnit 5.
-  - `cli`: Picocli 4.7.6.
+  - `cli`: TUI4J 0.3.1-preview.
   - `javafx`: OpenJFX 21 + Launcher + CSS.
   - `swing`: Java Swing con Look and Feel FlatLaf Dark.
   - `web`: Javalin 6.1.3 + REST API.
@@ -73,5 +73,4 @@ Este documento detalla la arquitectura y diseno tecnico para las siguientes func
 - [x] Asociación de archivos TOML y configuración de `java.project.referencedLibraries` y `java.project.sourcePaths`.
 - [x] Descriptores de Java Language Server `.project` y `.classpath`.
 - [x] Auditoría en `jolt check`.
-
 

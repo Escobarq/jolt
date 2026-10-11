@@ -1,6 +1,6 @@
 pub const AVAILABLE_TEMPLATES: &[(&str, &str)] = &[
     ("minimal", "Proyecto estandar Java 21 con JUnit 5 integrado"),
-    ("cli", "Aplicacion de linea de comandos con Picocli"),
+    ("cli", "Aplicacion de terminal interactiva con TUI4J"),
     (
         "javafx",
         "Aplicacion con interfaz grafica moderna en JavaFX 21 y CSS",

@@ -1,25 +1,65 @@
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
+import com.williamcallahan.tui4j.Program;
+import com.williamcallahan.tui4j.compat.bubbletea.Command;
+import com.williamcallahan.tui4j.compat.bubbletea.KeyPressMessage;
+import com.williamcallahan.tui4j.compat.bubbletea.Message;
+import com.williamcallahan.tui4j.compat.bubbletea.Model;
+import com.williamcallahan.tui4j.compat.bubbletea.QuitMessage;
+import com.williamcallahan.tui4j.compat.bubbletea.UpdateResult;
 
-@Command(name = "cli-app", mixinStandardHelpOptions = true, version = "1.0",
-        description = "Aplicacion CLI construida con Picocli y Jolt.")
-public class Main implements Runnable {
+public class Main implements Model {
+    private final String user;
+    private int cursor;
+    private static final String[] OPTIONS = {"Saludar", "Ver ayuda", "Salir"};
 
-    @Option(names = {"-u", "--user"}, description = "Nombre del usuario")
-    private String user = "Desarrollador";
-
-    @Parameters(paramLabel = "<mensaje>", defaultValue = "Bienvenido a Jolt!", description = "Mensaje a mostrar")
-    private String message;
+    public Main(String user) {
+        this.user = user;
+    }
 
     @Override
-    public void run() {
-        System.out.println("Hola, " + user + "! -> " + message);
+    public Command init() {
+        return null;
+    }
+
+    @Override
+    public UpdateResult<? extends Model> update(Message message) {
+        if (message instanceof KeyPressMessage key) {
+            return switch (key.key()) {
+                case "up", "k" -> UpdateResult.from(move(-1));
+                case "down", "j" -> UpdateResult.from(move(1));
+                case "enter" -> select();
+                case "q", "Q", "esc" -> UpdateResult.from(this, QuitMessage::new);
+                default -> UpdateResult.from(this);
+            };
+        }
+        return UpdateResult.from(this);
+    }
+
+    private Main move(int delta) {
+        cursor = (cursor + delta + OPTIONS.length) % OPTIONS.length;
+        return this;
+    }
+
+    private UpdateResult<? extends Model> select() {
+        if (cursor == 2) {
+            return UpdateResult.from(this, QuitMessage::new);
+        }
+        return UpdateResult.from(this);
+    }
+
+    @Override
+    public String view() {
+        StringBuilder output = new StringBuilder();
+        output.append("Jolt TUI4J - Hola, ").append(user).append("!\n\n");
+        for (int index = 0; index < OPTIONS.length; index++) {
+            output.append(index == cursor ? "> " : "  ").append(OPTIONS[index]).append("\n");
+        }
+        output.append("\nUsa arriba/abajo o j/k, Enter para seleccionar y q para salir.");
+        return output.toString();
     }
 
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new Main()).execute(args);
-        System.exit(exitCode);
+        String user = args.length > 0 ? args[0] : "Desarrollador";
+        Main model = new Main(user);
+        new Program(model).run();
     }
 }

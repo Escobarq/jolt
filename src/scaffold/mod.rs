@@ -9,6 +9,16 @@ use std::path::Path;
 pub use ide_config::ensure_ide_configuration;
 pub use templates::{AVAILABLE_TEMPLATES, print_available_templates};
 
+fn javafx_classifier() -> &'static str {
+    if cfg!(target_os = "windows") {
+        "win"
+    } else if cfg!(target_os = "macos") {
+        "mac"
+    } else {
+        "linux"
+    }
+}
+
 pub fn init_project(
     name: Option<&str>,
     template: Option<&str>,
@@ -266,14 +276,14 @@ pub fn init_project(
     match tmpl.as_str() {
         "cli" => {
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"info.picocli:picocli\" = \"4.7.6\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-cli\"\nreflection_config = \"src/main/resources/reflect-config.json\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
+                "{}\n\n[dependencies]\n\"com.williamcallahan:tui4j\" = \"0.3.1-preview\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-cli\"\nreflection_config = \"src/main/resources/reflect-config.json\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
                 toml_project_header, resolved_graalvm, project_name
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
             let main_content = format!(
-                "{}import picocli.CommandLine;\nimport picocli.CommandLine.Command;\nimport picocli.CommandLine.Option;\nimport java.util.concurrent.Callable;\n\n@Command(name = \"{}\", mixinStandardHelpOptions = true, version = \"0.1.0\",\n        description = \"CLI desarrollada con Jolt y Picocli\")\npublic class Main implements Callable<Integer> {{\n\n    @Option(names = {{\"--name\", \"-n\"}}, description = \"Nombre a saludar\", defaultValue = \"Mundo\")\n    private String name;\n\n    @Override\n    public Integer call() {{\n        System.out.println(\"Hola, \" + name + \"! Bienvenido a tu CLI con Jolt.\");\n        return 0;\n    }}\n\n    public static void main(String[] args) {{\n        int exitCode = new CommandLine(new Main()).execute(args);\n        System.exit(exitCode);\n    }}\n}}\n",
-                pkg_stmt, project_name
+                "{}import com.williamcallahan.tui4j.Program;\nimport com.williamcallahan.tui4j.compat.bubbletea.Command;\nimport com.williamcallahan.tui4j.compat.bubbletea.KeyPressMessage;\nimport com.williamcallahan.tui4j.compat.bubbletea.Message;\nimport com.williamcallahan.tui4j.compat.bubbletea.Model;\nimport com.williamcallahan.tui4j.compat.bubbletea.QuitMessage;\nimport com.williamcallahan.tui4j.compat.bubbletea.UpdateResult;\n\npublic class Main implements Model {{\n    private final String user;\n    private int cursor;\n    private static final String[] OPTIONS = {{\"Saludar\", \"Ver ayuda\", \"Salir\"}};\n\n    public Main(String user) {{\n        this.user = user;\n    }}\n\n    @Override\n    public Command init() {{\n        return null;\n    }}\n\n    @Override\n    public UpdateResult<? extends Model> update(Message message) {{\n        if (message instanceof KeyPressMessage key) {{\n            return switch (key.key()) {{\n                case \"up\", \"k\" -> UpdateResult.from(move(-1));\n                case \"down\", \"j\" -> UpdateResult.from(move(1));\n                case \"enter\" -> select();\n                case \"q\", \"Q\", \"esc\" -> UpdateResult.from(this, QuitMessage::new);\n                default -> UpdateResult.from(this);\n            }};\n        }}\n        return UpdateResult.from(this);\n    }}\n\n    private Main move(int delta) {{\n                        cursor = (cursor + delta + OPTIONS.length) % OPTIONS.length;\n        return this;\n    }}\n\n    private UpdateResult<? extends Model> select() {{\n        if (cursor == 2) {{\n            return UpdateResult.from(this, QuitMessage::new);\n        }}\n        return UpdateResult.from(this);\n    }}\n\n    @Override\n    public String view() {{\n        StringBuilder output = new StringBuilder();\n        output.append(\"Jolt TUI4J - Hola, \").append(user).append(\"!\\\\n\\\\n\");\n        for (int index = 0; index < OPTIONS.length; index++) {{\n            output.append(index == cursor ? \"> \" : \"  \").append(OPTIONS[index]).append(\"\\\\n\");\n        }}\n        output.append(\"\\\\nUsa arriba/abajo o j/k, Enter para seleccionar y q para salir.\");\n        return output.toString();\n    }}\n\n    public static void main(String[] args) {{\n        String user = args.length > 0 ? args[0] : \"Desarrollador\";\n        Main model = new Main(user);\n        new Program(model).run();\n    }}\n}}\n",
+                pkg_stmt
             );
             fs::write(src_main_java.join("Main.java"), main_content)?;
 
@@ -284,7 +294,7 @@ pub fn init_project(
             fs::write(src_test_java.join("MainTest.java"), test_content)?;
 
             let reflect_json = format!(
-                "[\n  {{\n    \"name\": \"{}\",\n    \"allDeclaredConstructors\": true,\n    \"allPublicConstructors\": true,\n    \"allDeclaredMethods\": true,\n    \"allPublicMethods\": true,\n    \"allDeclaredFields\": true,\n    \"allPublicFields\": true\n  }},\n  {{\n    \"name\": \"picocli.CommandLine$AutoHelpMixin\",\n    \"allDeclaredConstructors\": true,\n    \"allPublicConstructors\": true,\n    \"allDeclaredMethods\": true,\n    \"allPublicMethods\": true,\n    \"allDeclaredFields\": true,\n    \"allPublicFields\": true\n  }}\n]\n",
+                "[\n  {{\n    \"name\": \"{}\",\n    \"allDeclaredConstructors\": true,\n    \"allPublicConstructors\": true,\n    \"allDeclaredMethods\": true,\n    \"allPublicMethods\": true,\n    \"allDeclaredFields\": true,\n    \"allPublicFields\": true\n  }}\n]\n",
                 main_class_name
             );
             let meta_inf_dir = base_dir.join("src/main/resources/META-INF/native-image");
@@ -296,9 +306,10 @@ pub fn init_project(
             fs::write(meta_inf_dir.join("reflect-config.json"), &reflect_json)?;
         }
         "javafx" => {
+            let classifier = javafx_classifier();
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"org.openjfx:javafx-controls\" = \"21.0.2:linux\"\n\"org.openjfx:javafx-graphics\" = \"21.0.2:linux\"\n\"org.openjfx:javafx-base\" = \"21.0.2:linux\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-gui\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
-                toml_project_header, resolved_graalvm, project_name
+                "{}\n\n[dependencies]\n\"org.openjfx:javafx-controls\" = \"21.0.2:{}\"\n\"org.openjfx:javafx-graphics\" = \"21.0.2:{}\"\n\"org.openjfx:javafx-base\" = \"21.0.2:{}\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-gui\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
+                toml_project_header, classifier, classifier, classifier, resolved_graalvm, project_name
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
@@ -536,6 +547,58 @@ mod tests {
             .expect("Expected graalvm config in cli template");
         assert_eq!(gvm.enabled, Some(true));
         assert_eq!(gvm.name, Some("cli_app-cli".to_string()));
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_javafx_template_uses_current_platform_classifier() {
+        let temp_dir = std::env::temp_dir().join("jolt_scaffold_test_javafx_platform");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+
+        let target_dir = temp_dir.join("javafx_app");
+        init_project(
+            Some(target_dir.to_str().unwrap()),
+            Some("javafx"),
+            None,
+            None,
+            false,
+            false,
+        )
+        .unwrap();
+
+        let manifest = std::fs::read_to_string(target_dir.join("jolt.toml")).unwrap();
+        let expected = format!("21.0.2:{}", javafx_classifier());
+        assert!(manifest.contains(&expected));
+        assert!(!manifest.contains("21.0.2:linux") || javafx_classifier() == "linux");
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_cli_template_uses_tui4j_without_picocli() {
+        let temp_dir = std::env::temp_dir().join("jolt_scaffold_test_cli_tui4j");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+
+        let target_dir = temp_dir.join("cli_app");
+        init_project(
+            Some(target_dir.to_str().unwrap()),
+            Some("cli"),
+            None,
+            None,
+            false,
+            false,
+        )
+        .unwrap();
+
+        let manifest = std::fs::read_to_string(target_dir.join("jolt.toml")).unwrap();
+        let source = std::fs::read_to_string(target_dir.join("src/main/java/Main.java")).unwrap();
+        assert!(manifest.contains("com.williamcallahan:tui4j"));
+        assert!(!manifest.contains("picocli"));
+        assert!(source.contains("com.williamcallahan.tui4j"));
+        assert!(!source.contains("picocli"));
 
         let _ = fs::remove_dir_all(&temp_dir);
     }

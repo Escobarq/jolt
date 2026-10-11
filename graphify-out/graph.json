@@ -590,7 +590,7 @@
       "file_type": "code",
       "norm_label": "mavenclient",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L36"
+      "source_location": "L40"
     },
     {
       "id": "src_resolver_maven_client_mavendoc",
@@ -602,7 +602,7 @@
       "file_type": "code",
       "norm_label": "mavendoc",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L20"
+      "source_location": "L24"
     },
     {
       "id": "src_resolver_maven_client_mavensearchdocs",
@@ -614,7 +614,7 @@
       "file_type": "code",
       "norm_label": "mavensearchdocs",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L14"
+      "source_location": "L18"
     },
     {
       "id": "src_resolver_maven_client_mavensearchresponse",
@@ -626,31 +626,19 @@
       "file_type": "code",
       "norm_label": "mavensearchresponse",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L9"
+      "source_location": "L13"
     },
     {
-      "id": "src_resolver_mod_dependencynode",
-      "label": "DependencyNode",
+      "id": "src_resolver_mod_searchresultitem",
+      "label": "SearchResultItem",
       "_origin": "ast",
       "_rust_declaration_count": 1,
       "community": 0,
       "community_name": "MavenClient",
       "file_type": "code",
-      "norm_label": "dependencynode",
+      "norm_label": "searchresultitem",
       "source_file": "src/resolver/mod.rs",
-      "source_location": "L17"
-    },
-    {
-      "id": "src_doctor_diagnostics_systemchecker",
-      "label": "SystemChecker",
-      "_origin": "ast",
-      "_rust_declaration_count": 1,
-      "community": 2,
-      "community_name": "Toolchain",
-      "file_type": "code",
-      "norm_label": "systemchecker",
-      "source_file": "src/doctor/diagnostics.rs",
-      "source_location": "L7"
+      "source_location": "L25"
     },
     {
       "id": "src_toolchain_mod_installedjdk",
@@ -698,7 +686,7 @@
       "file_type": "code",
       "norm_label": "graalvmconfig",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L37"
+      "source_location": "L46"
     },
     {
       "id": "src_core_manifest_joltmanifest",
@@ -722,7 +710,7 @@
       "file_type": "code",
       "norm_label": "packageconfig",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L59"
+      "source_location": "L68"
     },
     {
       "id": "src_core_manifest_project",
@@ -734,7 +722,19 @@
       "file_type": "code",
       "norm_label": "project",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L27"
+      "source_location": "L36"
+    },
+    {
+      "id": "src_core_manifest_repositoryconfig",
+      "label": "RepositoryConfig",
+      "_origin": "ast",
+      "_rust_declaration_count": 1,
+      "community": 3,
+      "community_name": "manifest.rs",
+      "file_type": "code",
+      "norm_label": "repositoryconfig",
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L29"
     },
     {
       "id": "src_core_manifest_windowspackageconfig",
@@ -746,7 +746,7 @@
       "file_type": "code",
       "norm_label": "windowspackageconfig",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L47"
+      "source_location": "L56"
     },
     {
       "id": "src_core_manifest_workspace",
@@ -771,6 +771,18 @@
       "norm_label": "cachemanager",
       "source_file": "src/core/cache.rs",
       "source_location": "L6"
+    },
+    {
+      "id": "src_doctor_diagnostics_systemchecker",
+      "label": "SystemChecker",
+      "_origin": "ast",
+      "_rust_declaration_count": 1,
+      "community": 4,
+      "community_name": "CacheManager",
+      "file_type": "code",
+      "norm_label": "systemchecker",
+      "source_file": "src/doctor/diagnostics.rs",
+      "source_location": "L7"
     },
     {
       "id": "src_cli_args_cli",
@@ -809,16 +821,16 @@
       "source_location": "L8"
     },
     {
-      "id": "src_resolver_mod_searchresultitem",
-      "label": "SearchResultItem",
+      "id": "src_resolver_mod_dependencynode",
+      "label": "DependencyNode",
       "_origin": "ast",
       "_rust_declaration_count": 1,
       "community": 77,
       "community_name": "pom_parser.rs",
       "file_type": "code",
-      "norm_label": "searchresultitem",
+      "norm_label": "dependencynode",
       "source_file": "src/resolver/mod.rs",
-      "source_location": "L25"
+      "source_location": "L17"
     },
     {
       "id": "src_core_lockfile_joltlock",
@@ -867,6 +879,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_main_configured_maven_client",
+      "label": "configured_maven_client()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": "configured_maven_client()",
+      "source_file": "src/main.rs",
+      "source_location": "L65"
+    },
+    {
       "id": "src_main_install_in_dir",
       "label": "install_in_dir()",
       "_origin": "ast",
@@ -875,7 +898,7 @@
       "file_type": "code",
       "norm_label": "install_in_dir()",
       "source_file": "src/main.rs",
-      "source_location": "L64"
+      "source_location": "L128"
     },
     {
       "id": "src_main_install_one_dependency",
@@ -886,7 +909,7 @@
       "file_type": "code",
       "norm_label": "install_one_dependency()",
       "source_file": "src/main.rs",
-      "source_location": "L224"
+      "source_location": "L289"
     },
     {
       "id": "src_main_install_resolved_in_dir",
@@ -897,7 +920,7 @@
       "file_type": "code",
       "norm_label": "install_resolved_in_dir()",
       "source_file": "src/main.rs",
-      "source_location": "L78"
+      "source_location": "L142"
     },
     {
       "id": "src_main_main",
@@ -908,7 +931,18 @@
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "src/main.rs",
-      "source_location": "L495"
+      "source_location": "L560"
+    },
+    {
+      "id": "src_main_resolve_add_target_directory",
+      "label": "resolve_add_target_directory()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": "resolve_add_target_directory()",
+      "source_file": "src/main.rs",
+      "source_location": "L19"
     },
     {
       "id": "src_main_resolve_target_directories",
@@ -919,7 +953,7 @@
       "file_type": "code",
       "norm_label": "resolve_target_directories()",
       "source_file": "src/main.rs",
-      "source_location": "L19"
+      "source_location": "L83"
     },
     {
       "id": "src_main_sync_in_dir",
@@ -930,7 +964,7 @@
       "file_type": "code",
       "norm_label": "sync_in_dir()",
       "source_file": "src/main.rs",
-      "source_location": "L257"
+      "source_location": "L322"
     },
     {
       "id": "src_resolver_maven_client",
@@ -944,6 +978,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_resolver_maven_client_caches_pom_metadata_between_requests",
+      "label": "caches_pom_metadata_between_requests()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": "caches_pom_metadata_between_requests()",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L145"
+    },
+    {
       "id": "src_resolver_maven_client_dependency",
       "label": "dependency()",
       "_origin": "ast",
@@ -952,7 +997,7 @@
       "file_type": "code",
       "norm_label": "dependency()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L57"
+      "source_location": "L63"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_default",
@@ -963,7 +1008,7 @@
       "file_type": "code",
       "norm_label": ".default()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L138"
+      "source_location": "L189"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_download_jar",
@@ -974,7 +1019,7 @@
       "file_type": "code",
       "norm_label": ".download_jar()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L251"
+      "source_location": "L391"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_download_jar_with_classifier",
@@ -985,18 +1030,7 @@
       "file_type": "code",
       "norm_label": ".download_jar_with_classifier()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L262"
-    },
-    {
-      "id": "src_resolver_maven_client_mavenclient_fetch_dependency_tree",
-      "label": ".fetch_dependency_tree()",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "MavenClient",
-      "file_type": "code",
-      "norm_label": ".fetch_dependency_tree()",
-      "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L375"
+      "source_location": "L402"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_fetch_latest_version",
@@ -1007,7 +1041,7 @@
       "file_type": "code",
       "norm_label": ".fetch_latest_version()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L158"
+      "source_location": "L264"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_fetch_pom",
@@ -1018,7 +1052,18 @@
       "file_type": "code",
       "norm_label": ".fetch_pom()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L221"
+      "source_location": "L349"
+    },
+    {
+      "id": "src_resolver_maven_client_mavenclient_metadata_cache_path",
+      "label": ".metadata_cache_path()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": ".metadata_cache_path()",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L233"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_new",
@@ -1029,7 +1074,7 @@
       "file_type": "code",
       "norm_label": ".new()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L144"
+      "source_location": "L195"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_parse_pom_dependencies",
@@ -1040,7 +1085,18 @@
       "file_type": "code",
       "norm_label": ".parse_pom_dependencies()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L298"
+      "source_location": "L438"
+    },
+    {
+      "id": "src_resolver_maven_client_mavenclient_read_metadata_cache",
+      "label": ".read_metadata_cache()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": ".read_metadata_cache()",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L240"
     },
     {
       "id": "src_resolver_maven_client_mavenclient_resolve_dependencies",
@@ -1051,7 +1107,40 @@
       "file_type": "code",
       "norm_label": ".resolve_dependencies()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L305"
+      "source_location": "L445"
+    },
+    {
+      "id": "src_resolver_maven_client_mavenclient_search_packages",
+      "label": ".search_packages()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": ".search_packages()",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L304"
+    },
+    {
+      "id": "src_resolver_maven_client_mavenclient_with_repositories",
+      "label": ".with_repositories()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": ".with_repositories()",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L215"
+    },
+    {
+      "id": "src_resolver_maven_client_mavenclient_write_metadata_cache",
+      "label": ".write_metadata_cache()",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "MavenClient",
+      "file_type": "code",
+      "norm_label": ".write_metadata_cache()",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L250"
     },
     {
       "id": "src_resolver_maven_client_pom",
@@ -1062,7 +1151,7 @@
       "file_type": "code",
       "norm_label": "pom()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L49"
+      "source_location": "L55"
     },
     {
       "id": "src_resolver_maven_client_resolves_transitive_dependencies_and_skips_non_runtime_scopes",
@@ -1073,7 +1162,7 @@
       "file_type": "code",
       "norm_label": "resolves_transitive_dependencies_and_skips_non_runtime_scopes()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L64"
+      "source_location": "L70"
     },
     {
       "id": "src_resolver_maven_client_rs_client",
@@ -1705,50 +1794,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_doctor_diagnostics_systemchecker_format_bytes",
-      "label": ".format_bytes()",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "Toolchain",
-      "file_type": "code",
-      "norm_label": ".format_bytes()",
-      "source_file": "src/doctor/diagnostics.rs",
-      "source_location": "L70"
-    },
-    {
-      "id": "src_doctor_diagnostics_systemchecker_get_command_version",
-      "label": ".get_command_version()",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "Toolchain",
-      "file_type": "code",
-      "norm_label": ".get_command_version()",
-      "source_file": "src/doctor/diagnostics.rs",
-      "source_location": "L11"
-    },
-    {
-      "id": "src_doctor_diagnostics_systemchecker_get_dir_stats",
-      "label": ".get_dir_stats()",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "Toolchain",
-      "file_type": "code",
-      "norm_label": ".get_dir_stats()",
-      "source_file": "src/doctor/diagnostics.rs",
-      "source_location": "L51"
-    },
-    {
-      "id": "src_doctor_diagnostics_systemchecker_run_check",
-      "label": ".run_check()",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "Toolchain",
-      "file_type": "code",
-      "norm_label": ".run_check()",
-      "source_file": "src/doctor/diagnostics.rs",
-      "source_location": "L87"
-    },
-    {
       "id": "src_doctor_diagnostics_test_format_bytes",
       "label": "test_format_bytes()",
       "_origin": "ast",
@@ -2271,7 +2316,7 @@
       "file_type": "code",
       "norm_label": ".add_dependency_to_file()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L192"
+      "source_location": "L201"
     },
     {
       "id": "src_core_manifest_joltmanifest_add_member_to_workspace",
@@ -2282,7 +2327,7 @@
       "file_type": "code",
       "norm_label": ".add_member_to_workspace()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L147"
+      "source_location": "L156"
     },
     {
       "id": "src_core_manifest_joltmanifest_create_workspace_file",
@@ -2293,7 +2338,7 @@
       "file_type": "code",
       "norm_label": ".create_workspace_file()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L181"
+      "source_location": "L190"
     },
     {
       "id": "src_core_manifest_joltmanifest_find_root_workspace",
@@ -2304,7 +2349,7 @@
       "file_type": "code",
       "norm_label": ".find_root_workspace()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L111"
+      "source_location": "L120"
     },
     {
       "id": "src_core_manifest_joltmanifest_graalvm_config",
@@ -2315,7 +2360,7 @@
       "file_type": "code",
       "norm_label": ".graalvm_config()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L85"
+      "source_location": "L94"
     },
     {
       "id": "src_core_manifest_joltmanifest_is_workspace",
@@ -2326,7 +2371,7 @@
       "file_type": "code",
       "norm_label": ".is_workspace()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L80"
+      "source_location": "L89"
     },
     {
       "id": "src_core_manifest_joltmanifest_load_from_file",
@@ -2337,7 +2382,7 @@
       "file_type": "code",
       "norm_label": ".load_from_file()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L249"
+      "source_location": "L267"
     },
     {
       "id": "src_core_manifest_joltmanifest_parse",
@@ -2348,7 +2393,7 @@
       "file_type": "code",
       "norm_label": ".parse()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L75"
+      "source_location": "L84"
     },
     {
       "id": "src_core_manifest_joltmanifest_parse_dependency_spec",
@@ -2359,7 +2404,7 @@
       "file_type": "code",
       "norm_label": ".parse_dependency_spec()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L92"
+      "source_location": "L101"
     },
     {
       "id": "src_core_manifest_joltmanifest_remove_dependency_from_file",
@@ -2370,7 +2415,7 @@
       "file_type": "code",
       "norm_label": ".remove_dependency_from_file()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L220"
+      "source_location": "L238"
     },
     {
       "id": "src_core_manifest_test_add_and_remove_dev_dependency",
@@ -2381,7 +2426,18 @@
       "file_type": "code",
       "norm_label": "test_add_and_remove_dev_dependency()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L322"
+      "source_location": "L340"
+    },
+    {
+      "id": "src_core_manifest_test_moving_dependency_between_scopes_removes_stale_entry",
+      "label": "test_moving_dependency_between_scopes_removes_stale_entry()",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "manifest.rs",
+      "file_type": "code",
+      "norm_label": "test_moving_dependency_between_scopes_removes_stale_entry()",
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L404"
     },
     {
       "id": "src_core_manifest_test_parse_basic_manifest",
@@ -2392,7 +2448,7 @@
       "file_type": "code",
       "norm_label": "test_parse_basic_manifest()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L263"
+      "source_location": "L281"
     },
     {
       "id": "src_core_manifest_test_parse_dependency_with_path",
@@ -2403,7 +2459,7 @@
       "file_type": "code",
       "norm_label": "test_parse_dependency_with_path()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L482"
+      "source_location": "L552"
     },
     {
       "id": "src_core_manifest_test_parse_graalvm_config",
@@ -2414,7 +2470,7 @@
       "file_type": "code",
       "norm_label": "test_parse_graalvm_config()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L513"
+      "source_location": "L583"
     },
     {
       "id": "src_core_manifest_test_parse_manifest_with_package_config",
@@ -2425,7 +2481,7 @@
       "file_type": "code",
       "norm_label": "test_parse_manifest_with_package_config()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L386"
+      "source_location": "L456"
     },
     {
       "id": "src_core_manifest_test_parse_manifest_with_windows_package_config",
@@ -2436,7 +2492,7 @@
       "file_type": "code",
       "norm_label": "test_parse_manifest_with_windows_package_config()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L425"
+      "source_location": "L495"
     },
     {
       "id": "src_core_manifest_test_parse_manifest_without_dependencies",
@@ -2447,7 +2503,7 @@
       "file_type": "code",
       "norm_label": "test_parse_manifest_without_dependencies()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L304"
+      "source_location": "L322"
     },
     {
       "id": "src_core_manifest_test_parse_workspace_manifest",
@@ -2458,7 +2514,18 @@
       "file_type": "code",
       "norm_label": "test_parse_workspace_manifest()",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L464"
+      "source_location": "L534"
+    },
+    {
+      "id": "src_core_manifest_test_repository_configuration_parses",
+      "label": "test_repository_configuration_parses()",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "manifest.rs",
+      "file_type": "code",
+      "norm_label": "test_repository_configuration_parses()",
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L442"
     },
     {
       "id": "value",
@@ -2703,6 +2770,50 @@
       "source_location": "L198"
     },
     {
+      "id": "src_doctor_diagnostics_systemchecker_format_bytes",
+      "label": ".format_bytes()",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "CacheManager",
+      "file_type": "code",
+      "norm_label": ".format_bytes()",
+      "source_file": "src/doctor/diagnostics.rs",
+      "source_location": "L70"
+    },
+    {
+      "id": "src_doctor_diagnostics_systemchecker_get_command_version",
+      "label": ".get_command_version()",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "CacheManager",
+      "file_type": "code",
+      "norm_label": ".get_command_version()",
+      "source_file": "src/doctor/diagnostics.rs",
+      "source_location": "L11"
+    },
+    {
+      "id": "src_doctor_diagnostics_systemchecker_get_dir_stats",
+      "label": ".get_dir_stats()",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "CacheManager",
+      "file_type": "code",
+      "norm_label": ".get_dir_stats()",
+      "source_file": "src/doctor/diagnostics.rs",
+      "source_location": "L51"
+    },
+    {
+      "id": "src_doctor_diagnostics_systemchecker_run_check",
+      "label": ".run_check()",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "CacheManager",
+      "file_type": "code",
+      "norm_label": ".run_check()",
+      "source_file": "src/doctor/diagnostics.rs",
+      "source_location": "L87"
+    },
+    {
       "id": "pkg_com_example_maven_test",
       "label": "com.example:maven-test",
       "_origin": "ast",
@@ -2893,6 +3004,17 @@
       "file_type": "code",
       "norm_label": "init_project()",
       "source_file": "src/scaffold/mod.rs",
+      "source_location": "L22"
+    },
+    {
+      "id": "src_scaffold_mod_javafx_classifier",
+      "label": "javafx_classifier()",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "scaffold/mod.rs",
+      "file_type": "code",
+      "norm_label": "javafx_classifier()",
+      "source_file": "src/scaffold/mod.rs",
       "source_location": "L12"
     },
     {
@@ -2904,7 +3026,7 @@
       "file_type": "code",
       "norm_label": "test_ensure_ide_configuration_creates_files()",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L460"
+      "source_location": "L471"
     },
     {
       "id": "src_scaffold_mod_test_init_project_web_template_has_test",
@@ -2915,7 +3037,7 @@
       "file_type": "code",
       "norm_label": "test_init_project_web_template_has_test()",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L544"
+      "source_location": "L580"
     },
     {
       "id": "src_scaffold_mod_test_init_project_with_graalvm",
@@ -2926,7 +3048,7 @@
       "file_type": "code",
       "norm_label": "test_init_project_with_graalvm()",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L520"
+      "source_location": "L531"
     },
     {
       "id": "src_scaffold_mod_test_init_project_with_package",
@@ -2937,7 +3059,7 @@
       "file_type": "code",
       "norm_label": "test_init_project_with_package()",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L479"
+      "source_location": "L490"
     },
     {
       "id": "src_scaffold_mod_test_init_project_workspace",
@@ -2948,7 +3070,18 @@
       "file_type": "code",
       "norm_label": "test_init_project_workspace()",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L561"
+      "source_location": "L597"
+    },
+    {
+      "id": "src_scaffold_mod_test_javafx_template_uses_current_platform_classifier",
+      "label": "test_javafx_template_uses_current_platform_classifier()",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "scaffold/mod.rs",
+      "file_type": "code",
+      "norm_label": "test_javafx_template_uses_current_platform_classifier()",
+      "source_file": "src/scaffold/mod.rs",
+      "source_location": "L555"
     },
     {
       "id": "src_scaffold_templates",
@@ -5122,15 +5255,15 @@
       "source_location": "L1"
     },
     {
-      "id": "src_resolver_maven_client_mavenclient_search_packages",
-      "label": ".search_packages()",
+      "id": "src_resolver_maven_client_mavenclient_fetch_dependency_tree",
+      "label": ".fetch_dependency_tree()",
       "_origin": "ast",
       "community": 77,
       "community_name": "pom_parser.rs",
       "file_type": "code",
-      "norm_label": ".search_packages()",
+      "norm_label": ".fetch_dependency_tree()",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L187"
+      "source_location": "L515"
     },
     {
       "id": "src_resolver_mod",
@@ -6229,6 +6362,17 @@
       "type": "external"
     },
     {
+      "id": "time",
+      "label": "time",
+      "community": 0,
+      "community_name": "MavenClient",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "time",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "awt",
       "label": "awt",
       "community": 17,
@@ -7104,7 +7248,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L127",
+      "source_location": "L136",
       "weight": 1.0
     },
     {
@@ -7116,7 +7260,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L128",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -7128,7 +7272,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L335",
+      "source_location": "L353",
       "weight": 1.0
     },
     {
@@ -7140,7 +7284,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L351",
+      "source_location": "L369",
       "weight": 1.0
     },
     {
@@ -7152,7 +7296,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L354",
+      "source_location": "L372",
       "weight": 1.0
     },
     {
@@ -7164,7 +7308,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L366",
+      "source_location": "L384",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest_test_moving_dependency_between_scopes_removes_stale_entry",
+      "target": "src_core_manifest_joltmanifest_add_dependency_to_file",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L415",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest_test_moving_dependency_between_scopes_removes_stale_entry",
+      "target": "src_core_manifest_joltmanifest_load_from_file",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L418",
       "weight": 1.0
     },
     {
@@ -7176,7 +7344,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L278",
+      "source_location": "L296",
       "weight": 1.0
     },
     {
@@ -7188,7 +7356,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L287",
+      "source_location": "L305",
       "weight": 1.0
     },
     {
@@ -7200,7 +7368,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L495",
+      "source_location": "L565",
       "weight": 1.0
     },
     {
@@ -7212,7 +7380,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L502",
+      "source_location": "L572",
       "weight": 1.0
     },
     {
@@ -7224,7 +7392,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L529",
+      "source_location": "L599",
       "weight": 1.0
     },
     {
@@ -7236,7 +7404,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L530",
+      "source_location": "L600",
       "weight": 1.0
     },
     {
@@ -7248,7 +7416,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L404",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -7260,7 +7428,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L446",
+      "source_location": "L516",
       "weight": 1.0
     },
     {
@@ -7272,7 +7440,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L311",
+      "source_location": "L329",
       "weight": 1.0
     },
     {
@@ -7284,7 +7452,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L474",
+      "source_location": "L544",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest_test_repository_configuration_parses",
+      "target": "src_core_manifest_joltmanifest_parse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -7320,7 +7500,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/main.rs",
-      "source_location": "L75",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -7332,7 +7512,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/main.rs",
-      "source_location": "L98",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -7344,7 +7524,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/main.rs",
-      "source_location": "L1334",
+      "source_location": "L1433",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_main",
+      "target": "src_main_resolve_add_target_directory",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/main.rs",
+      "source_location": "L596",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_main",
+      "target": "src_main_configured_maven_client",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/main.rs",
+      "source_location": "L603",
       "weight": 1.0
     },
     {
@@ -7356,7 +7560,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/main.rs",
-      "source_location": "L807",
+      "source_location": "L902",
       "weight": 1.0
     },
     {
@@ -7368,7 +7572,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/main.rs",
-      "source_location": "L816",
+      "source_location": "L912",
       "weight": 1.0
     },
     {
@@ -7408,6 +7612,30 @@
       "weight": 1.0
     },
     {
+      "source": "src_resolver_maven_client_caches_pom_metadata_between_requests",
+      "target": "src_resolver_maven_client_pom",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_caches_pom_metadata_between_requests",
+      "target": "src_resolver_maven_client_mavenclient_fetch_pom",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L173",
+      "weight": 1.0
+    },
+    {
       "source": "src_resolver_maven_client_mavenclient_default",
       "target": "src_resolver_maven_client_mavenclient_new",
       "relation": "calls",
@@ -7416,7 +7644,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L139",
+      "source_location": "L190",
       "weight": 1.0
     },
     {
@@ -7428,7 +7656,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L257",
+      "source_location": "L397",
       "weight": 1.0
     },
     {
@@ -7440,7 +7668,67 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L386",
+      "source_location": "L526",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_fetch_latest_version",
+      "target": "src_resolver_maven_client_mavenclient_read_metadata_cache",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L274",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_fetch_latest_version",
+      "target": "src_resolver_maven_client_mavenclient_write_metadata_cache",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L282",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_fetch_pom",
+      "target": "src_resolver_maven_client_mavenclient_read_metadata_cache",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L361",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_fetch_pom",
+      "target": "src_resolver_maven_client_mavenclient_write_metadata_cache",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L376",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_read_metadata_cache",
+      "target": "src_resolver_maven_client_mavenclient_metadata_cache_path",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L241",
       "weight": 1.0
     },
     {
@@ -7452,7 +7740,43 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L317",
+      "source_location": "L457",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_search_packages",
+      "target": "src_resolver_maven_client_mavenclient_read_metadata_cache",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L315",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_search_packages",
+      "target": "src_resolver_maven_client_mavenclient_write_metadata_cache",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L323",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient_write_metadata_cache",
+      "target": "src_resolver_maven_client_mavenclient_metadata_cache_path",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L256",
       "weight": 1.0
     },
     {
@@ -7464,7 +7788,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L110",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -7476,7 +7800,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L81",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -7576,6 +7900,18 @@
       "weight": 1.0
     },
     {
+      "source": "src_scaffold_mod_init_project",
+      "target": "src_scaffold_mod_javafx_classifier",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/scaffold/mod.rs",
+      "source_location": "L309",
+      "weight": 1.0
+    },
+    {
       "source": "src_scaffold_mod_test_init_project_web_template_has_test",
       "target": "src_scaffold_mod_init_project",
       "relation": "calls",
@@ -7584,7 +7920,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L552",
+      "source_location": "L588",
       "weight": 1.0
     },
     {
@@ -7596,7 +7932,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L528",
+      "source_location": "L539",
       "weight": 1.0
     },
     {
@@ -7608,7 +7944,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L487",
+      "source_location": "L498",
       "weight": 1.0
     },
     {
@@ -7620,7 +7956,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L569",
+      "source_location": "L605",
+      "weight": 1.0
+    },
+    {
+      "source": "src_scaffold_mod_test_javafx_template_uses_current_platform_classifier",
+      "target": "src_scaffold_mod_init_project",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/scaffold/mod.rs",
+      "source_location": "L561",
       "weight": 1.0
     },
     {
@@ -7800,7 +8148,7 @@
       "confidence_score": 1.0,
       "context": "constructor",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L165",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -7824,7 +8172,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L37",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -7836,7 +8184,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L10",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -7924,6 +8272,18 @@
       "weight": 1.0
     },
     {
+      "source": "src_core_manifest_joltmanifest",
+      "target": "src_core_manifest_repositoryconfig",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "generic_arg",
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
       "source": "src_core_manifest_joltmanifest_graalvm_config",
       "target": "src_core_manifest_graalvmconfig",
       "relation": "references",
@@ -7932,7 +8292,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L85",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
@@ -7944,7 +8304,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L69",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
@@ -7956,7 +8316,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L70",
+      "source_location": "L79",
       "weight": 1.0
     },
     {
@@ -8028,7 +8388,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L375",
+      "source_location": "L515",
       "weight": 1.0
     },
     {
@@ -8040,7 +8400,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L298",
+      "source_location": "L438",
       "weight": 1.0
     },
     {
@@ -8052,7 +8412,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L305",
+      "source_location": "L445",
       "weight": 1.0
     },
     {
@@ -8064,7 +8424,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L187",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -8076,7 +8436,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L16",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -9036,7 +9396,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L260",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -9773,7 +10133,7 @@
     },
     {
       "source": "src_resolver_maven_client",
-      "target": "hashset",
+      "target": "sha2",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -9785,7 +10145,7 @@
     },
     {
       "source": "src_resolver_maven_client",
-      "target": "error",
+      "target": "hashset",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -9797,6 +10157,30 @@
     },
     {
       "source": "src_resolver_maven_client",
+      "target": "error",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client",
+      "target": "fs",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client",
       "target": "super",
       "relation": "imports_from",
       "_origin": "ast",
@@ -9804,7 +10188,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L44",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -9816,7 +10200,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L45",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -9828,7 +10212,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L46",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -9840,7 +10224,31 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L47",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client",
+      "target": "time",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -9852,7 +10260,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L5",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -9996,7 +10404,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L457",
+      "source_location": "L468",
       "weight": 1.0
     },
     {
@@ -10272,7 +10680,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/core/manifest.rs",
-      "source_location": "L92",
+      "source_location": "L101",
       "weight": 1.0
     },
     {
@@ -10308,7 +10716,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L64",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -10320,7 +10728,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L64",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -10332,7 +10740,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L224",
+      "source_location": "L289",
       "weight": 1.0
     },
     {
@@ -10344,7 +10752,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L224",
+      "source_location": "L289",
       "weight": 1.0
     },
     {
@@ -10356,7 +10764,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L78",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -10368,7 +10776,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L78",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -10380,7 +10788,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L257",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -10392,7 +10800,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "src/main.rs",
-      "source_location": "L257",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -10441,6 +10849,18 @@
       "context": "parameter_type",
       "source_file": "templates/javafx/src/main/java/App.java",
       "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_configured_maven_client",
+      "target": "src_resolver_maven_client_mavenclient",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "src/main.rs",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -12530,18 +12950,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L263",
+      "source_location": "L281",
       "weight": 1.0
     },
     {
       "source": "src_core_manifest",
-      "target": "src_core_manifest_project",
+      "target": "src_core_manifest_repositoryconfig",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L27",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -12552,7 +12972,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L304",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -12563,18 +12983,40 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L322",
+      "source_location": "L340",
       "weight": 1.0
     },
     {
       "source": "src_core_manifest",
-      "target": "src_core_manifest_graalvmconfig",
+      "target": "src_core_manifest_project",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L37",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest",
+      "target": "src_core_manifest_test_moving_dependency_between_scopes_removes_stale_entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L404",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest",
+      "target": "src_core_manifest_test_repository_configuration_parses",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L442",
       "weight": 1.0
     },
     {
@@ -12585,7 +13027,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L386",
+      "source_location": "L456",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest",
+      "target": "src_core_manifest_graalvmconfig",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -12596,7 +13049,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L425",
+      "source_location": "L495",
       "weight": 1.0
     },
     {
@@ -12607,18 +13060,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L464",
-      "weight": 1.0
-    },
-    {
-      "source": "src_core_manifest",
-      "target": "src_core_manifest_windowspackageconfig",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/core/manifest.rs",
-      "source_location": "L47",
+      "source_location": "L534",
       "weight": 1.0
     },
     {
@@ -12629,7 +13071,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L482",
+      "source_location": "L552",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest",
+      "target": "src_core_manifest_windowspackageconfig",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L56",
       "weight": 1.0
     },
     {
@@ -12640,7 +13093,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L513",
+      "source_location": "L583",
       "weight": 1.0
     },
     {
@@ -12651,7 +13104,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L59",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -12689,7 +13142,29 @@
     },
     {
       "source": "src_main",
-      "target": "src_main_resolve_target_directories",
+      "target": "src_main_install_in_dir",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/main.rs",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main",
+      "target": "src_main_install_resolved_in_dir",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/main.rs",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main",
+      "target": "src_main_resolve_add_target_directory",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12706,7 +13181,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/main.rs",
-      "source_location": "L224",
+      "source_location": "L289",
       "weight": 1.0
     },
     {
@@ -12717,7 +13192,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/main.rs",
-      "source_location": "L257",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -12728,29 +13203,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/main.rs",
-      "source_location": "L495",
+      "source_location": "L560",
       "weight": 1.0
     },
     {
       "source": "src_main",
-      "target": "src_main_install_in_dir",
+      "target": "src_main_configured_maven_client",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/main.rs",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
       "source": "src_main",
-      "target": "src_main_install_resolved_in_dir",
+      "target": "src_main_resolve_target_directories",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/main.rs",
-      "source_location": "L78",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -12876,13 +13351,35 @@
     },
     {
       "source": "src_resolver_maven_client",
+      "target": "src_resolver_maven_client_mavensearchresponse",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client",
+      "target": "src_resolver_maven_client_caches_pom_metadata_between_requests",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L145",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client",
       "target": "src_resolver_maven_client_mavensearchdocs",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L14",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -12893,7 +13390,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L20",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -12904,7 +13401,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L36",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -12915,7 +13412,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L49",
+      "source_location": "L55",
       "weight": 1.0
     },
     {
@@ -12926,7 +13423,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L57",
+      "source_location": "L63",
       "weight": 1.0
     },
     {
@@ -12937,18 +13434,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L64",
-      "weight": 1.0
-    },
-    {
-      "source": "src_resolver_maven_client",
-      "target": "src_resolver_maven_client_mavensearchresponse",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L9",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -13118,7 +13604,7 @@
     },
     {
       "source": "src_scaffold_mod",
-      "target": "src_scaffold_mod_init_project",
+      "target": "src_scaffold_mod_javafx_classifier",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13129,13 +13615,24 @@
     },
     {
       "source": "src_scaffold_mod",
+      "target": "src_scaffold_mod_init_project",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/scaffold/mod.rs",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "src_scaffold_mod",
       "target": "src_scaffold_mod_test_ensure_ide_configuration_creates_files",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L460",
+      "source_location": "L471",
       "weight": 1.0
     },
     {
@@ -13146,7 +13643,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L479",
+      "source_location": "L490",
       "weight": 1.0
     },
     {
@@ -13157,7 +13654,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L520",
+      "source_location": "L531",
+      "weight": 1.0
+    },
+    {
+      "source": "src_scaffold_mod",
+      "target": "src_scaffold_mod_test_javafx_template_uses_current_platform_classifier",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/scaffold/mod.rs",
+      "source_location": "L555",
       "weight": 1.0
     },
     {
@@ -13168,7 +13676,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L544",
+      "source_location": "L580",
       "weight": 1.0
     },
     {
@@ -13179,7 +13687,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L561",
+      "source_location": "L597",
       "weight": 1.0
     },
     {
@@ -13759,13 +14267,24 @@
     },
     {
       "source": "src_core_manifest_joltmanifest",
+      "target": "src_core_manifest_joltmanifest_parse_dependency_spec",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/core/manifest.rs",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "src_core_manifest_joltmanifest",
       "target": "src_core_manifest_joltmanifest_find_root_workspace",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L111",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -13776,7 +14295,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L147",
+      "source_location": "L156",
       "weight": 1.0
     },
     {
@@ -13787,7 +14306,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L181",
+      "source_location": "L190",
       "weight": 1.0
     },
     {
@@ -13798,7 +14317,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L192",
+      "source_location": "L201",
       "weight": 1.0
     },
     {
@@ -13809,7 +14328,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L220",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -13820,7 +14339,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L249",
+      "source_location": "L267",
       "weight": 1.0
     },
     {
@@ -13831,7 +14350,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L75",
+      "source_location": "L84",
       "weight": 1.0
     },
     {
@@ -13842,7 +14361,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L80",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -13853,18 +14372,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/core/manifest.rs",
-      "source_location": "L85",
-      "weight": 1.0
-    },
-    {
-      "source": "src_core_manifest_joltmanifest",
-      "target": "src_core_manifest_joltmanifest_parse_dependency_spec",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/core/manifest.rs",
-      "source_location": "L92",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
@@ -13919,7 +14427,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L138",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -13930,7 +14438,51 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L144",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient",
+      "target": "src_resolver_maven_client_mavenclient_with_repositories",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient",
+      "target": "src_resolver_maven_client_mavenclient_metadata_cache_path",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L233",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient",
+      "target": "src_resolver_maven_client_mavenclient_read_metadata_cache",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "src_resolver_maven_client_mavenclient",
+      "target": "src_resolver_maven_client_mavenclient_write_metadata_cache",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/resolver/maven_client.rs",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -13941,7 +14493,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L158",
+      "source_location": "L264",
       "weight": 1.0
     },
     {
@@ -13952,7 +14504,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L187",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -13963,7 +14515,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L221",
+      "source_location": "L349",
       "weight": 1.0
     },
     {
@@ -13974,7 +14526,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L251",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -13985,7 +14537,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L262",
+      "source_location": "L402",
       "weight": 1.0
     },
     {
@@ -13996,7 +14548,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L298",
+      "source_location": "L438",
       "weight": 1.0
     },
     {
@@ -14007,7 +14559,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L305",
+      "source_location": "L445",
       "weight": 1.0
     },
     {
@@ -14018,7 +14570,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L375",
+      "source_location": "L515",
       "weight": 1.0
     },
     {
@@ -14377,7 +14929,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "src/resolver/maven_client.rs",
-      "source_location": "L335",
+      "source_location": "L475",
       "weight": 1.0
     },
     {
@@ -14389,7 +14941,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L199",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -14401,7 +14953,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L251",
+      "source_location": "L261",
       "weight": 1.0
     },
     {
@@ -14413,7 +14965,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "src/scaffold/mod.rs",
-      "source_location": "L466",
+      "source_location": "L477",
       "weight": 1.0
     },
     {
@@ -14860,5 +15412,5 @@
       "source_file": "README.md"
     }
   ],
-  "built_at_commit": "d5f30c6c5e56694ed1f0c8fa28702f80317a3622"
+  "built_at_commit": "44b7fb5fd641f2421beefc71264017d6aed7f80f"
 }

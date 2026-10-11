@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "src/main.rs": {
-    "mtime": 1791249924.5884984,
-    "seen": 1791730983.3911605,
-    "ast_hash": "3e68760afb9edbcf61618157ee7b045e",
+    "mtime": 1791740954.2588923,
+    "seen": 1791740975.1832128,
+    "ast_hash": "fc76e6a765e95fe84b27ecb65d683ee2",
     "semantic_hash": ""
   },
   "templates/cli/src/main/java/Main.java": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791240841.7080078,
-    "seen": 1791730983.391233,
-    "ast_hash": "75de6cdb0f58fb22cb150f188ca02789",
+    "mtime": 1791740926.6981378,
+    "seen": 1791740975.1833305,
+    "ast_hash": "63eee3167cfb00b77cd76506545125c4",
     "semantic_hash": ""
   },
   "benchmark/results.md": {
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "docs/design.md": {
-    "mtime": 1791238639.5549495,
-    "seen": 1791730983.3912659,
-    "ast_hash": "1ea7953fe053761a1792b29e4ab2f311",
+    "mtime": 1791740931.0978298,
+    "seen": 1791740975.183388,
+    "ast_hash": "d3534ea208d5819383e0bf3fe5d0f931",
     "semantic_hash": ""
   },
   "docs/plan.md": {
@@ -396,15 +396,15 @@
     "semantic_hash": ""
   },
   "src/core/manifest.rs": {
-    "mtime": 1791241146.2054358,
-    "seen": 1791730983.3911545,
-    "ast_hash": "bd97a4202e1d70516a014fcc97546273",
+    "mtime": 1791740940.6806011,
+    "seen": 1791740975.1832,
+    "ast_hash": "6d2834d62f222e3b8fc3194109923b3a",
     "semantic_hash": ""
   },
   "src/core/mod.rs": {
-    "mtime": 1791241146.2054358,
-    "seen": 1791730983.3911562,
-    "ast_hash": "892b4e9142bcb15374e12dfac0b69e9a",
+    "mtime": 1791740861.9369237,
+    "seen": 1791740975.1832042,
+    "ast_hash": "acd9f1c2f7caddd215cc64d9b8c2fb3a",
     "semantic_hash": ""
   },
   "src/doctor/diagnostics.rs": {
@@ -456,21 +456,21 @@
     "semantic_hash": ""
   },
   "src/resolver/maven_client.rs": {
-    "mtime": 1791249873.8414004,
-    "seen": 1791730983.3911705,
-    "ast_hash": "2de690be6e74e4fa714a8d5ebc8ea3e0",
+    "mtime": 1791740940.7582657,
+    "seen": 1791740975.1832316,
+    "ast_hash": "28fea310b6f56be66c88fbce34a01de4",
     "semantic_hash": ""
   },
   "src/resolver/mod.rs": {
-    "mtime": 1791249862.8753004,
-    "seen": 1791730983.391172,
-    "ast_hash": "92dbfe7ed398f334d9e9f84174add277",
+    "mtime": 1791740986.8242693,
+    "seen": 1791741262.5330255,
+    "ast_hash": "aa91a24522ac85e2eb95e565a6bc5a12",
     "semantic_hash": ""
   },
   "src/resolver/pom_parser.rs": {
-    "mtime": 1791249853.3428326,
-    "seen": 1791730983.3911734,
-    "ast_hash": "be4801e268dff5b6520ac5d7b9fe6afa",
+    "mtime": 1791740986.831855,
+    "seen": 1791741262.5330281,
+    "ast_hash": "b55b01e677d01061761dad7fae5bb73f",
     "semantic_hash": ""
   },
   "src/scaffold/ide_config.rs": {
@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "src/scaffold/mod.rs": {
-    "mtime": 1791241146.2748673,
-    "seen": 1791730983.391176,
-    "ast_hash": "4719e76afaba65313200bd34703ecde1",
+    "mtime": 1791741222.9345632,
+    "seen": 1791741262.5330322,
+    "ast_hash": "ad98c43fb306c30fc6802d7512c013b2",
     "semantic_hash": ""
   },
   "src/scaffold/templates.rs": {
@@ -591,12 +591,6 @@
     "mtime": 1791739114.7504473,
     "seen": 1791739151.4006171,
     "ast_hash": "91ebe451889e85fd852d3da5daf207ff",
-    "semantic_hash": ""
-  },
-  "frontend-docs/.github/context-mode/sessions/stats-pid-14836.json": {
-    "mtime": 1791732893.4418073,
-    "seen": 1791737169.4773934,
-    "ast_hash": "4386c42a1cb073520a81de0a41363ace",
     "semantic_hash": ""
   },
   "frontend-docs/astro.config.mjs": {
