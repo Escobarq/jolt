@@ -75,6 +75,12 @@ if (-not (Test-Path $JoltBin)) {
     Write-Error "No se encontró el binario compilado en $JoltBin"
 }
 
+$SmokeOutput = & $JoltBin --help 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "El binario compilado no superó la validación de arranque (--help)."
+}
+Write-Host "  [OK] Validación de arranque completada." -ForegroundColor Green
+
 $OrigSize = (Get-Item $JoltBin).Length
 Write-Host "  [OK] Binario generado: $JoltBin ($([math]::Round($OrigSize / 1MB, 2)) MB)" -ForegroundColor Green
 

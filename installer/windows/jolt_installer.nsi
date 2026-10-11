@@ -21,7 +21,7 @@ SetCompressor /SOLID lzma
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
 
 !ifndef PRODUCT_VERSION
-  !define PRODUCT_VERSION "0.7.1"
+  !define PRODUCT_VERSION "0.7.3"
 !endif
 
 !ifndef BINARY_PATH
@@ -47,7 +47,7 @@ RequestExecutionLevel user
 ; ------------------------------------------------------------------------------
 !define MUI_ABORTWARNING
 !define MUI_WELCOMEPAGE_TITLE "Bienvenido a la instalación de Jolt"
-!define MUI_WELCOMEPAGE_TEXT "Jolt es un gestor de paquetes y herramientas para Java ultrarrápido desarrollado en Rust.$\r$\n$\r$\nEste asistente instalará Jolt en tu sistema y lo configurará automáticamente en tu variable PATH para su uso inmediato en la línea de comandos."
+!define MUI_WELCOMEPAGE_TEXT "Jolt es un gestor de paquetes y herramientas para Java ultrarrápido desarrollado en Rust. Incluye resolución Maven con caché, plantillas JavaFX por plataforma y una plantilla de terminal basada en TUI4J.$\r$\n$\r$\nEste asistente instalará Jolt en tu sistema y lo configurará automáticamente en tu variable PATH para su uso inmediato en la línea de comandos."
 
 ; Páginas del Instalador
 !insertmacro MUI_PAGE_WELCOME
