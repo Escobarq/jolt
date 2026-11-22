@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content="Arquitectura modular de Joltv." />
+		<title>Arquitectura · Jolt</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+		<link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
+		<link rel="stylesheet" href="/styles/global.css">
+	</head>
+	<body>
+		<header class="topbar">
+			<a class="brand" href="/es/">
+				<i class="ri-cup-line brand-mark" aria-hidden="true"></i>
+				<span>Jolt</span>
+			</a>
+			<span class="brand-tag">Herramientas Java</span>
+			<nav aria-label="Navegación principal">
+				<a href="/es/docs/quickstart/">Documentación</a>
+				<a href="https://github.com/Escobarq/jolt">GitHub</a>
+				<a class="language" href="/en/">EN</a>
+			</nav>
+		</header>
+		<div class="shell">
+			<aside class="sidebar">
+				<p class="sidebar-label">Documentación</p>
+				<a href="/es/docs/quickstart/"><i class="ri-rocket-line" aria-hidden="true"></i>Inicio rápido</a>
+				<a href="/es/docs/cli/"><i class="ri-terminal-box-line" aria-hidden="true"></i>Referencia CLI</a>
+				<a href="/es/docs/configuration/"><i class="ri-settings-3-line" aria-hidden="true"></i>Configuración</a>
+				<a href="/es/docs/architecture/"><i class="ri-node-tree" aria-hidden="true"></i>Arquitectura</a>
+				<a href="/es/docs/toolchains/"><i class="ri-java-line" aria-hidden="true"></i>JDK</a>
+				<a href="/es/docs/contributing/"><i class="ri-git-merge-line" aria-hidden="true"></i>Contribuir</a>
+			</aside>
+			<main>
+				<div class="breadcrumbs">
+					<a href="/es/">Jolt</a>
+					<i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+					<span>Docs</span>
+				</div>
+				<p class="eyebrow">Jolt · Guía</p>
+				<h1>Arquitectura</h1>
+				<p class="lead">Joltv está construido en Rust y separa la experiencia de usuario, la resolución de dependencias, la compilación y el empaquetado en módulos especializados.</p>
+				<h2 id="vision">Visión general</h2>
+				<pre><code>CLI (clap)
+  └── main.rs: orquesta el comando
+       ├── core: manifiestos, lockfile y caché
+       ├── resolver: Maven Central y POMs
+       ├── build: javac, ejecución y JUnit
+       ├── packaging: JAR, jpackage e instaladores
+       ├── toolchain: detección y descarga de JDK
+       ├── scaffold: templates y configuración IDE
+       └── doctor: diagnóstico del entorno</code></pre>
+				<h2 id="modulos">Módulos principales</h2>
+				<table class="doc-table"><thead><tr><th>Módulo</th><th>Responsabilidad</th><th>Archivos clave</th></tr></thead><tbody><tr><td><code>core</code></td><td>Tipos canónicos y persistencia.</td><td><code>manifest.rs</code>, <code>lockfile.rs</code>, <code>cache.rs</code></td></tr><tr><td><code>cli</code></td><td>Comandos, argumentos y flags.</td><td><code>args.rs</code>, <code>mod.rs</code></td></tr><tr><td><code>build</code></td><td>Compilación, ejecución y pruebas.</td><td><code>compiler.rs</code>, <code>runner.rs</code>, <code>test_runner.rs</code></td></tr><tr><td><code>resolver</code></td><td>Descarga y análisis Maven.</td><td><code>maven_client.rs</code>, <code>pom_parser.rs</code></td></tr><tr><td><code>packaging</code></td><td>Artefactos distribuibles.</td><td><code>jar.rs</code>, <code>jpackage.rs</code></td></tr><tr><td><code>toolchain</code></td><td>JDKs locales y remotos.</td><td><code>detector.rs</code>, <code>downloader.rs</code></td></tr></tbody></table>
+				<h2 id="flujo">Flujo de ejecución</h2>
+				<ol class="step-list"><li>Clap analiza el comando y sus opciones.</li><li>El manifiesto se carga desde el directorio actual o el workspace raíz.</li><li>El toolchain manager selecciona un JDK compatible.</li><li>El resolver prepara dependencias y el build ejecuta las herramientas Java.</li><li>El resultado se entrega en <code>target/</code> o <code>dist/</code>.</li></ol>
+				<h2 id="extender">Extender el CLI</h2>
+				<p>Los nuevos comandos deben declarar su interfaz en <code>src/cli/args.rs</code>, mantener la lógica en el módulo de dominio adecuado y exponerse mediante su <code>mod.rs</code>. Evita colocar lógica de compilación o empaquetado directamente en <code>main.rs</code>.</p>
+			</main>
+			<footer>
+				<span><i class="ri-open-source-line" aria-hidden="true"></i> Jolt · open source Java tooling</span>
+				<a href="https://github.com/Escobarq/jolt"><i class="ri-github-line" aria-hidden="true"></i> Source on GitHub</a>
+			</footer>
+		</div>
+		<script>
+			(() => {
+				const english = document.documentElement.lang === "en";
+				const copyLabel = english ? "Copy" : "Copiar";
+				const copiedLabel = english ? "Copied" : "Copiado";
+				const terminalLabel = english ? "Terminal" : "Terminal";
+
+				const fallbackCopy = (text) => {
+					const textarea = document.createElement("textarea");
+					textarea.value = text;
+					textarea.setAttribute("readonly", "");
+					textarea.style.position = "fixed";
+					textarea.style.opacity = "0";
+					document.body.appendChild(textarea);
+					textarea.select();
+					const copied = document.execCommand("copy");
+					textarea.remove();
+					return copied;
+				};
+
+				document.querySelectorAll("main pre").forEach((pre) => {
+					const code = pre.querySelector("code");
+					if (!code || pre.parentElement?.classList.contains("code-block")) return;
+
+					const wrapper = document.createElement("div");
+					wrapper.className = "code-block";
+					pre.parentNode.insertBefore(wrapper, pre);
+					wrapper.appendChild(pre);
+
+					const toolbar = document.createElement("div");
+					toolbar.className = "code-toolbar";
+					toolbar.innerHTML = `
+						<span class="code-language"><i class="ri-terminal-line" aria-hidden="true"></i>${terminalLabel}</span>
+						<button class="copy-button" type="button" aria-label="${copyLabel}">
+							<i class="ri-file-copy-line" aria-hidden="true"></i>
+							<span>${copyLabel}</span>
+						</button>
+					`;
+					wrapper.insertBefore(toolbar, pre);
+
+					const button = toolbar.querySelector("button");
+					button.addEventListener("click", async () => {
+						const text = code.textContent.replace(/\n$/, "");
+						let copied = false;
+						try {
+							if (navigator.clipboard?.writeText) {
+								await navigator.clipboard.writeText(text);
+								copied = true;
+							}
+						} catch {
+							copied = false;
+						}
+						if (!copied) copied = fallbackCopy(text);
+						if (!copied) return;
+
+						button.classList.add("copied");
+						button.setAttribute("aria-label", copiedLabel);
+						button.querySelector("i").className = "ri-check-line";
+						button.querySelector("span").textContent = copiedLabel;
+						window.setTimeout(() => {
+							button.classList.remove("copied");
+							button.setAttribute("aria-label", copyLabel);
+							button.querySelector("i").className = "ri-file-copy-line";
+							button.querySelector("span").textContent = copyLabel;
+						}, 1800);
+					});
+				});
+			})();
+		</script>
+	</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content="Toolchains Java para Joltv." />
+		<title>JDK · Jolt</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+		<link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
+		<link rel="stylesheet" href="/styles/global.css">
+	</head>
+	<body>
+		<header class="topbar">
+			<a class="brand" href="/es/">
+				<i class="ri-cup-line brand-mark" aria-hidden="true"></i>
+				<span>Jolt</span>
+			</a>
+			<span class="brand-tag">Herramientas Java</span>
+			<nav aria-label="Navegación principal">
+				<a href="/es/docs/quickstart/">Documentación</a>
+				<a href="https://github.com/Escobarq/jolt">GitHub</a>
+				<a class="language" href="/en/">EN</a>
+			</nav>
+		</header>
+		<div class="shell">
+			<aside class="sidebar">
+				<p class="sidebar-label">Documentación</p>
+				<a href="/es/docs/quickstart/"><i class="ri-rocket-line" aria-hidden="true"></i>Inicio rápido</a>
+				<a href="/es/docs/cli/"><i class="ri-terminal-box-line" aria-hidden="true"></i>Referencia CLI</a>
+				<a href="/es/docs/configuration/"><i class="ri-settings-3-line" aria-hidden="true"></i>Configuración</a>
+				<a href="/es/docs/architecture/"><i class="ri-node-tree" aria-hidden="true"></i>Arquitectura</a>
+				<a href="/es/docs/toolchains/"><i class="ri-java-line" aria-hidden="true"></i>JDK</a>
+				<a href="/es/docs/contributing/"><i class="ri-git-merge-line" aria-hidden="true"></i>Contribuir</a>
+			</aside>
+			<main>
+				<div class="breadcrumbs">
+					<a href="/es/">Jolt</a>
+					<i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+					<span>Docs</span>
+				</div>
+				<p class="eyebrow">Jolt · Guía</p>
+				<h1>JDK</h1>
+				<p class="lead">Joltv intenta reutilizar las herramientas Java que ya tienes instaladas y solo descarga un JDK cuando lo autorizas explícitamente.</p>
+				<h2 id="busqueda">Orden de búsqueda</h2>
+				<ol class="step-list"><li><code>GRAALVM_HOME</code> y <code>JAVA_HOME</code>.</li><li>El ejecutable <code>javac</code> en el <code>PATH</code>, validando también <code>java</code>.</li><li>Rutas estándar del sistema, como <code>C:\Program Files\Java</code>, <code>/usr/lib/jvm</code> o las instalaciones de macOS.</li></ol>
+				<pre><code>jolt check</code></pre>
+				<h2 id="compatibilidad">Compatibilidad de versiones</h2>
+				<p>La versión mayor declarada en <code>[project].java_version</code> se compara con los JDK disponibles. Una versión instalada igual o superior puede reutilizarse cuando es compatible.</p>
+				<table class="doc-table"><thead><tr><th>Configuración</th><th>Resultado</th></tr></thead><tbody><tr><td><code>java_version = "21"</code></td><td>Busca JDK 21 o una versión posterior compatible.</td></tr><tr><td>Ningún JDK compatible</td><td>Se muestra un error con la versión solicitada y las rutas revisadas.</td></tr></tbody></table>
+				<h2 id="descarga">Descarga explícita</h2>
+				<p>Joltv no descarga JDKs silenciosamente. Autoriza la descarga de Temurin con el flag correspondiente:</p>
+				<pre><code>jolt build --download-jdk
+jolt run --download-jdk
+jolt test --download-jdk</code></pre>
+			</main>
+			<footer>
+				<span><i class="ri-open-source-line" aria-hidden="true"></i> Jolt · open source Java tooling</span>
+				<a href="https://github.com/Escobarq/jolt"><i class="ri-github-line" aria-hidden="true"></i> Source on GitHub</a>
+			</footer>
+		</div>
+		<script>
+			(() => {
+				const english = document.documentElement.lang === "en";
+				const copyLabel = english ? "Copy" : "Copiar";
+				const copiedLabel = english ? "Copied" : "Copiado";
+				const terminalLabel = english ? "Terminal" : "Terminal";
+
+				const fallbackCopy = (text) => {
+					const textarea = document.createElement("textarea");
+					textarea.value = text;
+					textarea.setAttribute("readonly", "");
+					textarea.style.position = "fixed";
+					textarea.style.opacity = "0";
+					document.body.appendChild(textarea);
+					textarea.select();
+					const copied = document.execCommand("copy");
+					textarea.remove();
+					return copied;
+				};
+
+				document.querySelectorAll("main pre").forEach((pre) => {
+					const code = pre.querySelector("code");
+					if (!code || pre.parentElement?.classList.contains("code-block")) return;
+
+					const wrapper = document.createElement("div");
+					wrapper.className = "code-block";
+					pre.parentNode.insertBefore(wrapper, pre);
+					wrapper.appendChild(pre);
+
+					const toolbar = document.createElement("div");
+					toolbar.className = "code-toolbar";
+					toolbar.innerHTML = `
+						<span class="code-language"><i class="ri-terminal-line" aria-hidden="true"></i>${terminalLabel}</span>
+						<button class="copy-button" type="button" aria-label="${copyLabel}">
+							<i class="ri-file-copy-line" aria-hidden="true"></i>
+							<span>${copyLabel}</span>
+						</button>
+					`;
+					wrapper.insertBefore(toolbar, pre);
+
+					const button = toolbar.querySelector("button");
+					button.addEventListener("click", async () => {
+						const text = code.textContent.replace(/\n$/, "");
+						let copied = false;
+						try {
+							if (navigator.clipboard?.writeText) {
+								await navigator.clipboard.writeText(text);
+								copied = true;
+							}
+						} catch {
+							copied = false;
+						}
+						if (!copied) copied = fallbackCopy(text);
+						if (!copied) return;
+
+						button.classList.add("copied");
+						button.setAttribute("aria-label", copiedLabel);
+						button.querySelector("i").className = "ri-check-line";
+						button.querySelector("span").textContent = copiedLabel;
+						window.setTimeout(() => {
+							button.classList.remove("copied");
+							button.setAttribute("aria-label", copyLabel);
+							button.querySelector("i").className = "ri-file-copy-line";
+							button.querySelector("span").textContent = copyLabel;
+						}, 1800);
+					});
+				});
+			})();
+		</script>
+	</body>
+</html>

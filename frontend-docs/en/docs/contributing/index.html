@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content="Contribute to the open Jolt repository." />
+		<title>Contributing · Jolt</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+		<link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.css" rel="stylesheet">
+		<link rel="stylesheet" href="/styles/global.css">
+	</head>
+	<body>
+		<header class="topbar">
+			<a class="brand" href="/en/">
+				<i class="ri-cup-line brand-mark" aria-hidden="true"></i>
+				<span>Jolt</span>
+			</a>
+			<span class="brand-tag">Java tooling</span>
+			<nav aria-label="Main navigation">
+				<a href="/en/docs/quickstart/">Docs</a>
+				<a href="https://github.com/Escobarq/jolt">GitHub</a>
+				<a class="language" href="/es/">ES</a>
+			</nav>
+		</header>
+		<div class="shell">
+			<aside class="sidebar">
+				<p class="sidebar-label">Documentation</p>
+				<a href="/en/docs/quickstart/"><i class="ri-rocket-line" aria-hidden="true"></i>Quick start</a>
+				<a href="/en/docs/cli/"><i class="ri-terminal-box-line" aria-hidden="true"></i>CLI reference</a>
+				<a href="/en/docs/configuration/"><i class="ri-settings-3-line" aria-hidden="true"></i>Configuration</a>
+				<a href="/en/docs/architecture/"><i class="ri-node-tree" aria-hidden="true"></i>Architecture</a>
+				<a href="/en/docs/toolchains/"><i class="ri-java-line" aria-hidden="true"></i>JDK</a>
+				<a href="/en/docs/contributing/"><i class="ri-git-merge-line" aria-hidden="true"></i>Contributing</a>
+			</aside>
+			<main>
+				<div class="breadcrumbs">
+					<a href="/en/">Jolt</a>
+					<i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+					<span>Docs</span>
+				</div>
+				<p class="eyebrow">Jolt · Guide</p>
+				<h1>Contributing</h1>
+				<p class="lead">The current project lives in <strong>Jolt</strong>. Review the code, open issues, and propose changes at <a href="https://github.com/Escobarq/jolt">github.com/Escobarq/jolt</a>.</p>
+				<div class="notice"><strong>Name transition:</strong> these docs use the future <code>Joltv</code> brand, while the repository, source code, and executable are still named <code>jolt</code>. The rename will happen later.</div>
+				<h2 id="repository">Current repository</h2>
+				<p>Clone the original repository and work from its root:</p>
+				<pre><code>git clone https://github.com/Escobarq/jolt.git
+cd jolt</code></pre>
+				<p>Main areas include:</p>
+				<ul><li><code>src/</code>: Rust CLI implementation.</li><li><code>tests/</code>: integration tests, when available.</li><li><code>docs/</code>: technical documentation and module records.</li><li><code>openspec/</code>: specifications and planned changes.</li></ul>
+				<h2 id="before">Before you start</h2>
+				<ul><li>Read the <a href="https://github.com/Escobarq/jolt">repository README</a> and specifications in <code>openspec/specs/</code>.</li><li>Search existing issues and pull requests before opening a new one.</li><li>For larger changes, describe the goal, impact, and validation strategy first.</li></ul>
+				<h2 id="validate">Validate changes</h2>
+				<pre><code>cargo fmt --check
+cargo test
+openspec validate --all</code></pre>
+				<p>Run Rust commands from the repository root. If you change code or documentation structure, regenerate the graph from the root:</p>
+				<pre><code>graphify update .</code></pre>
+				<h2 id="document">Document a feature</h2>
+				<ol class="step-list"><li>Explain the problem and expected workflow.</li><li>Add a minimal copy-paste example.</li><li>Document related errors, requirements, and flags.</li><li>Include the version or experimental status where relevant.</li></ol>
+				<p>Site pages live in <code>en/</code> and <code>es/</code>. Keep both versions synchronized and use the shared layout.</p>
+			</main>
+			<footer>
+				<span><i class="ri-open-source-line" aria-hidden="true"></i> Jolt · open source Java tooling</span>
+				<a href="https://github.com/Escobarq/jolt"><i class="ri-github-line" aria-hidden="true"></i> Source on GitHub</a>
+			</footer>
+		</div>
+		<script>
+			(() => {
+				const english = document.documentElement.lang === "en";
+				const copyLabel = english ? "Copy" : "Copiar";
+				const copiedLabel = english ? "Copied" : "Copiado";
+				const terminalLabel = english ? "Terminal" : "Terminal";
+
+				const fallbackCopy = (text) => {
+					const textarea = document.createElement("textarea");
+					textarea.value = text;
+					textarea.setAttribute("readonly", "");
+					textarea.style.position = "fixed";
+					textarea.style.opacity = "0";
+					document.body.appendChild(textarea);
+					textarea.select();
+					const copied = document.execCommand("copy");
+					textarea.remove();
+					return copied;
+				};
+
+				document.querySelectorAll("main pre").forEach((pre) => {
+					const code = pre.querySelector("code");
+					if (!code || pre.parentElement?.classList.contains("code-block")) return;
+
+					const wrapper = document.createElement("div");
+					wrapper.className = "code-block";
+					pre.parentNode.insertBefore(wrapper, pre);
+					wrapper.appendChild(pre);
+
+					const toolbar = document.createElement("div");
+					toolbar.className = "code-toolbar";
+					toolbar.innerHTML = `
+						<span class="code-language"><i class="ri-terminal-line" aria-hidden="true"></i>${terminalLabel}</span>
+						<button class="copy-button" type="button" aria-label="${copyLabel}">
+							<i class="ri-file-copy-line" aria-hidden="true"></i>
+							<span>${copyLabel}</span>
+						</button>
+					`;
+					wrapper.insertBefore(toolbar, pre);
+
+					const button = toolbar.querySelector("button");
+					button.addEventListener("click", async () => {
+						const text = code.textContent.replace(/\n$/, "");
+						let copied = false;
+						try {
+							if (navigator.clipboard?.writeText) {
+								await navigator.clipboard.writeText(text);
+								copied = true;
+							}
+						} catch {
+							copied = false;
+						}
+						if (!copied) copied = fallbackCopy(text);
+						if (!copied) return;
+
+						button.classList.add("copied");
+						button.setAttribute("aria-label", copiedLabel);
+						button.querySelector("i").className = "ri-check-line";
+						button.querySelector("span").textContent = copiedLabel;
+						window.setTimeout(() => {
+							button.classList.remove("copied");
+							button.setAttribute("aria-label", copyLabel);
+							button.querySelector("i").className = "ri-file-copy-line";
+							button.querySelector("span").textContent = copyLabel;
+						}, 1800);
+					});
+				});
+			})();
+		</script>
+	</body>
+</html>
