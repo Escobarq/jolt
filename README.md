@@ -1,14 +1,14 @@
-# ⚡ Jolt
+# Jolt: ¿Cómo gestiona dependencias Java de forma rápida?
 
-**Gestor de paquetes, dependencias y herramientas para Java de nueva generación, ultrarrápido y desarrollado en Rust.**
+Jolt gestiona paquetes, dependencias y herramientas para Java con un único binario escrito en Rust. Elimina el XML verboso de Maven, los tiempos de arranque pesados de la JVM y la complejidad innecesaria en el desarrollo con Java.
 
-Inspirado en la velocidad y ergonomía de herramientas modernas como `uv` (Python) y `bun` (JavaScript), Jolt elimina el XML verboso de Maven, los tiempos de arranque pesados de la JVM y la complejidad innecesaria en el desarrollo con Java.
+Inspirado en herramientas modernas como `uv` (Python) y `bun` (JavaScript), Jolt ofrece una experiencia de desarrollo rápida y sencilla.
 
 ---
 
-## 🚀 Benchmark
+## ¿Qué tan rápido es Jolt?
 
-En pruebas de resolución e instalación de dependencias en un árbol estándar con `hyperfine`:
+Pruebas de resolución e instalación de dependencias en un árbol estándar con `hyperfine`:
 
 | Gestor | Comando | Tiempo Promedio | Relación |
 |---|---|---|---|
@@ -18,24 +18,26 @@ En pruebas de resolución e instalación de dependencias en un árbol estándar 
 
 ---
 
-## 📦 Instalación
+## ¿Cómo instalo Jolt?
 
-### Con Cargo (Rust)
+### Instalación con Cargo (Rust)
 ```bash
 git clone https://github.com/Escobarq/jolt.git
 cd jolt
 cargo install --path .
 ```
 
-### Instalador Oficial para Windows (.exe con NSIS y UPX)
+### Instalador oficial para Windows (.exe con NSIS y UPX)
 ```powershell
 pwsh scripts/build-windows-installer.ps1
 ```
 *Genera `dist/jolt-setup.exe` (o `dist/jolt-v0.7.3-windows-x86_64-setup.exe`) compilando el binario actual, validando su arranque y configurando automáticamente `jolt` en el `PATH` del usuario con desinstalador limpio.*
 
+**Nota:** La versión actual es **v0.7.3**. Consulte [`docs/plan.md`](docs/plan.md) para ver el estado completo del proyecto y todos los módulos funcionales implementados.
+
 ---
 
-## ⚡ Inicio Rápido
+## ¿Cómo empiezo con Jolt?
 
 ```bash
 # 1. Crear nuevo proyecto o Workspace Monorepo
@@ -59,18 +61,18 @@ jolt build --standalone
 jolt build --installer         # 📦 Instalador nativo (.msi / NSIS .exe)
 ```
 
-`jolt add` detecta automáticamente el módulo cuyo `jolt.toml` corresponde al
-directorio actual. En la raíz de un workspace con varios módulos se puede
+Jolt detecta automáticamente el módulo cuyo `jolt.toml` corresponde al
+directorio actual. En la raíz de un workspace con varios módulos puedes
 seleccionar uno explícitamente:
 
 ```bash
 jolt add org.slf4j:slf4j-api --member web-api
 ```
 
-Las respuestas de búsqueda, versiones y POMs se almacenan temporalmente en
-`~/.jolt/cache/v1/metadata` para evitar consultas repetidas. Los equipos que
-usen un proxy o un repositorio Maven interno pueden configurarlo en el
-`jolt.toml` del proyecto o del workspace:
+Las respuestas de búsqueda, versiones y POMs se almacenan en
+`~/.jolt/cache/v1/metadata` para evitar consultas repetidas. Equipos que
+usen un proxy o repositorio Maven interno pueden configurarlo en el
+`jolt.toml` del proyecto o workspace:
 
 ```toml
 [repositories]
@@ -79,30 +81,49 @@ artifact_url = "https://nexus.example.com/repository/maven-public"
 cache_ttl_seconds = 3600
 ```
 
-Los valores de Maven Central se mantienen como predeterminados cuando esta
-sección no existe. La configuración del proyecto tiene prioridad sobre la del
-workspace.
+Maven Central se usa por defecto cuando esta sección no existe.
+La configuración del proyecto tiene prioridad sobre la del workspace.
 
-> 💡 **Ayuda interactiva en CLI:**
-> Toda la referencia completa y actualizada de opciones se consulta directamente en la terminal:
-> ```bash
-> jolt --help
-> jolt <comando> --help    # Ej: jolt build --help, jolt package --help, jolt init --help
-> jolt check               # Diagnostica tu entorno (Java, jpackage, Rust, NSIS, UPX, Caché)
-> ```
+### Lockfile e instalaciones reproducibles
+
+Usa `jolt install --locked` en CI para exigir que `jolt.toml`, `jolt.lock` y
+los checksums de los artefactos coincidan. Si el comando rechaza un lockfile
+desactualizado, regénéralo explícitamente y revisa el cambio antes de volver al
+modo bloqueado:
+
+```bash
+jolt install
+git diff -- jolt.lock
+jolt install --locked
+```
+
+Los fallos al resolver, descargar, guardar o enlazar una dependencia son
+errores fatales en `jolt install` y `jolt sync`; Jolt ya no continúa mostrando
+una instalación incompleta como exitosa. Corrige la dependencia o el acceso al
+repositorio y vuelve a ejecutar el comando.
+
+**Obtén ayuda en la terminal:**
+Consulta la referencia completa y actualizada de opciones directamente:
+```bash
+jolt --help
+jolt <comando> --help    # Ej: jolt build --help, jolt package --help, jolt init --help
+jolt check               # Diagnostica tu entorno (Java, jpackage, Rust, NSIS, UPX, Caché)
+```
 
 ---
 
-## ☕ Detección Inteligente de JDKs y Control de Descargas
+## ¿Cómo gestiona Jolt las versiones de Java?
 
-Jolt incorpora un motor de resolución multinivel para Java:
-- **Escaneo inteligente de tu entorno**: Inspecciona variables `GRAALVM_HOME` y `JAVA_HOME`, ejecutables en `PATH` (`javac`, `java`) y directorios estándar del sistema operativo (Oracle GraalVM, Eclipse Temurin, Amazon Corretto, Azul Zulu, BellSoft, Microsoft OpenJDK, etc.).
-- **Compatibilidad semántica**: Si tu proyecto define `java_version = "21"` y cuentas con un JDK más moderno instalado (por ejemplo, **Oracle GraalVM 25**), Jolt lo detecta y lo utiliza automáticamente sin necesidad de descargar versiones redundantes.
-- **Sin descargas silenciosas**: Jolt jamás descargará paquetes pesados en segundo plano sin consentimiento. Si no se encuentra un JDK adecuado, te indicará claramente los JDKs detectados y cómo instalar uno compatible, o puedes autorizar la auto-descarga de Eclipse Temurin usando el flag `--download-jdk`.
+Jolt incluye un motor de resolución multinivel para Java:
+- **Escaneo del entorno**: Inspecciona variables `GRAALVM_HOME` y `JAVA_HOME`, ejecutables en `PATH` (`javac`, `java`) y directorios estándar del sistema (Oracle GraalVM, Eclipse Temurin, Amazon Corretto, Azul Zulu, BellSoft, Microsoft OpenJDK, etc.).
+- **Compatibilidad semántica**: Si tu proyecto define `java_version = "21"` y tienes un JDK más moderno instalado (por ejemplo, **Oracle GraalVM 25**), Jolt lo detecta y lo usa automáticamente sin descargar versiones redundantes.
+- **Solo JDK del sistema**: Jolt no descarga ni administra JDKs. Si no encuentra uno adecuado, te muestra los JDKs detectados y cómo instalar o configurar uno compatible.
 
 ---
 
-## 📄 Ejemplo de Manifiesto (`jolt.toml`)
+## ¿Cómo se configura un proyecto en Jolt?
+
+### Ejemplo de manifiesto (`jolt.toml`)
 
 ```toml
 [project]
@@ -131,10 +152,11 @@ desktop_shortcut = true
 
 ---
 
-## 📚 Documentación Técnica y Módulos
+## ¿Dónde está la documentación técnica?
+
 Para especificaciones técnicas detalladas, diseño de arquitectura y especificaciones de módulos, consulta la carpeta [`docs/`](docs/).
 
-## 📖 Documentación Adicional
+### Documentación técnica principal
 
 | Recurso | Contenido |
 |---|---|
@@ -144,3 +166,20 @@ Para especificaciones técnicas detalladas, diseño de arquitectura y especifica
 | [`docs/archive/`](docs/archive/) | Especificaciones archivadas de cada módulo implementado (A–U). |
 | [`openspec/`](openspec/) | Especificaciones OpenSpec, contexto del proyecto y registro de cambios aplicados. |
 | [`graphify-out/`](graphify-out/) | Grafo de conocimiento del proyecto: `GRAPH_REPORT.md`, `graph.json`, `graph.html`. |
+
+### Documentación web interactiva
+
+La documentación web está disponible en dos idiomas:
+
+| Idioma | Página Principal | Guía Rápida |
+|---|---|---|
+| **Español** | [`frontend-docs/es/index.html`](frontend-docs/es/index.html) | [`frontend-docs/es/docs/quickstart/index.html`](frontend-docs/es/docs/quickstart/index.html) |
+| **English** | [`frontend-docs/en/index.html`](frontend-docs/en/index.html) | [`frontend-docs/en/docs/quickstart/index.html`](frontend-docs/en/docs/quickstart/index.html) |
+
+La documentación web incluye:
+- Guía de inicio rápido
+- Referencia completa del CLI
+- Configuración avanzada
+- Arquitectura del sistema
+- Guía de toolchains (JDK)
+- Contribución al proyecto

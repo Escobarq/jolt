@@ -1,5 +1,4 @@
 pub mod detector;
-pub mod downloader;
 
 use std::error::Error;
 use std::path::PathBuf;
@@ -8,7 +7,6 @@ pub use detector::{
     detect_java_vendor, discover_system_jdks, find_system_jdk, inspect_jdk_dir,
     parse_java_major_version,
 };
-pub use downloader::{download_and_extract_jdk, find_binaries_in_dir};
 
 #[derive(Debug, Clone)]
 pub struct Toolchain {
@@ -47,10 +45,7 @@ impl From<InstalledJdk> for Toolchain {
     }
 }
 
-pub struct ToolchainManager {
-    jdks_root: PathBuf,
-    client: reqwest::Client,
-}
+pub struct ToolchainManager {}
 
 impl Default for ToolchainManager {
     fn default() -> Self {
@@ -60,50 +55,7 @@ impl Default for ToolchainManager {
 
 impl ToolchainManager {
     pub fn new() -> Self {
-        let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-        let jdks_root = home.join(".jolt").join("jdks");
-        let client = reqwest::Client::builder()
-            .user_agent("jolt-package-manager/0.6.0")
-            .build()
-            .unwrap_or_default();
-        Self { jdks_root, client }
-    }
-
-    #[cfg(test)]
-    #[allow(dead_code)]
-    pub fn with_root(root: PathBuf) -> Self {
-        let client = reqwest::Client::builder()
-            .user_agent("jolt-package-manager/0.6.0")
-            .build()
-            .unwrap_or_default();
-        Self {
-            jdks_root: root,
-            client,
-        }
-    }
-
-    /// Detecta si el JDK ya está aprovisionado en la caché global de Jolt (~/.jolt/jdks)
-    pub fn find_cached_jdk(&self, version: &str) -> Option<Toolchain> {
-        let jdk_dir = self.jdks_root.join(version);
-        if !jdk_dir.exists() {
-            return None;
-        }
-
-        if let Some(jdk) = inspect_jdk_dir(&jdk_dir) {
-            return Some(jdk.into());
-        }
-
-        let (java, javac, jar, jpackage) = find_binaries_in_dir(&jdk_dir)?;
-        let major = parse_java_major_version(version).unwrap_or(21);
-        Some(Toolchain {
-            version: version.to_string(),
-            major_version: major,
-            vendor: "Eclipse Temurin (Jolt Cache)".to_string(),
-            java_bin: java,
-            javac_bin: javac,
-            jar_bin: jar,
-            jpackage_bin: jpackage,
-        })
+        Self {}
     }
 
     /// Detecta si el sistema operativo cuenta con una versión compatible de Java
@@ -116,23 +68,12 @@ impl ToolchainManager {
         discover_system_jdks()
     }
 
-    /// Resuelve el Toolchain requerido (caché local -> sistema anfitrión -> auto-descarga si está autorizada)
+    /// Resuelve el Toolchain requerido usando únicamente el sistema anfitrión.
     pub async fn resolve_toolchain(
         &self,
         requested_version: &str,
-        allow_download: bool,
     ) -> Result<Toolchain, Box<dyn Error + Send + Sync>> {
-        // 1. Revisar caché local de Jolt
-        if let Some(toolchain) = self.find_cached_jdk(requested_version) {
-            println!(
-                "⚡ Usando JDK desde caché de Jolt: {} en {}",
-                toolchain.version,
-                toolchain.java_bin.display()
-            );
-            return Ok(toolchain);
-        }
-
-        // 2. Revisar si el sistema anfitrión tiene un JDK compatible
+        // Jolt no descarga ni selecciona toolchains administrados por su caché.
         if let Some(toolchain) = self.find_system_jdk(requested_version) {
             println!(
                 "⚡ Usando JDK detectado en el sistema: {} (Java {}, {}) en {}",
@@ -144,51 +85,29 @@ impl ToolchainManager {
             return Ok(toolchain);
         }
 
-        // 3. Si no hay JDK compatible
-        if allow_download {
-            println!(
-                " Descargando OpenJDK Temurin {} para tu arquitectura...",
-                requested_version
-            );
-            download_and_extract_jdk(&self.client, &self.jdks_root, requested_version).await
-        } else {
-            let discovered = self.discover_system_jdks();
-            let mut msg = format!(
-                "No se encontró un JDK compatible (Java {} o superior) instalado en tu sistema.\n",
-                requested_version
-            );
-            if !discovered.is_empty() {
-                msg.push_str("\nJDKs detectados en tu entorno que no cumplen el requisito:\n");
-                for jdk in discovered {
-                    msg.push_str(&format!(
-                        "  • {} (Java {}) en {}\n",
-                        jdk.vendor,
-                        jdk.major_version,
-                        jdk.home_dir.display()
-                    ));
-                }
-            } else {
-                msg.push_str("No se detectó ningún JDK instalado en PATH, JAVA_HOME, GRAALVM_HOME ni en las rutas estándar.\n");
+        let discovered = self.discover_system_jdks();
+        let mut msg = format!(
+            "No se encontró un JDK compatible (Java {} o superior) instalado en tu sistema.\n",
+            requested_version
+        );
+        if !discovered.is_empty() {
+            msg.push_str("\nJDKs detectados en tu entorno que no cumplen el requisito:\n");
+            for jdk in discovered {
+                msg.push_str(&format!(
+                    "  • {} (Java {}) en {}\n",
+                    jdk.vendor,
+                    jdk.major_version,
+                    jdk.home_dir.display()
+                ));
             }
-            msg.push_str(&format!(
-                "\n👉 Solución: Instala Java {} (o superior, ej. Oracle GraalVM, Eclipse Temurin) o agrega tu JDK actual al PATH / JAVA_HOME.\n",
-                requested_version
-            ));
-            msg.push_str(&format!(
-                "💡 Para que Jolt descargue e instale automáticamente Eclipse Temurin {}, ejecuta con el argumento '--download-jdk'.",
-                requested_version
-            ));
-            Err(msg.into())
+        } else {
+            msg.push_str("No se detectó ningún JDK instalado en PATH, JAVA_HOME, GRAALVM_HOME ni en las rutas estándar.\n");
         }
-    }
-
-    /// Alias compatible con versiones anteriores
-    #[allow(dead_code)]
-    pub async fn get_or_download_toolchain(
-        &self,
-        requested_version: &str,
-    ) -> Result<Toolchain, Box<dyn Error + Send + Sync>> {
-        self.resolve_toolchain(requested_version, false).await
+        msg.push_str(&format!(
+            "\n👉 Solución: Instala Java {} (o superior, ej. Oracle GraalVM, Eclipse Temurin) o agrega tu JDK actual al PATH / JAVA_HOME.",
+            requested_version
+        ));
+        Err(msg.into())
     }
 }
 
@@ -235,5 +154,17 @@ mod tests {
         );
         let tc = toolchain.unwrap();
         assert!(tc.major_version >= 21);
+    }
+
+    #[tokio::test]
+    async fn does_not_download_when_system_jdk_is_missing() {
+        let manager = ToolchainManager::new();
+        let error = manager
+            .resolve_toolchain("999")
+            .await
+            .expect_err("No debe existir un JDK de prueba compatible");
+        let message = error.to_string();
+
+        assert!(message.contains("No se encontró un JDK compatible"));
     }
 }

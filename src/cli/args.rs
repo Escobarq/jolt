@@ -89,9 +89,6 @@ pub enum Commands {
         /// Habilita la compresión de ejecutables y librerías con UPX
         #[arg(long = "upx")]
         upx: bool,
-        /// Permite descargar automáticamente un JDK (Adoptium Temurin) si no hay uno compatible instalado
-        #[arg(long = "download-jdk")]
-        download_jdk: bool,
         /// Agrega la aplicación a la variable de entorno PATH del sistema/usuario
         #[arg(long = "add-to-path")]
         add_to_path: bool,
@@ -168,9 +165,6 @@ pub enum Commands {
         /// Módulo del workspace a ejecutar
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
-        /// Permite descargar automáticamente un JDK si no hay uno compatible instalado
-        #[arg(long = "download-jdk")]
-        download_jdk: bool,
         /// Argumentos pasados a la aplicación Java (después de '--')
         #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
         args: Vec<String>,
@@ -183,18 +177,12 @@ pub enum Commands {
         /// Módulo específico del workspace a ejecutar
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
-        /// Permite descargar automáticamente un JDK si no hay uno compatible instalado
-        #[arg(long = "download-jdk")]
-        download_jdk: bool,
     },
     /// Verifica una aplicación compilándola, probándola y arrancándola brevemente
     Verify {
         /// Módulo específico del workspace a verificar
         #[arg(short = 'p', long = "member", alias = "pkg")]
         member: Option<String>,
-        /// Permite descargar automáticamente un JDK si no hay uno compatible instalado
-        #[arg(long = "download-jdk")]
-        download_jdk: bool,
     },
     /// Sincroniza dependencias del proyecto y regenera la configuración para VS Code / IDEs
     Sync {
@@ -216,16 +204,12 @@ mod tests {
 
     #[test]
     fn parses_verify_command_options() {
-        let cli = Cli::try_parse_from(["jolt", "verify", "--member", "web-app", "--download-jdk"])
+        let cli = Cli::try_parse_from(["jolt", "verify", "--member", "web-app"])
             .expect("verify command should parse");
 
         match cli.command {
-            Commands::Verify {
-                member,
-                download_jdk,
-            } => {
+            Commands::Verify { member } => {
                 assert_eq!(member.as_deref(), Some("web-app"));
-                assert!(download_jdk);
             }
             command => panic!("expected Verify, got {command:?}"),
         }

@@ -108,7 +108,7 @@ impl SystemChecker {
             println!("  [OK]    Java Compiler (javac):     {}", ver);
         } else {
             println!(
-                "  [WARN]  Java Compiler (javac):     No detectado en PATH (Jolt auto-aprovisionara JDK)"
+                "  [WARN]  Java Compiler (javac):     No detectado en PATH (Jolt requiere un JDK del sistema)"
             );
         }
 

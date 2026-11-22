@@ -35,8 +35,16 @@ sort_imports = true
 remove_unused_imports = true
 ```
 
+#### Scenario: Configuración del formato
+- **WHEN** el proyecto declara una sección `[format]` válida
+- **THEN** `jolt fmt` aplica el estilo, ancho máximo y reglas de imports configurados
+
 ### Requirement: Diff de cambios
 El sistema SHALL ofrecer `jolt fmt --diff` que muestre el diff unificado de los cambios necesarios sin escribirlos en disco.
+
+#### Scenario: Consulta del diff
+- **WHEN** se ejecuta `jolt fmt --diff` sobre archivos que requieren formato
+- **THEN** el comando muestra un diff unificado y no modifica los archivos
 
 ## CLI
 

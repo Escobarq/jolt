@@ -1,6 +1,8 @@
-# Jolt ⚡️: Gestor de Proyectos Java de Nueva Generación
+# Jolt: ¿Cómo gestiona proyectos Java de forma moderna?
 
-Este documento explora el diseño arquitectónico y funcional de un nuevo gestor de paquetes y proyectos para Java, inspirado en el rendimiento y la experiencia de desarrollo (DX) de herramientas modernas como **uv** (Python) y **bun** (JavaScript). 
+Este documento explora el diseño arquitectónico y funcional de un gestor de paquetes y proyectos para Java, inspirado en el rendimiento y la experiencia de desarrollo de herramientas modernas como **uv** (Python) y **bun** (JavaScript).
+
+**Estado actual:** Jolt v0.7.3 - Todos los módulos funcionales están implementados y archivados. Consulte [`docs/plan.md`](plan.md) para el estado completo del proyecto.
 
 El objetivo principal es simplificar radicalmente la creación de aplicaciones Java, reduciendo la verbosidad y multiplicando la velocidad operativa, manteniendo total compatibilidad con el ecosistema de Maven Central.
 
@@ -8,29 +10,29 @@ El objetivo principal es simplificar radicalmente la creación de aplicaciones J
 
 ## 1. Visión y Motivación
 
-Históricamente, los desarrolladores de Java han dependido de Maven y Gradle. Aunque son robustos, sufren de:
+Históricamente, los desarrolladores de Java han dependido de Maven y Gradle. Aunque son robustos, presentan limitaciones:
 - **Tiempos de inicio lentos** (la JVM debe arrancar para ejecutar el gestor).
 - **Curva de aprendizaje empinada** y configuración verbosa (XML complejo en Maven, Groovy/Kotlin intrincado en Gradle).
 - **Resolución de dependencias pesada**.
 
-**Jolt** es un binario único, ultrarrápido y escrito en **Rust**, que se ejecuta instantáneamente y centraliza todo el ciclo de vida del desarrollo en Java: inicialización de proyectos, gestión de toolchains de JDK, resolución determinista de dependencias, compilación incremental, pruebas unitarias, ejecución con Hot Reload y empaquetado nativo/instaladores.
+**Jolt** es un binario único escrito en **Rust**, que se ejecuta instantáneamente y centraliza todo el ciclo de vida del desarrollo en Java: inicialización de proyectos, gestión de toolchains de JDK, resolución determinista de dependencias, compilación incremental, pruebas unitarias, ejecución con Hot Reload y empaquetado nativo/instaladores.
 
 ---
 
-## 2. Características Clave
+## ¿Qué características tiene Jolt?
 
-### 🚀 Velocidad Extrema (Escrito en Rust)
+### Velocidad extrema (Escrito en Rust)
 Al igual que `uv` y `bun`, el CLI está construido en Rust. Esto permite:
 - **Inicio en milisegundos** (cold start instantáneo).
 - Resolución de dependencias y descargas concurrentes asíncronas con `tokio` y `reqwest`.
 - Uso de **Hardlinks y Caché Global** (`~/.jolt/cache/`), evitando descargar o duplicar la misma dependencia JAR/POM en múltiples proyectos.
 
-### ☕ Gestión de Entorno y Detección Inteligente de JDKs
+### Gestión de entorno y detección de JDKs
 - **Detección Multinivel:** Escanea variables de entorno (`GRAALVM_HOME`, `JAVA_HOME`), ejecutables en `PATH` (`javac`, `java`) y directorios estándar del sistema operativo (Oracle GraalVM, Eclipse Temurin, Amazon Corretto, Azul Zulu, BellSoft Liberica, Microsoft OpenJDK, etc.).
 - **Compatibilidad Semántica:** Si el proyecto define `java_version = "21"` y el sistema cuenta con un JDK compatible superior (ej. Java 25), Jolt lo aprovecha automáticamente sin descargas innecesarias.
-- **Sin Descargas Silenciosas:** Notifica claramente y requiere consentimiento o uso del flag `--download-jdk` para aprovisionar Eclipse Temurin.
+- **Solo JDK del sistema:** Notifica claramente cuando falta un JDK compatible y requiere que el usuario lo instale o configure en el sistema.
 
-### 📄 Manifiesto Simplificado (`jolt.toml`) y Lockfile Determinista (`jolt.lock`)
+### Manifiesto simplificado (`jolt.toml`) y lockfile determinista (`jolt.lock`)
 Adiós al verboso `pom.xml`. Jolt utiliza un formato moderno y legible, inspirado en `Cargo.toml`.
 
 ```toml
@@ -50,7 +52,9 @@ package = "com.empresa.app"
 
 ---
 
-## 3. Arquitectura Interna del Proyecto (`src/`)
+## ¿Cómo está estructurado internamente?
+
+### Arquitectura interna del proyecto (`src/`)
 
 La base de código de Jolt está organizada de forma modular en 8 subsistemas especializados dentro de [`src/`](../src/):
 
@@ -61,13 +65,15 @@ La base de código de Jolt está organizada de forma modular en 8 subsistemas es
 | **Build & Run** | [`src/build/`](../src/build/) | Compilación con `javac` ([`compiler.rs`](../src/build/compiler.rs)), ejecución y Hot Reload ([`runner.rs`](../src/build/runner.rs)) y runner JUnit 5 ([`test_runner.rs`](../src/build/test_runner.rs)). |
 | **Resolver** | [`src/resolver/`](../src/resolver/) | Cliente asíncrono Maven Central ([`maven_client.rs`](../src/resolver/maven_client.rs)) y parser XML de POMs ([`pom_parser.rs`](../src/resolver/pom_parser.rs)). |
 | **Packaging** | [`src/packaging/`](../src/packaging/) | Fat-JAR ([`jar.rs`](../src/packaging/jar.rs)), jpackage ([`jpackage.rs`](../src/packaging/jpackage.rs)), NSIS ([`nsis.rs`](../src/packaging/nsis.rs)) y UPX ([`upx.rs`](../src/packaging/upx.rs)). |
-| **Toolchain** | [`src/toolchain/`](../src/toolchain/) | Detección multinivel del sistema ([`detector.rs`](../src/toolchain/detector.rs)) y descarga automatizada de JDKs ([`downloader.rs`](../src/toolchain/downloader.rs)). |
+| **Toolchain** | [`src/toolchain/`](../src/toolchain/) | Detección multinivel de JDKs instalados en el sistema ([`detector.rs`](../src/toolchain/detector.rs)). |
 | **Scaffold** | [`src/scaffold/`](../src/scaffold/) | Generador de plantillas y workspaces ([`templates.rs`](../src/scaffold/templates.rs)) y configuración para VS Code / IntelliJ ([`ide_config.rs`](../src/scaffold/ide_config.rs)). |
 | **Doctor** | [`src/doctor/`](../src/doctor/) | Diagnóstico y validación de herramientas instaladas y proyectos ([`diagnostics.rs`](../src/doctor/diagnostics.rs)). |
 
 ---
 
-## 4. Flujo de Trabajo (UX / CLI)
+## ¿Cuál es el flujo de trabajo?
+
+### Flujo de trabajo (UX / CLI)
 
 - `jolt init` - Asistente interactivo para inicializar proyectos individuales o workspaces monorepo.
 - `jolt add <groupId:artifactId>` - Busca en Maven Central y registra la versión en `jolt.toml`.
@@ -95,13 +101,16 @@ forma explícita.
 
 ---
 
-## 5. Roadmap
+## ¿Qué está planeado para el futuro?
 
-- **v0.7.0 / v0.7.1 (Completadas):**
+### Roadmap
+
+- **v0.7.3 (Completada):**
   - Detección inteligente de JDKs locales y compatibilidad semántica.
   - Empaquetado en Windows con NSIS y UPX.
   - Workspaces monorepo y dependencias locales por ruta.
   - Reorganización modular del código en `src/` (8 subsistemas).
+  - Todos los módulos funcionales (A-U) implementados y probados.
 - **v0.8.0 (Especificado, pendiente de implementar):**
   - `jolt fmt`: Formateador nativo ultrarrápido de código Java. (Módulo Y)
   - `jolt doc`: Generador y servidor web embebido para Javadoc. (Módulo Z)
@@ -111,7 +120,9 @@ Las especificaciones detalladas de v0.8.0 viven en [`docs/specs-v7.md`](specs-v7
 
 ---
 
-## 6. Documentación Relacionada
+## ¿Dónde está más documentación?
+
+### Documentación relacionada
 
 - [`docs/specs.md`](specs.md): índice maestro de todos los módulos (A–U) con enlaces a sus especificaciones archivadas y roadmap v0.8.0.
 - [`docs/plan.md`](plan.md): plan de desarrollo actual, estado del proyecto y flujo de trabajo del CLI.

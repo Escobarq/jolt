@@ -69,7 +69,8 @@ pub fn parse_pom_dependencies(
                         if let Some(prop_tag) = tag_stack.last() {
                             properties.insert(prop_tag.clone(), text.clone());
                         }
-                    } else if is_in_dependency(&tag_stack) && is_in_project_dependencies(&tag_stack) {
+                    } else if is_in_dependency(&tag_stack) && is_in_project_dependencies(&tag_stack)
+                    {
                         if let Some(current_tag) = tag_stack.last() {
                             match current_tag.as_str() {
                                 "groupId" => curr_group = text.clone(),
@@ -110,14 +111,26 @@ pub fn parse_pom_dependencies(
     };
 
     if !final_version.is_empty() {
-        properties.entry("project.version".to_string()).or_insert(final_version.clone());
-        properties.entry("pom.version".to_string()).or_insert(final_version.clone());
-        properties.entry("version".to_string()).or_insert(final_version.clone());
+        properties
+            .entry("project.version".to_string())
+            .or_insert(final_version.clone());
+        properties
+            .entry("pom.version".to_string())
+            .or_insert(final_version.clone());
+        properties
+            .entry("version".to_string())
+            .or_insert(final_version.clone());
     }
     if !final_group.is_empty() {
-        properties.entry("project.groupId".to_string()).or_insert(final_group.clone());
-        properties.entry("pom.groupId".to_string()).or_insert(final_group.clone());
-        properties.entry("groupId".to_string()).or_insert(final_group.clone());
+        properties
+            .entry("project.groupId".to_string())
+            .or_insert(final_group.clone());
+        properties
+            .entry("pom.groupId".to_string())
+            .or_insert(final_group.clone());
+        properties
+            .entry("groupId".to_string())
+            .or_insert(final_group.clone());
     }
 
     let mut dependencies = Vec::new();
@@ -142,9 +155,9 @@ fn is_in_dependency(stack: &[String]) -> bool {
 
 fn is_in_project_dependencies(stack: &[String]) -> bool {
     let in_deps = stack.iter().any(|t| t == "dependencies");
-    let in_excluded = stack.iter().any(|t| {
-        t == "dependencyManagement" || t == "plugin" || t == "plugins" || t == "build"
-    });
+    let in_excluded = stack
+        .iter()
+        .any(|t| t == "dependencyManagement" || t == "plugin" || t == "plugins" || t == "build");
     in_deps && !in_excluded
 }
 

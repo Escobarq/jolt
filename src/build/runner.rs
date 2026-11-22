@@ -2,7 +2,7 @@ use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::error::Error;
 use std::io::Read;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Child, Command, ExitStatus};
 use std::sync::mpsc::channel;
 use std::time::{Duration, Instant};
 
@@ -78,6 +78,7 @@ pub fn verify_start(
     project_dir: &Path,
     main_class: &str,
     toolchain: Option<&Toolchain>,
+    timeout: Duration,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     compile(project_dir, toolchain)?;
     let classpath = build_classpath(project_dir, true);
@@ -92,20 +93,42 @@ pub fn verify_start(
         .stderr(std::process::Stdio::piped())
         .spawn()?;
 
-    std::thread::sleep(Duration::from_millis(750));
-    if let Some(status) = child.try_wait()? {
-        if !status.success() {
-            let mut stderr = String::new();
-            if let Some(mut pipe) = child.stderr.take() {
-                pipe.read_to_string(&mut stderr)?;
-            }
-            return Err(diagnose_class_not_found(&stderr).into());
+    wait_for_startup(&mut child, timeout)
+}
+
+fn wait_for_startup(
+    child: &mut Child,
+    timeout: Duration,
+) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let started = Instant::now();
+    loop {
+        if let Some(status) = child.try_wait()? {
+            return startup_status(child, status);
         }
+
+        if started.elapsed() >= timeout {
+            let _ = child.kill();
+            let _ = child.wait();
+            return Ok(());
+        }
+
+        std::thread::sleep(Duration::from_millis(25));
+    }
+}
+
+fn startup_status(
+    child: &mut Child,
+    status: ExitStatus,
+) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if status.success() {
         return Ok(());
     }
-    let _ = child.kill();
-    let _ = child.wait();
-    Ok(())
+
+    let mut stderr = String::new();
+    if let Some(mut pipe) = child.stderr.take() {
+        pipe.read_to_string(&mut stderr)?;
+    }
+    Err(diagnose_class_not_found(&stderr).into())
 }
 
 fn diagnose_class_not_found(stderr: &str) -> String {
@@ -219,7 +242,10 @@ pub fn run_watch(
 
 #[cfg(test)]
 mod tests {
-    use super::diagnose_class_not_found;
+    use super::{diagnose_class_not_found, wait_for_startup};
+    use std::fs;
+    use std::process::{Command, Stdio};
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
     #[test]
     fn explains_known_missing_framework_dependencies() {
@@ -258,5 +284,44 @@ mod tests {
             message,
             "La aplicación no pudo arrancar:\njava.lang.IllegalStateException: boom"
         );
+    }
+
+    #[test]
+    fn slow_valid_process_is_not_killed_after_750_ms() {
+        let marker = std::env::temp_dir().join(format!(
+            "jolt-verify-start-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let mut child = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--ignored",
+                "--exact",
+                "build::runner::tests::slow_start_fixture",
+            ])
+            .env("JOLT_VERIFY_START_MARKER", &marker)
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+
+        wait_for_startup(&mut child, Duration::from_secs(2)).unwrap();
+
+        assert!(marker.is_file());
+        let _ = fs::remove_file(marker);
+    }
+
+    #[test]
+    #[ignore]
+    fn slow_start_fixture() {
+        std::thread::sleep(Duration::from_millis(900));
+        fs::write(
+            std::env::var_os("JOLT_VERIFY_START_MARKER").unwrap(),
+            b"started",
+        )
+        .unwrap();
     }
 }

@@ -1,15 +1,17 @@
-# Jolt - Especificaciones Tecnicas (Specs) para Desarrollo Paralelo
+# Jolt: ¿Qué especificaciones técnicas tiene para desarrollo paralelo?
 
-Este documento contiene las especificaciones formales (Specs) del proyecto Jolt. El diseno modular permite que multiples ingenieros (o agentes de IA) trabajen de forma concurrente sin pisarse los unos a los otros. 
+Este documento contiene las especificaciones formales del proyecto Jolt. El diseño modular permite que múltiples ingenieros (o agentes de IA) trabajen de forma concurrente sin conflictos.
 
-Cada modulo especificado a continuacion tiene entradas (inputs), salidas (outputs) y responsabilidades claramente delimitadas.
+**Estado actual del proyecto:** Jolt v0.7.3 - Todos los módulos funcionales (A-U) están implementados y archivados. Consulte [`docs/plan.md`](plan.md) para el estado completo.
+
+Cada módulo especificado a continuación tiene entradas (inputs), salidas (outputs) y responsabilidades claramente delimitadas.
 
 ---
 
 ## Modulo A: Interfaz de Linea de Comandos (CLI) y scaffolding `[COMPLETADO Y ARCHIVADO]`
 > **Estado:** Implementado, testeado y archivado en [`docs/archive/modulo-a-cli-scaffolding.md`](archive/modulo-a-cli-scaffolding.md).
 
-**Responsabilidad:** Manejar la interaccion con el usuario, parsear comandos y gestionar el archivo `jolt.toml`.
+**Responsabilidad:** Manejar la interacción con el usuario, parsear comandos y gestionar el archivo `jolt.toml`.
 **Dependencias:** `clap`, `toml`, `serde`, `toml_edit`.
 
 ### Tareas implementadas (Spec-A):
@@ -24,7 +26,7 @@ Cada modulo especificado a continuacion tiene entradas (inputs), salidas (output
 ## Modulo B: Cliente de Maven Central y Resolver de Dependencias `[COMPLETADO Y ARCHIVADO]`
 > **Estado:** Implementado, testeado y archivado en [`docs/archive/modulo-b-maven-resolver.md`](archive/modulo-b-maven-resolver.md).
 
-**Responsabilidad:** Comunicarse con Internet para resolver versiones de librerias y descargar metadatos (archivos `pom.xml`).
+**Responsabilidad:** Comunicarse con Internet para resolver versiones de librerías y descargar metadatos (archivos `pom.xml`).
 **Dependencias:** `reqwest`, `tokio`, `serde_json`, `quick-xml`.
 
 ### Tareas implementadas (Spec-B):
@@ -56,7 +58,7 @@ Cada modulo especificado a continuacion tiene entradas (inputs), salidas (output
 ## Modulo D: Aprovisionador de Toolchains (Gestion de JDK) `[COMPLETADO Y ARCHIVADO]`
 > **Estado:** Implementado, testeado y archivado en [`docs/archive/modulo-d-toolchain-provisioner.md`](archive/modulo-d-toolchain-provisioner.md).
 
-**Responsabilidad:** Aislar al desarrollador de la instalacion manual de Java. Descargar y desempaquetar la JDK que el proyecto pida.
+**Responsabilidad:** Aislar al desarrollador de la instalación manual de Java. Descargar y desempaquetar la JDK que el proyecto pida.
 **Dependencias:** `reqwest`, `tar`, `flate2`, `dirs`.
 
 ### Tareas implementadas (Spec-D):
@@ -72,7 +74,7 @@ Cada modulo especificado a continuacion tiene entradas (inputs), salidas (output
 ## Modulo E: Motor de Compilacion y Ejecucion (Build & Run Engine) `[COMPLETADO Y ARCHIVADO]`
 > **Estado:** Implementado, testeado y archivado en [`docs/archive/modulo-e-build-run-engine.md`](archive/modulo-e-build-run-engine.md).
 
-**Responsabilidad:** Coordinar el classpath, llamar a la JDK, compilar el codigo al vuelo y ejecutarlo.
+**Responsabilidad:** Coordinar el classpath, llamar a la JDK, compilar el código al vuelo y ejecutarlo.
 **Dependencias:** `std::process::Command`, `std::fs`.
 
 ### Tareas implementadas (Spec-E):
@@ -108,11 +110,15 @@ Los modulos siguientes ya fueron implementados, testeados y archivados en `docs/
 | **T** | Workspaces multimodulo | Completado y archivado | [`docs/archive/modulo-t-multi-module-workspaces.md`](archive/modulo-t-multi-module-workspaces.md) |
 | **U** | Instalador Windows (NSIS + UPX) | Completado y archivado | [`docs/archive/modulo-u-windows-nsis-upx.md`](archive/modulo-u-windows-nsis-upx.md) |
 
-> Modulos **V, W y X** (Fase 6: deteccion de GraalVM, configuración `[graalvm]` y compilador nativo `native-image`) fueron especificados originalmente en `docs/specs-v6.md` pero **retirados del CLI actual**: el empaquetado nativo disponible usa `jpackage` (`jolt build --package | --installer`). Su historial completo permanece en `openspec/changes/archive/2026-09-03-jdk-detection-and-graalvm/`.
+> Módulos **V, W y X** (Fase 6: detección de GraalVM, configuración `[graalvm]` y compilador nativo `native-image`) fueron especificados originalmente en `docs/specs-v6.md` pero **no están en el CLI actual**: el empaquetado nativo disponible usa `jpackage` (`jolt build --package | --installer`). Su historial completo permanece en `openspec/changes/archive/2026-09-03-jdk-detection-and-graalvm/`.
 
 ---
 
-## Roadmap v0.8.0 (Especificado, no implementado)
+**Estado actual:** Jolt v0.7.3 - Todos los módulos funcionales (A-U) están implementados y archivados. Las siguientes características están planificadas para v0.8.0.
+
+## ¿Qué está planeado para v0.8.0?
+
+### Roadmap v0.8.0 (Especificado, no implementado)
 
 Detalle completo en [`docs/specs-v7.md`](specs-v7.md).
 
@@ -122,21 +128,21 @@ Detalle completo en [`docs/specs-v7.md`](specs-v7.md).
 | **Z** | Generador y servidor local de Javadoc | `jolt doc` | Especificado |
 | **AA** | Auditoria de seguridad y CVEs (OSV.dev) | `jolt audit` | Especificado |
 
-### Modulo Y: `jolt fmt` (Formateador de Codigo Java)
+### Módulo Y: `jolt fmt` (Formateador de Código Java)
 Formatea archivos `.java` instantáneamente (indentación, espaciado, ordenamiento de imports) sin herramientas pesadas de Maven/Gradle.
 - `jolt fmt` — formatea todo `src/`
 - `jolt fmt --check` — valida formato sin modificar (CI/CD)
 - `jolt fmt --diff` — muestra diff unificado de cambios necesarios
 - Configuración en `jolt.toml` bajo `[format]`: `style`, `max_width`, `sort_imports`, `remove_unused_imports`.
 
-### Modulo Z: `jolt doc` (Javadoc + Servidor Web)
+### Módulo Z: `jolt doc` (Javadoc + Servidor Web)
 Genera Javadoc HTML y lo sirve localmente para previsualización inmediata.
 - `jolt doc` — genera en `target/doc/`
 - `jolt doc --open` — genera y abre en el navegador
 - `jolt doc --serve` — servidor HTTP embebido en `http://localhost:8080`
 - Resuelve `javadoc` via `ToolchainManager` y el classpath via `BuildEngine::build_classpath`.
 
-### Modulo AA: `jolt audit` (Auditoria de CVEs)
+### Módulo AA: `jolt audit` (Auditoría de CVEs)
 Audita `jolt.lock` contra OSV.dev y Sonatype OSS Index.
 - `jolt audit` — audita todas las dependencias
 - `jolt audit --severity high` — filtra por severidad mínima

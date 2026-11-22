@@ -6,14 +6,18 @@ Estructura y organiza la base de código de Jolt (`src/`) en módulos especializ
 ## Requirements
 
 ### Requirement: Organización modular de la base de código en subdirectorios
-El sistema SHALL estructurar la lógica interna del binario `jolt` en 8 módulos principales organizados por dominio funcional dentro de `src/`:
+El sistema SHALL organizar la lógica interna del binario `jolt` en módulos especializados por dominio dentro de `src/`.
+
+#### Scenario: Distribución por dominio
+- **WHEN** se inspecciona la organización interna de `src/`
+- **THEN** la lógica se distribuye en estos módulos:
 
 1. `src/core/`: Estructuras de datos fundamentales, parser del manifiesto (`manifest.rs`), gestión determinista de `jolt.lock` (`lockfile.rs`) y almacenamiento en caché global (`cache.rs`).
 2. `src/cli/`: Definición de comandos, opciones y flags con `clap` (`args.rs`, `mod.rs`).
 3. `src/build/`: Motores de compilación Java (`compiler.rs`), ejecución y modo watch (`runner.rs`) y ejecución de pruebas unitarias (`test_runner.rs`).
 4. `src/resolver/`: Cliente HTTP asíncrono para Maven Central (`maven_client.rs`) y analizador XML de POMs (`pom_parser.rs`).
 5. `src/packaging/`: Motores de empaquetado Fat-JAR (`jar.rs`), jpackage (`jpackage.rs`), instaladores NSIS para Windows (`nsis.rs`) y compresor de binarios UPX (`upx.rs`).
-6. `src/toolchain/`: Detección multinivel de JDKs locales y semántica de versiones (`detector.rs`) y descargador de JDKs Adoptium/Temurin (`downloader.rs`).
+6. `src/toolchain/`: Detección multinivel de JDKs locales y semántica de versiones (`detector.rs`).
 7. `src/scaffold/`: Generador de plantillas de proyectos y workspaces (`templates.rs`) y sincronizador de configuraciones IDE (`ide_config.rs`).
 8. `src/doctor/`: Diagnóstico integral del entorno del sistema y proyectos (`diagnostics.rs`).
 

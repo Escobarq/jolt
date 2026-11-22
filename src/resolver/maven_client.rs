@@ -183,6 +183,35 @@ mod tests {
         assert!(fs::read_dir(&cache_root).unwrap().next().is_some());
         let _ = fs::remove_dir_all(cache_root);
     }
+
+    #[tokio::test]
+    async fn reports_context_when_maven_server_does_not_respond() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = thread::spawn(move || {
+            let (_stream, _) = listener.accept().unwrap();
+            thread::sleep(Duration::from_millis(100));
+        });
+
+        let client = MavenClient {
+            client: reqwest::Client::builder()
+                .timeout(Duration::from_millis(20))
+                .build()
+                .unwrap(),
+            search_base_url: String::new(),
+            repo_base_url: format!("http://{}", address),
+            metadata_cache_root: std::env::temp_dir()
+                .join(format!("jolt-maven-timeout-{}", std::process::id())),
+            metadata_cache_ttl: Duration::from_secs(300),
+        };
+
+        let error = client
+            .fetch_pom("com.example", "timeout", "1.0")
+            .await
+            .expect_err("La petición debe terminar por timeout");
+        assert!(error.to_string().contains("Error de red al descargar POM"));
+        server.join().unwrap();
+    }
 }
 
 impl Default for MavenClient {
@@ -195,6 +224,8 @@ impl MavenClient {
     pub fn new() -> Self {
         let client = reqwest::Client::builder()
             .user_agent("jolt-package-manager/0.2.0")
+            .connect_timeout(Duration::from_secs(10))
+            .timeout(Duration::from_secs(30))
             .build()
             .unwrap_or_default();
 
@@ -274,7 +305,12 @@ impl MavenClient {
         let body = if let Some(body) = self.read_metadata_cache(&url) {
             body
         } else {
-            let response = self.client.get(&url).send().await?;
+            let response = self.client.get(&url).send().await.map_err(|error| {
+                format!(
+                    "Error de red al buscar '{}:{}' en Maven: {}",
+                    group_id, artifact_id, error
+                )
+            })?;
             if !response.status().is_success() {
                 return Err(format!("Maven Central respondió {}", response.status()).into());
             }
@@ -315,7 +351,10 @@ impl MavenClient {
         let body = if let Some(body) = self.read_metadata_cache(&url) {
             body
         } else {
-            let response = self.client.get(&url).send().await?;
+            let response =
+                self.client.get(&url).send().await.map_err(|error| {
+                    format!("Error de red al buscar paquetes en Maven: {}", error)
+                })?;
             if !response.status().is_success() {
                 return Err(format!("Maven Central respondió {}", response.status()).into());
             }
@@ -361,7 +400,12 @@ impl MavenClient {
         let body = if let Some(body) = self.read_metadata_cache(&url) {
             body
         } else {
-            let response = self.client.get(&url).send().await?;
+            let response = self.client.get(&url).send().await.map_err(|error| {
+                format!(
+                    "Error de red al descargar POM para '{}:{}:{}': {}",
+                    group_id, artifact_id, version, error
+                )
+            })?;
             if !response.status().is_success() {
                 return Err(format!(
                     "Error al descargar POM para '{}:{}:{}' (Status: {})",
@@ -417,7 +461,12 @@ impl MavenClient {
             self.repo_base_url, group_path, artifact_id, version, file_name
         );
 
-        let response = self.client.get(&url).send().await?;
+        let response = self.client.get(&url).send().await.map_err(|error| {
+            format!(
+                "Error de red al descargar JAR para '{}:{}:{}{:?}': {}",
+                group_id, artifact_id, version, classifier, error
+            )
+        })?;
         if !response.status().is_success() {
             return Err(format!(
                 "Error al descargar JAR para '{}:{}:{}{:?}' (Status: {})",

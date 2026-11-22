@@ -1,12 +1,17 @@
 # toolchain-detection Specification
 
 ## Purpose
-Proporciona detección inteligente de JDKs instalados en el sistema anfitrión (variables de entorno, rutas estándar y PATH), compatibilidad semántica de versiones y control explícito sobre la descarga de toolchains externas.
+Proporciona detección inteligente de JDKs instalados en el sistema anfitrión (variables de entorno, rutas estándar y PATH) y compatibilidad semántica de versiones sin administrar toolchains propios.
 
 ## Requirements
 
 ### Requirement: Detección multinivel de JDKs locales
-El sistema SHALL inspeccionar ordenadamente las siguientes fuentes para descubrir instalaciones de Java locales:
+El sistema SHALL inspeccionar fuentes locales conocidas para descubrir instalaciones de Java.
+
+#### Scenario: Fuentes de detección local
+- **WHEN** Jolt busca instalaciones de Java en el sistema anfitrión
+- **THEN** inspecciona estas fuentes en orden:
+
 1. Variables de entorno `GRAALVM_HOME` y `JAVA_HOME`.
 2. Ejecutables `javac` accesibles en el `PATH` del sistema, validando también la presencia de `java`.
 3. Directorios de instalación estándar del sistema operativo según la plataforma (en Windows: `C:\Program Files\Java`, `C:\Program Files\GraalVm`, `C:\Program Files\Eclipse Adoptium`, etc.; en Linux: `/usr/lib/jvm`, `/opt/java`; en macOS: `/Library/Java/JavaVirtualMachines`).
@@ -29,9 +34,17 @@ Una instalación GraalVM compatible SHALL poder utilizarse como cualquier otro J
 - **WHEN** el proyecto utiliza una instalación GraalVM compatible y solicita compilación o empaquetado con `jpackage`
 - **THEN** Jolt utiliza las herramientas Java estándar del JDK detectado y no invoca `native-image`
 
-### Requirement: Control y notificación antes de descargar JDK
-Si no se encuentra un JDK compatible en el sistema anfitrión ni en la caché local de Jolt, el sistema NO SHALL descargar un JDK automáticamente de forma silenciosa. El sistema SHALL notificar al usuario que no se encontró un JDK compatible y brindarle instrucciones para instalarlo o una opción/flag explícita para descargarlo.
+### Requirement: Uso exclusivo de JDKs del sistema
+Si no se encuentra un JDK compatible instalado en el sistema anfitrión, el sistema SHALL fallar con instrucciones para instalarlo o configurarlo. Jolt SHALL no descargar, extraer ni usar JDKs administrados por Jolt.
 
 #### Scenario: Notificación al usuario por falta de JDK compatible
 - **WHEN** no existe un JDK instalado que satisfaga los requisitos del proyecto
 - **THEN** el sistema finaliza con un mensaje de error claro indicando la versión requerida, las rutas inspeccionadas y la recomendación de instalación
+
+#### Scenario: No existe un JDK compatible
+- **WHEN** no existe un JDK instalado que satisfaga los requisitos del proyecto
+- **THEN** Jolt falla, no inicia una descarga y muestra cómo instalar o configurar un JDK del sistema
+
+## Historial
+
+- Actualizado por `openspec/changes/archive/2026-11-22-harden-installation-integrity/`.

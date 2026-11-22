@@ -1,14 +1,16 @@
-# Proyecto Jolt ⚡️: Plan de Desarrollo
+# Jolt: ¿Cuál es el plan de desarrollo?
 
 Estado actual: **Jolt v0.7.3** — gestor de paquetes, dependencias y herramientas para Java escrito en Rust, compatible con Maven Central.
 
-Este documento describe el estado del proyecto, los modulos entregados, el roadmap vigente y como navegar la documentacion tecnica.
+Este documento describe el estado del proyecto, los módulos entregados, el roadmap vigente y cómo navegar la documentación técnica.
+
+**Última actualización:** Noviembre 2026 - Todos los módulos funcionales (A-U) están implementados y archivados.
 
 ---
 
 ## 1. Estado Actual (v0.7.3)
 
-Todos los modulos funcionales de Jolt estan implementados, testeados y archivados:
+Todos los módulos funcionales de Jolt están implementados y archivados:
 
 | Area | Modulos | Estado |
 |---|---|---|
@@ -31,11 +33,13 @@ Todos los modulos funcionales de Jolt estan implementados, testeados y archivado
 | Workspaces multimodulo | T | Implementado y archivado |
 | Instalador Windows (NSIS + UPX) | U | Implementado y archivado |
 
-Los modulos **V, W y X** (Fase 6: deteccion de GraalVM, esquema `[graalvm]` y compilador nativo `native-image`) fueron especificados pero **retirados del CLI actual**. El empaquetado nativo disponible se realiza con `jpackage`. Historial: `openspec/changes/archive/2026-09-03-jdk-detection-and-graalvm/`.
+Los módulos **V, W y X** (Fase 6: detección de GraalVM, esquema `[graalvm]` y compilador nativo `native-image`) fueron especificados pero **no están en el CLI actual**. El empaquetado nativo disponible se realiza con `jpackage`. Historial: `openspec/changes/archive/2026-09-03-jdk-detection-and-graalvm/`.
 
 ---
 
-## 2. Documentacion Tecnica por Carpeta
+## ¿Dónde está la documentación técnica?
+
+### Documentación técnica por carpeta
 
 - [`docs/specs.md`](specs.md) — Indice maestro de todos los modulos (A–U) con enlaces a sus especificaciones archivadas y roadmap v0.8.0.
 - [`docs/specs-v7.md`](specs-v7.md) — Especificaciones tecnicas de v0.7.1 y roadmap detallado de v0.8.0 (modulos Y, Z, AA).
@@ -47,7 +51,9 @@ Los modulos **V, W y X** (Fase 6: deteccion de GraalVM, esquema `[graalvm]` y co
 
 ---
 
-## 3. Roadmap v0.8.0 (Especificado, no implementado)
+## ¿Qué está planeado para v0.8.0?
+
+### Roadmap v0.8.0 (Especificado, no implementado)
 
 Detalle completo en `docs/specs-v7.md`.
 
@@ -61,7 +67,9 @@ Cualquiera de estos modulos puede tomarse como siguiente unidad de trabajo; sus 
 
 ---
 
-## 4. Flujo de Trabajo del Usuario (CLI)
+## ¿Cómo se usa Jolt en la práctica?
+
+### Flujo de trabajo del usuario (CLI)
 
 - `jolt init <nombre> [--template <t>] [--package <pkg>]` — inicializa proyecto o workspace monorepo.
 - `jolt add <groupId:artifactId[:version]>` — busca en Maven Central y registra en `jolt.toml`.

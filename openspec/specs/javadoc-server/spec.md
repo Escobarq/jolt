@@ -27,6 +27,10 @@ El sistema SHALL ofrecer un servidor web asíncrono ligero que sirva los archivo
 ### Requirement: Opciones de visibilidad
 El sistema SHALL soportar `--open` (abrir en el navegador), `--private` (incluir miembros privados/protegidos) y salida a puerto personalizado.
 
+#### Scenario: Generación con miembros privados
+- **WHEN** se ejecuta `jolt doc --private`
+- **THEN** la documentación incluye miembros privados y protegidos
+
 ## CLI
 
 - `jolt doc` — genera Javadoc en `target/doc/`

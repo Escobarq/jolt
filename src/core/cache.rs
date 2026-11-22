@@ -1,7 +1,10 @@
 use sha2::{Digest, Sha256};
 use std::error::Error;
-use std::fs;
+use std::fs::{self, OpenOptions};
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct CacheManager {
     cache_root: PathBuf,
@@ -14,6 +17,11 @@ impl Default for CacheManager {
 }
 
 impl CacheManager {
+    fn publication_lock() -> &'static Mutex<()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(()))
+    }
+
     pub fn new() -> Self {
         let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
         let cache_root = home.join(".jolt").join("cache").join("v1");
@@ -69,8 +77,11 @@ impl CacheManager {
         version: &str,
         classifier: Option<&str>,
     ) -> bool {
-        self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier)
-            .exists()
+        let path = self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
+        path.is_file()
+            && fs::metadata(path)
+                .map(|metadata| metadata.len() > 0)
+                .unwrap_or(false)
     }
 
     /// Guarda los bytes del JAR en la caché global tras calcular su hash SHA-256
@@ -100,11 +111,76 @@ impl CacheManager {
             fs::create_dir_all(parent)?;
         }
 
-        // Calcular SHA-256 para verificación de integridad
-        let _hash_str = Self::compute_bytes_sha256(bytes);
-
-        fs::write(&jar_path, bytes)?;
+        // El temporal queda junto al destino para que el reemplazo sea atómico.
+        Self::write_atomically(&jar_path, bytes)?;
         Ok(jar_path)
+    }
+
+    fn write_atomically(path: &Path, bytes: &[u8]) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let _guard = Self::publication_lock()
+            .lock()
+            .map_err(|_| "No se pudo bloquear la publicación de la caché")?;
+        let parent = path
+            .parent()
+            .ok_or_else(|| format!("La ruta no tiene directorio padre: {}", path.display()))?;
+        let temporary = parent.join(format!(
+            ".{}.tmp-{}-{}",
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or("artifact"),
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos()
+        ));
+
+        let result = (|| -> Result<(), Box<dyn Error + Send + Sync>> {
+            let mut file = OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&temporary)?;
+            file.write_all(bytes)?;
+            file.sync_all()?;
+            drop(file);
+            Self::replace_file(&temporary, path)
+        })();
+
+        if result.is_err() {
+            let _ = fs::remove_file(&temporary);
+        }
+        result
+    }
+
+    fn replace_file(
+        temporary: &Path,
+        destination: &Path,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        if fs::rename(temporary, destination).is_ok() {
+            return Ok(());
+        }
+
+        // Windows no permite renombrar sobre un destino existente.
+        if !destination.exists() {
+            return Err(format!(
+                "No se pudo publicar el artefacto '{}'",
+                destination.display()
+            )
+            .into());
+        }
+
+        let backup = destination.with_file_name(format!(
+            ".{}.bak-{}",
+            destination
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or("artifact"),
+            SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos()
+        ));
+        fs::rename(destination, &backup)?;
+        if let Err(error) = fs::rename(temporary, destination) {
+            let _ = fs::rename(&backup, destination);
+            return Err(error.into());
+        }
+        let _ = fs::remove_file(backup);
+        Ok(())
     }
 
     /// Calcula el hash SHA-256 de un arreglo de bytes
@@ -118,6 +194,23 @@ impl CacheManager {
     pub fn compute_file_sha256(path: &Path) -> Result<String, Box<dyn Error + Send + Sync>> {
         let bytes = fs::read(path)?;
         Ok(Self::compute_bytes_sha256(&bytes))
+    }
+
+    pub fn verify_file_sha256(
+        path: &Path,
+        expected: &str,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let actual = Self::compute_file_sha256(path)?;
+        if actual != expected {
+            return Err(format!(
+                "Checksum SHA-256 incorrecto para '{}': esperado '{}', obtenido '{}'",
+                path.display(),
+                expected,
+                actual
+            )
+            .into());
+        }
+        Ok(())
     }
 
     /// Enlaza el JAR de la caché global al directorio local `.jolt/modules/` mediante Hardlink
@@ -144,7 +237,11 @@ impl CacheManager {
     ) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
         let cached_jar =
             self.get_jar_path_with_classifier(group_id, artifact_id, version, classifier);
-        if !cached_jar.exists() {
+        if !cached_jar.is_file()
+            || fs::metadata(&cached_jar)
+                .map(|metadata| metadata.len() == 0)
+                .unwrap_or(true)
+        {
             return Err(format!("El archivo JAR en caché no existe: {:?}", cached_jar).into());
         }
 
@@ -193,6 +290,8 @@ impl CacheManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
+    use std::thread;
 
     #[test]
     fn test_cache_save_and_link() {
@@ -217,6 +316,96 @@ mod tests {
         assert!(linked_jar.exists());
         let read_bytes = fs::read(&linked_jar).expect("Failed to read linked jar");
         assert_eq!(read_bytes, dummy_bytes);
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn verifies_file_sha256_against_expected_value() {
+        let temp_dir = std::env::temp_dir().join("jolt_test_cache_checksum");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+        let file = temp_dir.join("artifact.jar");
+        fs::write(&file, b"artifact").unwrap();
+
+        assert!(CacheManager::verify_file_sha256(&file, "sha256:incorrecto").is_err());
+        assert!(
+            CacheManager::verify_file_sha256(
+                &file,
+                &CacheManager::compute_bytes_sha256(b"artifact")
+            )
+            .is_ok()
+        );
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn publishes_jar_without_leaving_temporary_files() {
+        let temp_dir = std::env::temp_dir().join("jolt_test_cache_atomic");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+        let target = temp_dir.join("artifact.jar");
+
+        CacheManager::write_atomically(&target, b"complete artifact").unwrap();
+
+        assert_eq!(fs::read(&target).unwrap(), b"complete artifact");
+        assert_eq!(
+            fs::read_dir(&temp_dir)
+                .unwrap()
+                .filter_map(Result::ok)
+                .count(),
+            1
+        );
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn concurrent_publications_never_leave_partial_content() {
+        let temp_dir = std::env::temp_dir().join("jolt_test_cache_concurrent");
+        let _ = fs::remove_dir_all(&temp_dir);
+        let cache = Arc::new(CacheManager::with_root(temp_dir.clone()));
+        let first = vec![b'a'; 256 * 1024];
+        let second = vec![b'b'; 256 * 1024];
+
+        let first_cache = Arc::clone(&cache);
+        let first_handle = thread::spawn(move || {
+            first_cache
+                .save_jar("com.example", "demo", "1.0.0", &first)
+                .unwrap();
+        });
+        let second_cache = Arc::clone(&cache);
+        let second_handle = thread::spawn(move || {
+            second_cache
+                .save_jar("com.example", "demo", "1.0.0", &second)
+                .unwrap();
+        });
+
+        first_handle.join().unwrap();
+        second_handle.join().unwrap();
+
+        let content = fs::read(cache.get_jar_path("com.example", "demo", "1.0.0")).unwrap();
+        assert!(content == vec![b'a'; 256 * 1024] || content == vec![b'b'; 256 * 1024]);
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn refuses_to_link_an_incomplete_cached_jar() {
+        let temp_dir = std::env::temp_dir().join("jolt_test_cache_incomplete");
+        let _ = fs::remove_dir_all(&temp_dir);
+        let cache = CacheManager::with_root(temp_dir.clone());
+        let jar = cache.get_jar_path("com.example", "demo", "1.0.0");
+        fs::create_dir_all(jar.parent().unwrap()).unwrap();
+        fs::write(&jar, []).unwrap();
+
+        assert!(
+            cache
+                .link_to_project(&temp_dir.join("project"), "com.example", "demo", "1.0.0")
+                .is_err()
+        );
+        assert!(!cache.has_jar("com.example", "demo", "1.0.0"));
 
         let _ = fs::remove_dir_all(&temp_dir);
     }

@@ -13,8 +13,16 @@ Detectar vulnerabilidades de seguridad conocidas (CVEs) en las dependencias decl
 ### Requirement: Lectura del lockfile
 El sistema SHALL leer `jolt.lock` extrayendo las coordenadas `groupId:artifactId:version` y sus checksums SHA-256.
 
+#### Scenario: Lockfile disponible
+- **WHEN** se ejecuta `jolt audit` en un proyecto con `jolt.lock`
+- **THEN** el sistema extrae las coordenadas y checksums de cada dependencia bloqueada
+
 ### Requirement: Consulta de fuentes de vulnerabilidades
 El sistema SHALL consultar en lote (batch query) la API pública de OSV.dev (`https://api.osv.dev/v1/querybatch`) en el ecosistema `Maven`, con consulta cruzada opcional en Sonatype OSS Index.
+
+#### Scenario: Consulta de dependencias
+- **WHEN** el lockfile contiene dependencias Maven
+- **THEN** el sistema consulta sus versiones en lote contra la fuente de vulnerabilidades configurada
 
 ### Requirement: Evaluación de severidad
 El sistema SHALL mapear el vector CVSS a categorías legibles:
@@ -23,8 +31,16 @@ El sistema SHALL mapear el vector CVSS a categorías legibles:
 - HIGH (7.0 - 8.9)
 - CRITICAL (9.0 - 10.0)
 
+#### Scenario: Vulnerabilidad con CVSS conocido
+- **WHEN** una vulnerabilidad incluye una puntuación CVSS
+- **THEN** el sistema la clasifica como LOW, MEDIUM, HIGH o CRITICAL según su puntuación
+
 ### Requirement: Salida y código de salida
 El sistema SHALL mostrar una tabla formateada (ID del advisory, dependencia, versión vulnerable, severidad, versión mínima con parche) y retornar código de salida `1` si se encuentran vulnerabilidades con severidad >= la configurada.
+
+#### Scenario: Vulnerabilidad sobre el umbral
+- **WHEN** el análisis encuentra una vulnerabilidad con severidad igual o superior a la configurada
+- **THEN** el comando muestra el hallazgo y termina con código de salida `1`
 
 ## CLI
 

@@ -158,6 +158,7 @@ async fn install_resolved_in_dir(
             )
             .into());
         }
+        lock.validate_manifest_dependencies(&manifest)?;
         for pkg in &lock.packages {
             install_one_dependency(
                 project_dir,
@@ -166,6 +167,7 @@ async fn install_resolved_in_dir(
                 &pkg.name,
                 &pkg.version,
                 false,
+                Some(pkg.checksum.as_str()),
             )
             .await?;
         }
@@ -219,6 +221,7 @@ async fn install_resolved_in_dir(
                 &key,
                 requested_version,
                 *scope == "dev-modules",
+                None,
             )
             .await?;
             let version = requested_version
@@ -244,36 +247,33 @@ async fn install_resolved_in_dir(
     for dep in transitive {
         let key = format!("{}:{}:{}", dep.group_id, dep.artifact_id, dep.version);
         if installed.insert(key) {
-            match install_one_dependency(
+            install_one_dependency(
                 project_dir,
                 cache_manager,
                 maven_client,
                 &format!("{}:{}", dep.group_id, dep.artifact_id),
                 &dep.version,
                 false,
+                None,
             )
             .await
-            {
-                Ok(_) => {
-                    let checksum = CacheManager::compute_file_sha256(&cache_manager.get_jar_path(
-                        &dep.group_id,
-                        &dep.artifact_id,
-                        &dep.version,
-                    ))?;
-                    lock.add_or_update_package(LockedPackage {
-                        name: format!("{}:{}", dep.group_id, dep.artifact_id),
-                        version: dep.version.clone(),
-                        checksum,
-                        dependencies: Vec::new(),
-                    });
-                }
-                Err(e) => {
-                    eprintln!(
-                        "[WARN] No se pudo instalar dependencia transitiva '{}:{}': {}",
-                        dep.group_id, dep.artifact_id, e
-                    );
-                }
-            }
+            .map_err(|e| {
+                format!(
+                    "No se pudo instalar dependencia transitiva '{}:{}': {}",
+                    dep.group_id, dep.artifact_id, e
+                )
+            })?;
+            let checksum = CacheManager::compute_file_sha256(&cache_manager.get_jar_path(
+                &dep.group_id,
+                &dep.artifact_id,
+                &dep.version,
+            ))?;
+            lock.add_or_update_package(LockedPackage {
+                name: format!("{}:{}", dep.group_id, dep.artifact_id),
+                version: dep.version.clone(),
+                checksum,
+                dependencies: Vec::new(),
+            });
         }
     }
 
@@ -293,6 +293,7 @@ async fn install_one_dependency(
     name: &str,
     version_spec: &str,
     dev: bool,
+    expected_checksum: Option<&str>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let parts: Vec<&str> = name.split(':').collect();
     if parts.len() != 2 {
@@ -307,6 +308,19 @@ async fn install_one_dependency(
             .await
             .map_err(|e| format!("No se pudo descargar '{}:{}': {}", name, version_spec, e))?;
         cache_manager.save_jar_with_classifier(parts[0], parts[1], version, classifier, &bytes)?;
+    }
+    if let Some(expected_checksum) = expected_checksum {
+        if expected_checksum.is_empty() {
+            return Err(format!(
+                "El lockfile no contiene checksum para '{}:{}'",
+                name, version_spec
+            )
+            .into());
+        }
+        CacheManager::verify_file_sha256(
+            &cache_manager.get_jar_path_with_classifier(parts[0], parts[1], version, classifier),
+            expected_checksum,
+        )?;
     }
     cache_manager.link_to_project_dir_with_classifier(
         project_dir,
@@ -378,7 +392,7 @@ async fn sync_in_dir(
                             "[INFO] Descargando {}:{}:{}{:?}...",
                             group_id, artifact_id, version, classifier
                         );
-                        if let Ok(bytes) = maven_client
+                        let bytes = maven_client
                             .download_jar_with_classifier(
                                 group_id,
                                 artifact_id,
@@ -386,43 +400,45 @@ async fn sync_in_dir(
                                 classifier,
                             )
                             .await
-                        {
-                            let _ = cache_manager.save_jar_with_classifier(
-                                group_id,
-                                artifact_id,
-                                version,
-                                classifier,
-                                &bytes,
-                            );
-                        }
+                            .map_err(|e| {
+                                format!(
+                                    "No se pudo descargar '{}:{}:{}': {}",
+                                    group_id, artifact_id, version, e
+                                )
+                            })?;
+                        cache_manager.save_jar_with_classifier(
+                            group_id,
+                            artifact_id,
+                            version,
+                            classifier,
+                            &bytes,
+                        )?;
                     }
 
-                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(
+                    cache_manager.link_to_project_dir_with_classifier(
                         project_dir,
                         "modules",
                         group_id,
                         artifact_id,
                         version,
                         classifier,
-                    ) {
-                        prod_count += 1;
+                    )?;
+                    prod_count += 1;
 
-                        let cached_jar = cache_manager.get_jar_path_with_classifier(
-                            group_id,
-                            artifact_id,
-                            version,
-                            classifier,
-                        );
-                        let checksum = CacheManager::compute_file_sha256(&cached_jar)
-                            .unwrap_or_else(|_| "sha256:unknown".to_string());
+                    let cached_jar = cache_manager.get_jar_path_with_classifier(
+                        group_id,
+                        artifact_id,
+                        version,
+                        classifier,
+                    );
+                    let checksum = CacheManager::compute_file_sha256(&cached_jar)?;
 
-                        lock.add_or_update_package(LockedPackage {
-                            name: dep_name.clone(),
-                            version: version_spec.clone(),
-                            checksum,
-                            dependencies: vec![],
-                        });
-                    }
+                    lock.add_or_update_package(LockedPackage {
+                        name: dep_name.clone(),
+                        version: version_spec.clone(),
+                        checksum,
+                        dependencies: vec![],
+                    });
                 }
             }
         }
@@ -468,7 +484,7 @@ async fn sync_in_dir(
                             "[INFO] Descargando dev {}:{}:{}{:?}...",
                             group_id, artifact_id, version, classifier
                         );
-                        if let Ok(bytes) = maven_client
+                        let bytes = maven_client
                             .download_jar_with_classifier(
                                 group_id,
                                 artifact_id,
@@ -476,43 +492,45 @@ async fn sync_in_dir(
                                 classifier,
                             )
                             .await
-                        {
-                            let _ = cache_manager.save_jar_with_classifier(
-                                group_id,
-                                artifact_id,
-                                version,
-                                classifier,
-                                &bytes,
-                            );
-                        }
+                            .map_err(|e| {
+                                format!(
+                                    "No se pudo descargar dev '{}:{}:{}': {}",
+                                    group_id, artifact_id, version, e
+                                )
+                            })?;
+                        cache_manager.save_jar_with_classifier(
+                            group_id,
+                            artifact_id,
+                            version,
+                            classifier,
+                            &bytes,
+                        )?;
                     }
 
-                    if let Ok(_) = cache_manager.link_to_project_dir_with_classifier(
+                    cache_manager.link_to_project_dir_with_classifier(
                         project_dir,
                         "dev-modules",
                         group_id,
                         artifact_id,
                         version,
                         classifier,
-                    ) {
-                        dev_count += 1;
+                    )?;
+                    dev_count += 1;
 
-                        let cached_jar = cache_manager.get_jar_path_with_classifier(
-                            group_id,
-                            artifact_id,
-                            version,
-                            classifier,
-                        );
-                        let checksum = CacheManager::compute_file_sha256(&cached_jar)
-                            .unwrap_or_else(|_| "sha256:unknown".to_string());
+                    let cached_jar = cache_manager.get_jar_path_with_classifier(
+                        group_id,
+                        artifact_id,
+                        version,
+                        classifier,
+                    );
+                    let checksum = CacheManager::compute_file_sha256(&cached_jar)?;
 
-                        lock.add_or_update_package(LockedPackage {
-                            name: dep_name.clone(),
-                            version: version_spec.clone(),
-                            checksum,
-                            dependencies: vec![],
-                        });
-                    }
+                    lock.add_or_update_package(LockedPackage {
+                        name: dep_name.clone(),
+                        version: version_spec.clone(),
+                        checksum,
+                        dependencies: vec![],
+                    });
                 }
             }
         }
@@ -542,7 +560,7 @@ async fn sync_in_dir(
         }
     }
 
-    let _ = lock.save_to_file(&lock_path);
+    lock.save_to_file(&lock_path)?;
     let proj_name = manifest.project.as_ref().map(|p| p.name.as_str());
     let _ = scaffold::ensure_ide_configuration(project_dir, proj_name);
 
@@ -918,7 +936,6 @@ async fn main() {
             installer,
             name,
             upx,
-            download_jdk,
             add_to_path,
             scope,
             all,
@@ -942,10 +959,7 @@ async fn main() {
                         };
 
                         let java_ver = proj.java_version.as_deref().unwrap_or("21");
-                        let toolchain = match toolchain_manager
-                            .resolve_toolchain(java_ver, *download_jdk)
-                            .await
-                        {
+                        let toolchain = match toolchain_manager.resolve_toolchain(java_ver).await {
                             Ok(tc) => Some(tc),
                             Err(e) => {
                                 eprintln!("[ERROR] {}", e);
@@ -1081,8 +1095,7 @@ async fn main() {
                         .as_ref()
                         .and_then(|p| p.java_version.as_deref())
                         .unwrap_or("21");
-                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver, false).await
-                    {
+                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver).await {
                         Ok(tc) => Some(tc),
                         Err(e) => {
                             eprintln!("[ERROR] {}", e);
@@ -1140,7 +1153,6 @@ async fn main() {
         cli::Commands::Run {
             watch,
             member,
-            download_jdk,
             args,
         } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), false, false) {
@@ -1167,10 +1179,7 @@ async fn main() {
                     };
 
                     let java_ver = proj.java_version.as_deref().unwrap_or("21");
-                    let toolchain = match toolchain_manager
-                        .resolve_toolchain(java_ver, *download_jdk)
-                        .await
-                    {
+                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver).await {
                         Ok(tc) => Some(tc),
                         Err(e) => {
                             eprintln!("[ERROR] {}", e);
@@ -1209,11 +1218,7 @@ async fn main() {
                 Err(e) => eprintln!("[ERROR] Error al leer {}: {}", manifest_path.display(), e),
             }
         }
-        cli::Commands::Test {
-            all,
-            member,
-            download_jdk,
-        } => {
+        cli::Commands::Test { all, member } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), *all, true) {
                 Ok(d) => d,
                 Err(e) => {
@@ -1255,10 +1260,7 @@ async fn main() {
                         .as_ref()
                         .and_then(|p| p.java_version.as_deref())
                         .unwrap_or("21");
-                    let toolchain = match toolchain_manager
-                        .resolve_toolchain(java_ver, *download_jdk)
-                        .await
-                    {
+                    let toolchain = match toolchain_manager.resolve_toolchain(java_ver).await {
                         Ok(tc) => Some(tc),
                         Err(e) => {
                             eprintln!("[ERROR] {}", e);
@@ -1281,10 +1283,7 @@ async fn main() {
                 }
             }
         }
-        cli::Commands::Verify {
-            member,
-            download_jdk,
-        } => {
+        cli::Commands::Verify { member } => {
             let target_dirs = match resolve_target_directories(member.as_deref(), false, false) {
                 Ok(d) => d,
                 Err(e) => {
@@ -1317,10 +1316,7 @@ async fn main() {
                     }
                 };
                 let java_ver = project.java_version.as_deref().unwrap_or("21");
-                let toolchain = match toolchain_manager
-                    .resolve_toolchain(java_ver, *download_jdk)
-                    .await
-                {
+                let toolchain = match toolchain_manager.resolve_toolchain(java_ver).await {
                     Ok(tc) => Some(tc),
                     Err(e) => {
                         eprintln!("[ERROR] {}", e);
@@ -1377,7 +1373,12 @@ async fn main() {
                     .clone()
                     .or_else(|| build::detect_main_class(&dir))
                     .unwrap_or_else(|| "Main".to_string());
-                if let Err(e) = build::verify_start(&dir, &main_class, toolchain.as_ref()) {
+                if let Err(e) = build::verify_start(
+                    &dir,
+                    &main_class,
+                    toolchain.as_ref(),
+                    std::time::Duration::from_secs(5),
+                ) {
                     eprintln!("[ERROR] Verificación de arranque fallida: {}", e);
                     continue;
                 }
@@ -1410,5 +1411,92 @@ async fn main() {
                 eprintln!("[ERROR] Error durante el diagnostico: {}", e);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    use std::thread;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[tokio::test]
+    async fn installs_and_syncs_a_controlled_dependency() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = thread::spawn(move || {
+            for _ in 0..2 {
+                let (mut stream, _) = listener.accept().unwrap();
+                let mut request = [0_u8; 4096];
+                let bytes_read = stream.read(&mut request).unwrap();
+                let request = String::from_utf8_lossy(&request[..bytes_read]);
+                let path = request
+                    .lines()
+                    .next()
+                    .and_then(|line| line.split_whitespace().nth(1))
+                    .unwrap_or_default();
+                let body: &[u8] = if path.ends_with(".pom") {
+                    b"<project><dependencies></dependencies></project>"
+                } else if path.ends_with(".jar") {
+                    b"controlled-jar"
+                } else {
+                    panic!("unexpected Maven request: {path}");
+                };
+
+                write!(
+                    stream,
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                    body.len()
+                )
+                .unwrap();
+                stream.write_all(body).unwrap();
+            }
+        });
+
+        let root = std::env::temp_dir().join(format!(
+            "jolt-install-sync-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let project = root.join("project");
+        fs::create_dir_all(&project).unwrap();
+        fs::write(
+            project.join("jolt.toml"),
+            r#"[project]
+name = "controlled"
+version = "1.0.0"
+
+[dependencies]
+"com.example:demo" = "1.0"
+"#,
+        )
+        .unwrap();
+
+        let cache = CacheManager::with_root(root.join("cache"));
+        let client =
+            MavenClient::new().with_repositories(None, Some(&format!("http://{address}")), Some(0));
+
+        install_in_dir(&project, false, &cache, &client)
+            .await
+            .unwrap();
+        sync_in_dir(&project, &cache, &client).await.unwrap();
+
+        assert!(project.join("jolt.lock").is_file());
+        assert!(project.join(".jolt/modules/demo-1.0.jar").is_file());
+        assert_eq!(
+            JoltLock::load_from_file(&project.join("jolt.lock"))
+                .unwrap()
+                .packages
+                .len(),
+            1
+        );
+
+        server.join().unwrap();
+        let _ = fs::remove_dir_all(root);
     }
 }

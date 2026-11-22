@@ -41,8 +41,8 @@ Este documento detalla la arquitectura y diseño técnico para las funcionalidad
 
 ### Prevención de Descargas No Solicitadas:
 - Si no existe un JDK compatible en el sistema:
-  - **Sin flag `--download-jdk`:** Jolt finaliza con un error descriptivo detallando los JDKs instalados en el entorno y proporcionando instrucciones para instalarlo o autorizar la descarga.
-  - **Con flag `--download-jdk`:** Jolt descarga y aprovisiona automáticamente Eclipse Temurin desde Adoptium API.
+  - Jolt finaliza con un error descriptivo detallando los JDKs instalados en el entorno y proporcionando instrucciones para instalar o configurar uno compatible.
+  - Jolt no descarga ni aprovisiona JDKs administrados por la herramienta.
 
 ---
 

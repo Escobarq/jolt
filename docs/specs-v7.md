@@ -1,8 +1,8 @@
-# Jolt - Especificaciones Técnicas: v0.7.1 & Roadmap v0.8.0
+# Jolt: ¿Qué especificaciones técnicas tiene para v0.7.3 y v0.8.0?
 
-Este documento detalla las mejoras y refactorizaciones de arquitectura implementadas en la versión **0.7.1** y establece las especificaciones técnicas completas para los módulos que se desarrollarán en la **versión 0.8.0**:
+Este documento detalla las mejoras y refactorizaciones de arquitectura implementadas en la versión **0.7.3** y establece las especificaciones técnicas completas para los módulos que se desarrollarán en la **versión 0.8.0**:
 
-> Nota de estado: esta especificación conserva el historial de v0.7.1. GraalVM Native Image ya no forma parte del CLI actual; el empaquetado nativo disponible se realiza con `jpackage`.
+> Nota de estado: esta especificación conserva el historial de v0.7.1/0.7.3. GraalVM Native Image no está en el CLI actual; el empaquetado nativo disponible se realiza con `jpackage`. Todos los módulos funcionales (A-U) están implementados y archivados en v0.7.3.
 
 1. **Implementado en v0.7.1:**
    - **Módulo S+:** Presets preconfigurados de **GraalVM Native Image** en todas las plantillas.
@@ -17,9 +17,9 @@ Este documento detalla las mejoras y refactorizaciones de arquitectura implement
 
 ---
 
-# PARTE 1: Implementación en Jolt v0.7.1
+# ¿Qué se implementó en Jolt v0.7.1?
 
-## 1. Módulo S+: Presets GraalVM y Enriquecimiento de Plantillas (`src/scaffold/`, `src/cli/`)
+## Módulo S+: Presets GraalVM y Enriquecimiento de Plantillas (`src/scaffold/`, `src/cli/`)
 
 ### 1.1 Objetivos y Cambios
 - Todas las plantillas (`minimal`, `cli`, `javafx`, `swing`, `web`, `spring`) incluyen de fábrica un bloque `[graalvm]` optimizado según el tipo de aplicación:
@@ -31,7 +31,9 @@ Este documento detalla las mejoras y refactorizaciones de arquitectura implement
 - **Flag `--graalvm` (alias `--native`):** Permite inicializar un proyecto con `enabled = true` directamente desde la terminal (`jolt init mi-app --template cli --graalvm`), permitiendo compilar inmediatamente con `jolt build`.
 - **Asistente interactivo:** En modo interactivo (`jolt init`), Jolt consulta al usuario si desea activar GraalVM Native Image por defecto.
 
-## 2. Módulo Arch+: Arquitectura Modular de `src/`
+## ¿Cómo se modularizó la arquitectura?
+
+### Módulo Arch+: Arquitectura Modular de `src/`
 
 Para preparar la base de código para el crecimiento de la versión 0.8.0, la estructura plana de archivos en `src/` se modularizó en 8 paquetes cohesivos:
 - `src/core/`: Parser de manifiestos, lockfiles y caché de almacenamiento.
@@ -39,22 +41,24 @@ Para preparar la base de código para el crecimiento de la versión 0.8.0, la es
 - `src/build/`: Compilador (`javac`), runner con Hot Reload y ejecutor JUnit 5.
 - `src/resolver/`: Cliente Maven Central y parser de POMs XML.
 - `src/packaging/`: Fat-JAR, GraalVM AOT, jpackage, NSIS y compresión UPX.
-- `src/toolchain/`: Detección multinivel del sistema y descargador de JDKs.
+- `src/toolchain/`: Detección multinivel de JDKs instalados en el sistema.
 - `src/scaffold/`: Generador de plantillas, workspaces y configs de IDE.
 - `src/doctor/`: Diagnóstico integral del sistema y proyectos.
 
 ---
 
-# PARTE 2: Especificaciones Técnicas para Jolt v0.8.0
+# ¿Qué especificaciones hay para Jolt v0.8.0?
 
 ---
 
-## 3. Módulo Y: Formateador Integrado de Código Java (`jolt fmt`)
+## Formateador integrado de Código Java (`jolt fmt`)
 
-### 3.1 Visión y Propósito
+### 3. Módulo Y: Formateador Integrado de Código Java (`jolt fmt`)
+
+#### Visión y Propósito
 Garantizar la consistencia estilística del código Java en proyectos individuales y monorepos, ejecutándose de forma instantánea sin la lentitud de herramientas tradicionales de Maven o Gradle.
 
-### 3.2 CLI e Interfaz
+#### CLI e Interfaz
 ```bash
 jolt fmt                     # Formatea todos los archivos .java en src/
 jolt fmt --check             # Valida el formato sin modificar archivos (ideal para CI/CD)
@@ -62,7 +66,7 @@ jolt fmt --diff              # Muestra el diff unificado de los cambios necesari
 jolt fmt src/main/Main.java  # Formatea un archivo o directorio específico
 ```
 
-### 3.3 Opciones de Configuración en `jolt.toml`
+#### Opciones de Configuración en `jolt.toml`
 ```toml
 [format]
 style = "google"          # "google" (2 espacios) o "aosp" (4 espacios)
@@ -71,7 +75,7 @@ sort_imports = true       # Reordena alfabéticamente los imports
 remove_unused_imports = true
 ```
 
-### 3.4 Arquitectura y Flujo de Ejecución
+#### Arquitectura y Flujo de Ejecución
 1. **Detección de Archivos:** Escanea recursivamente `src/main/java`, `src/test/java` o rutas especificadas vía `walkdir`.
 2. **Motor de Formateo:**
    - Ejecución mediante un parser léxico y AST de Java integrado en Rust para transformaciones rápidas (indentación, espaciado, ordenamiento de imports).
@@ -80,12 +84,14 @@ remove_unused_imports = true
 
 ---
 
-## 4. Módulo Z: Generador y Servidor Local de Javadoc (`jolt doc`)
+## Generador y Servidor Local de Javadoc (`jolt doc`)
 
-### 4.1 Visión y Propósito
+### 4. Módulo Z: Generador y Servidor Local de Javadoc (`jolt doc`)
+
+#### Visión y Propósito
 Proporcionar una experiencia fluida de documentación para librerías y aplicaciones Java, generando HTML estándar de Javadoc e iniciando un servidor HTTP local para previsualización inmediata.
 
-### 4.2 CLI e Interfaz
+#### CLI e Interfaz
 ```bash
 jolt doc                     # Genera la documentación Javadoc en target/doc/
 jolt doc --open              # Genera la documentación y la abre en el navegador predeterminado
@@ -94,7 +100,7 @@ jolt doc --port 3000         # Especifica el puerto del servidor web
 jolt doc --private           # Incluye miembros privados y protegidos en la documentación
 ```
 
-### 4.3 Arquitectura y Flujo de Ejecución
+#### Arquitectura y Flujo de Ejecución
 1. **Resolución de Toolchain:** Obtiene el ejecutable `javadoc` a través de `ToolchainManager`.
 2. **Resolución del Classpath:** Utiliza `BuildEngine::build_classpath` para resolver automáticamente todas las dependencias en `.jolt/modules/` y módulos locales, evitando errores de símbolos no resueltos durante la generación de Javadoc.
 3. **Invocación:** Ejecuta `javadoc` con los flags correspondientes:
@@ -105,12 +111,14 @@ jolt doc --private           # Incluye miembros privados y protegidos en la docu
 
 ---
 
-## 5. Módulo AA: Auditoría de Seguridad y CVEs (`jolt audit`)
+## Auditoría de Seguridad y CVEs (`jolt audit`)
 
-### 5.1 Visión y Propósito
+### 5. Módulo AA: Auditoría de Seguridad y CVEs (`jolt audit`)
+
+#### Visión y Propósito
 Detectar vulnerabilidades de seguridad conocidas (CVEs) en las dependencias declaradas en `jolt.lock`, ofreciendo análisis preventivo antes de compilaciones o despliegues a producción.
 
-### 5.2 CLI e Interfaz
+#### CLI e Interfaz
 ```bash
 jolt audit                               # Audita todas las dependencias del proyecto
 jolt audit --severity high               # Filtra alertas por severidad mínima (low, medium, high, critical)
@@ -118,7 +126,7 @@ jolt audit --json                        # Salida en formato JSON para integraci
 jolt audit --fix                         # Sugiere versiones parcheadas seguras en jolt.toml
 ```
 
-### 5.3 Arquitectura y Fuentes de Datos
+#### Arquitectura y Fuentes de Datos
 1. **Extracción de Artefactos:** Lee el archivo determinista `jolt.lock` extrayendo el listado de coordenadas `groupId:artifactId:version` y sus checksums SHA-256.
 2. **Consulta de Vulnerabilidades:**
    - Realiza consultas en lote (Batch Query) a la API pública de **OSV.dev** (`https://api.osv.dev/v1/querybatch`) en el ecosistema `Maven`.
@@ -134,7 +142,9 @@ jolt audit --fix                         # Sugiere versiones parcheadas seguras 
 
 ---
 
-## 6. Matriz de Versiones y Plan de Entrega
+## ¿Cuál es el plan de entrega?
+
+### Matriz de Versiones y Plan de Entrega
 
 | Versión | Alcance / Módulos | Estado |
 |---|---|:---:|

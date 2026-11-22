@@ -127,7 +127,8 @@ mod tests {
         </project>
         "#;
 
-        let deps = parse_pom_dependencies(pom_with_mgmt).expect("Failed to parse POM with management");
+        let deps =
+            parse_pom_dependencies(pom_with_mgmt).expect("Failed to parse POM with management");
         // Should only contain spring-web (with resolved version 6.1.4) and self-module (with resolved 2.5.0)
         // plexus-utils (in dependencyManagement) and missing-ver (no version) must be excluded!
         assert_eq!(deps.len(), 2);
