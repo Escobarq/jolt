@@ -25,7 +25,6 @@ pub fn init_project(
     package: Option<&str>,
     group_id: Option<&str>,
     is_workspace_flag: bool,
-    enable_graalvm: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let is_interactive = std::io::stdin().is_terminal();
     let current_dir = std::env::current_dir().unwrap_or_else(|_| Path::new(".").to_path_buf());
@@ -210,24 +209,6 @@ pub fn init_project(
         return Ok(());
     }
 
-    let mut resolved_graalvm = enable_graalvm;
-    if is_interactive && name.is_none() && !enable_graalvm {
-        let graal_choices = [
-            "☕ JVM Estándar (Ejecución rápida con bytecode en HotSpot)",
-            "🚀 GraalVM Native Image (Binario ejecutable nativo AOT)",
-        ];
-        if let Ok(selection) = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("¿Deseas activar GraalVM Native Image por defecto?")
-            .items(&graal_choices)
-            .default(0)
-            .interact()
-        {
-            if selection == 1 {
-                resolved_graalvm = true;
-            }
-        }
-    }
-
     if base_dir.exists() {
         println!("[WARN] El directorio '{}' ya existe.", project_name);
         return Ok(());
@@ -276,8 +257,8 @@ pub fn init_project(
     match tmpl.as_str() {
         "cli" => {
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"com.williamcallahan:tui4j\" = \"0.3.1-preview\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-cli\"\nreflection_config = \"src/main/resources/reflect-config.json\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
-                toml_project_header, resolved_graalvm, project_name
+                "{}\n\n[dependencies]\n\"com.williamcallahan:tui4j\" = \"0.3.1-preview\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n",
+                toml_project_header
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
@@ -292,24 +273,12 @@ pub fn init_project(
                 pkg_stmt
             );
             fs::write(src_test_java.join("MainTest.java"), test_content)?;
-
-            let reflect_json = format!(
-                "[\n  {{\n    \"name\": \"{}\",\n    \"allDeclaredConstructors\": true,\n    \"allPublicConstructors\": true,\n    \"allDeclaredMethods\": true,\n    \"allPublicMethods\": true,\n    \"allDeclaredFields\": true,\n    \"allPublicFields\": true\n  }}\n]\n",
-                main_class_name
-            );
-            let meta_inf_dir = base_dir.join("src/main/resources/META-INF/native-image");
-            fs::create_dir_all(&meta_inf_dir)?;
-            fs::write(
-                base_dir.join("src/main/resources/reflect-config.json"),
-                &reflect_json,
-            )?;
-            fs::write(meta_inf_dir.join("reflect-config.json"), &reflect_json)?;
         }
         "javafx" => {
             let classifier = javafx_classifier();
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"org.openjfx:javafx-controls\" = \"21.0.2:{}\"\n\"org.openjfx:javafx-graphics\" = \"21.0.2:{}\"\n\"org.openjfx:javafx-base\" = \"21.0.2:{}\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-gui\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
-                toml_project_header, classifier, classifier, classifier, resolved_graalvm, project_name
+                "{}\n\n[dependencies]\n\"org.openjfx:javafx-controls\" = \"21.0.2:{}\"\n\"org.openjfx:javafx-graphics\" = \"21.0.2:{}\"\n\"org.openjfx:javafx-base\" = \"21.0.2:{}\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n",
+                toml_project_header, classifier, classifier, classifier
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
@@ -331,8 +300,8 @@ pub fn init_project(
         }
         "swing" => {
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"com.formdev:flatlaf\" = \"3.4.1\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-gui\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
-                toml_project_header, resolved_graalvm, project_name
+                "{}\n\n[dependencies]\n\"com.formdev:flatlaf\" = \"3.4.1\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n",
+                toml_project_header
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
@@ -354,8 +323,8 @@ pub fn init_project(
         }
         "web" => {
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"io.javalin:javalin\" = \"6.1.3\"\n\"org.slf4j:slf4j-simple\" = \"2.0.12\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-server\"\nargs = [\n    \"--no-fallback\",\n    \"--enable-http\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
-                toml_project_header, resolved_graalvm, project_name
+                "{}\n\n[dependencies]\n\"io.javalin:javalin\" = \"6.1.3\"\n\"org.slf4j:slf4j-simple\" = \"2.0.12\"\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n",
+                toml_project_header
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
@@ -377,8 +346,8 @@ pub fn init_project(
         }
         "spring" | "spring-boot" => {
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\"org.springframework.boot:spring-boot-starter-web\" = \"3.2.3\"\n\"org.springframework.boot:spring-boot-starter-actuator\" = \"3.2.3\"\n\n[dev-dependencies]\n\"org.springframework.boot:spring-boot-starter-test\" = \"3.2.3\"\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-app\"\nargs = [\n    \"--no-fallback\",\n    \"-H:+ReportExceptionStackTraces\"\n]\n",
-                toml_project_header, resolved_graalvm, project_name
+                "{}\n\n[dependencies]\n\"org.springframework.boot:spring-boot-starter-web\" = \"3.2.3\"\n\"org.springframework.boot:spring-boot-starter-actuator\" = \"3.2.3\"\n\n[dev-dependencies]\n\"org.springframework.boot:spring-boot-starter-test\" = \"3.2.3\"\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n",
+                toml_project_header
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
@@ -400,8 +369,8 @@ pub fn init_project(
         }
         _ => {
             let toml_content = format!(
-                "{}\n\n[dependencies]\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n\n[graalvm]\nenabled = {}\nname = \"{}-bin\"\nargs = [\n    \"--no-fallback\"\n]\n",
-                toml_project_header, resolved_graalvm, project_name
+                "{}\n\n[dependencies]\n\n[dev-dependencies]\n\"org.junit.jupiter:junit-jupiter-api\" = \"5.10.2\"\n",
+                toml_project_header
             );
             fs::write(base_dir.join("jolt.toml"), toml_content)?;
 
@@ -452,9 +421,6 @@ pub fn init_project(
     if let Some(ref pkg) = resolved_pkg {
         println!("     Paquete Java configurado: {}", pkg);
     }
-    if resolved_graalvm {
-        println!("     ⚡ Configuración GraalVM Native Image activada por defecto.");
-    }
     println!(
         "     Sugerencia: Ejecuta 'cd {} && jolt install' para sincronizar librerias.",
         project_name
@@ -501,7 +467,6 @@ mod tests {
             Some("org.equipo.demo"),
             Some("org.equipo"),
             false,
-            false,
         )
         .unwrap();
 
@@ -528,25 +493,24 @@ mod tests {
     }
 
     #[test]
-    fn test_init_project_with_graalvm() {
-        let temp_dir = std::env::temp_dir().join("jolt_scaffold_test_graalvm");
+    fn test_init_project_omits_graalvm_config() {
+        let temp_dir = std::env::temp_dir().join("jolt_scaffold_test_without_graalvm");
         let _ = fs::remove_dir_all(&temp_dir);
         fs::create_dir_all(&temp_dir).unwrap();
 
         let target_dir = temp_dir.join("cli_app");
         let target_str = target_dir.to_str().unwrap();
 
-        init_project(Some(target_str), Some("cli"), None, None, false, true).unwrap();
+        init_project(Some(target_str), Some("cli"), None, None, false).unwrap();
 
         assert!(target_dir.join("jolt.toml").exists());
-        let manifest =
-            crate::core::manifest::JoltManifest::load_from_file(&target_dir.join("jolt.toml"))
-                .unwrap();
-        let gvm = manifest
-            .graalvm_config()
-            .expect("Expected graalvm config in cli template");
-        assert_eq!(gvm.enabled, Some(true));
-        assert_eq!(gvm.name, Some("cli_app-cli".to_string()));
+        let manifest = fs::read_to_string(target_dir.join("jolt.toml")).unwrap();
+        assert!(!manifest.contains("[graalvm]"));
+        assert!(
+            !target_dir
+                .join("src/main/resources/reflect-config.json")
+                .exists()
+        );
 
         let _ = fs::remove_dir_all(&temp_dir);
     }
@@ -563,7 +527,6 @@ mod tests {
             Some("javafx"),
             None,
             None,
-            false,
             false,
         )
         .unwrap();
@@ -589,7 +552,6 @@ mod tests {
             None,
             None,
             false,
-            false,
         )
         .unwrap();
 
@@ -612,7 +574,7 @@ mod tests {
         let target_dir = temp_dir.join("web_service");
         let target_str = target_dir.to_str().unwrap();
 
-        init_project(Some(target_str), Some("web"), None, None, false, false).unwrap();
+        init_project(Some(target_str), Some("web"), None, None, false).unwrap();
 
         assert!(target_dir.join("jolt.toml").exists());
         assert!(target_dir.join("src/test/java/MainTest.java").exists());
@@ -635,7 +597,6 @@ mod tests {
             None,
             None,
             true, // workspace = true
-            false,
         )
         .unwrap();
 

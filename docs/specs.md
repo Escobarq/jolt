@@ -82,3 +82,63 @@ Cada modulo especificado a continuacion tiene entradas (inputs), salidas (output
 4. [x] **Empaquetado JAR:** `BuildEngine::build_jar` (`jar cfe`).
 
 **Criterios de Aceptacion:** Cumplidos y verificados con ejecucion de aplicaciones usando Gson de Maven Central.
+
+---
+
+## Modulos F a U (Implementados y Archivados)
+
+Los modulos siguientes ya fueron implementados, testeados y archivados en `docs/archive/`. Se conservan como referencia historica del proyecto:
+
+| Modulo | Nombre | Estado | Especificacion archivada |
+|---|---|---|---|
+| **F** | Empaquetador Fat-JAR / Uber-JAR | Completado y archivado | [`docs/archive/modulo-f-i-fatjar-resources.md`](archive/modulo-f-i-fatjar-resources.md) |
+| **G** | Pruebas unitarias (JUnit 5) | Completado y archivado | [`docs/archive/modulo-g-unit-testing.md`](archive/modulo-g-unit-testing.md) |
+| **H** | Modo Watch / Hot Reload | Completado y archivado | [`docs/archive/modulo-h-watch-mode.md`](archive/modulo-h-watch-mode.md) |
+| **I** | Gestion de recursos estaticos | Completado y archivado | [`docs/archive/modulo-f-i-fatjar-resources.md`](archive/modulo-f-i-fatjar-resources.md) |
+| **J** | Comprobacion de sistema y proyecto | Completado y archivado | [`docs/archive/modulo-j-system-project-check.md`](archive/modulo-j-system-project-check.md) |
+| **K** | Lockfile determinista (`jolt.lock`) | Completado y archivado | [`docs/archive/modulo-k-lockfile.md`](archive/modulo-k-lockfile.md) |
+| **L** | Plantillas de proyectos | Completado y archivado | [`docs/archive/modulo-l-templates.md`](archive/modulo-l-templates.md) |
+| **M** | Eliminacion de dependencias | Completado y archivado | [`docs/archive/modulo-m-remove-dependency.md`](archive/modulo-m-remove-dependency.md) |
+| **N** | Busqueda de paquetes en Maven Central | Completado y archivado | [`docs/archive/modulo-n-search.md`](archive/modulo-n-search.md) |
+| **O** | Dev-dependencias e init interactivo | Completado y archivado | [`docs/archive/modulo-o-dev-dependencies-interactive-init.md`](archive/modulo-o-dev-dependencies-interactive-init.md) |
+| **P** | `jolt sync` y configuracion de IDEs | Completado y archivado | [`docs/archive/modulo-p-ide-sync.md`](archive/modulo-p-ide-sync.md) |
+| **Q** | Empaquetado nativo con jpackage | Completado y archivado | [`docs/archive/modulo-q-jpackage-bundler.md`](archive/modulo-q-jpackage-bundler.md) |
+| **R** | Paquetes Java y namespaces | Completado y archivado | [`docs/archive/modulo-r-java-packages.md`](archive/modulo-r-java-packages.md) |
+| **S** | Asistente interactivo `jolt init` | Completado y archivado | [`docs/archive/modulo-s-interactive-init-workspace.md`](archive/modulo-s-interactive-init-workspace.md) |
+| **T** | Workspaces multimodulo | Completado y archivado | [`docs/archive/modulo-t-multi-module-workspaces.md`](archive/modulo-t-multi-module-workspaces.md) |
+| **U** | Instalador Windows (NSIS + UPX) | Completado y archivado | [`docs/archive/modulo-u-windows-nsis-upx.md`](archive/modulo-u-windows-nsis-upx.md) |
+
+> Modulos **V, W y X** (Fase 6: deteccion de GraalVM, configuración `[graalvm]` y compilador nativo `native-image`) fueron especificados originalmente en `docs/specs-v6.md` pero **retirados del CLI actual**: el empaquetado nativo disponible usa `jpackage` (`jolt build --package | --installer`). Su historial completo permanece en `openspec/changes/archive/2026-09-03-jdk-detection-and-graalvm/`.
+
+---
+
+## Roadmap v0.8.0 (Especificado, no implementado)
+
+Detalle completo en [`docs/specs-v7.md`](specs-v7.md).
+
+| Modulo | Capabilidad | Comando | Estado |
+|---|---|---|---|
+| **Y** | Formateador de codigo Java | `jolt fmt` | Especificado |
+| **Z** | Generador y servidor local de Javadoc | `jolt doc` | Especificado |
+| **AA** | Auditoria de seguridad y CVEs (OSV.dev) | `jolt audit` | Especificado |
+
+### Modulo Y: `jolt fmt` (Formateador de Codigo Java)
+Formatea archivos `.java` instantáneamente (indentación, espaciado, ordenamiento de imports) sin herramientas pesadas de Maven/Gradle.
+- `jolt fmt` — formatea todo `src/`
+- `jolt fmt --check` — valida formato sin modificar (CI/CD)
+- `jolt fmt --diff` — muestra diff unificado de cambios necesarios
+- Configuración en `jolt.toml` bajo `[format]`: `style`, `max_width`, `sort_imports`, `remove_unused_imports`.
+
+### Modulo Z: `jolt doc` (Javadoc + Servidor Web)
+Genera Javadoc HTML y lo sirve localmente para previsualización inmediata.
+- `jolt doc` — genera en `target/doc/`
+- `jolt doc --open` — genera y abre en el navegador
+- `jolt doc --serve` — servidor HTTP embebido en `http://localhost:8080`
+- Resuelve `javadoc` via `ToolchainManager` y el classpath via `BuildEngine::build_classpath`.
+
+### Modulo AA: `jolt audit` (Auditoria de CVEs)
+Audita `jolt.lock` contra OSV.dev y Sonatype OSS Index.
+- `jolt audit` — audita todas las dependencias
+- `jolt audit --severity high` — filtra por severidad mínima
+- `jolt audit --json` — salida JSON para pipelines CI/CD
+- `jolt audit --fix` — sugiere versiones parcheadas en `jolt.toml`

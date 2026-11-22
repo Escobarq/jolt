@@ -138,15 +138,6 @@ impl SystemChecker {
             );
         }
 
-        // GraalVM Native Image
-        if let Some(ver) = Self::get_command_version("native-image", "--version") {
-            println!("  [OK]    GraalVM Native Image:      {}", ver);
-        } else {
-            println!(
-                "  [INFO]  GraalVM Native Image:      No detectado en PATH (opcional para compilación con 'jolt build --native')"
-            );
-        }
-
         // Rust Toolchain
         if let Some(ver) = Self::get_command_version("rustc", "--version") {
             println!("  [OK]    Rust Compiler (rustc):     {}", ver);

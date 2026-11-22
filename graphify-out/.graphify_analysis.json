@@ -1,0 +1,986 @@
+{
+  "communities": {
+    "0": [
+      "archive",
+      "command",
+      "compile",
+      "detect_main_class",
+      "error",
+      "file",
+      "fs",
+      "gzdecoder",
+      "hashset",
+      "json",
+      "path",
+      "pathbuf",
+      "read",
+      "simplefileoptions",
+      "src_core_cache",
+      "src_core_lockfile",
+      "src_doctor_diagnostics",
+      "src_doctor_diagnostics_test_format_bytes",
+      "src_packaging_jar",
+      "src_packaging_jar_build_jar",
+      "src_packaging_jar_build_standalone_jar",
+      "src_packaging_jpackage",
+      "src_packaging_jpackage_compress_to_tar_gz",
+      "src_packaging_jpackage_package_native_app",
+      "src_packaging_jpackage_test_compress_to_tar_gz",
+      "src_packaging_mod",
+      "src_packaging_mod_test_generate_nsis_script_content",
+      "src_packaging_nsis",
+      "src_packaging_nsis_find_makensis_binary",
+      "src_packaging_nsis_generate_nsis_script",
+      "src_packaging_upx",
+      "src_packaging_upx_compress_with_upx",
+      "src_packaging_upx_find_upx_binary",
+      "src_scaffold_ide_config",
+      "src_toolchain_detector",
+      "src_toolchain_detector_detect_java_vendor",
+      "src_toolchain_detector_discover_system_jdks",
+      "src_toolchain_detector_find_system_jdk",
+      "src_toolchain_detector_inspect_jdk_dir",
+      "src_toolchain_detector_parse_java_major_version",
+      "src_toolchain_downloader",
+      "src_toolchain_downloader_download_and_extract_jdk",
+      "src_toolchain_downloader_find_binaries_in_dir",
+      "src_toolchain_downloader_rs_client",
+      "src_toolchain_mod",
+      "src_toolchain_mod_installedjdk",
+      "src_toolchain_mod_rs_client",
+      "src_toolchain_mod_test_detect_vendors",
+      "src_toolchain_mod_test_find_system_jdk",
+      "src_toolchain_mod_test_parse_version_formats",
+      "src_toolchain_mod_toolchain",
+      "src_toolchain_mod_toolchain_from",
+      "src_toolchain_mod_toolchainmanager",
+      "src_toolchain_mod_toolchainmanager_default",
+      "src_toolchain_mod_toolchainmanager_discover_system_jdks",
+      "src_toolchain_mod_toolchainmanager_find_cached_jdk",
+      "src_toolchain_mod_toolchainmanager_find_system_jdk",
+      "src_toolchain_mod_toolchainmanager_get_or_download_toolchain",
+      "src_toolchain_mod_toolchainmanager_new",
+      "src_toolchain_mod_toolchainmanager_resolve_toolchain",
+      "src_toolchain_mod_toolchainmanager_with_root",
+      "super",
+      "walkdir",
+      "write",
+      "ziparchive",
+      "zipwriter"
+    ],
+    "1": [
+      "docs_archive_modulo_o_dev_dependencies_interactive_init",
+      "docs_archive_modulo_o_dev_dependencies_interactive_init_archivo_de_modulo_o_gestion_de_dev_dependencies_menu_interactivo_y_soporte_ide_v0_2_0",
+      "docs_archive_modulo_o_dev_dependencies_interactive_init_resumen_de_tareas_cumplidas",
+      "src_core_cache_cachemanager",
+      "src_core_cache_cachemanager_compute_bytes_sha256",
+      "src_core_cache_cachemanager_compute_file_sha256",
+      "src_core_cache_cachemanager_default",
+      "src_core_cache_cachemanager_get_jar_path",
+      "src_core_cache_cachemanager_get_jar_path_with_classifier",
+      "src_core_cache_cachemanager_has_jar",
+      "src_core_cache_cachemanager_has_jar_with_classifier",
+      "src_core_cache_cachemanager_link_to_project",
+      "src_core_cache_cachemanager_link_to_project_dir_with_classifier",
+      "src_core_cache_cachemanager_link_to_project_with_classifier",
+      "src_core_cache_cachemanager_new",
+      "src_core_cache_cachemanager_save_jar",
+      "src_core_cache_cachemanager_save_jar_with_classifier",
+      "src_core_cache_cachemanager_with_root",
+      "src_core_cache_test_cache_save_and_link",
+      "src_doctor_diagnostics_systemchecker",
+      "src_doctor_diagnostics_systemchecker_format_bytes",
+      "src_doctor_diagnostics_systemchecker_get_command_version",
+      "src_doctor_diagnostics_systemchecker_get_dir_stats",
+      "src_doctor_diagnostics_systemchecker_run_check",
+      "src_doctor_mod",
+      "src_main",
+      "src_main_configured_maven_client",
+      "src_main_install_in_dir",
+      "src_main_install_one_dependency",
+      "src_main_install_resolved_in_dir",
+      "src_main_main",
+      "src_main_resolve_add_target_directory",
+      "src_main_resolve_target_directories",
+      "src_main_sync_in_dir",
+      "src_resolver_maven_client_mavenclient",
+      "src_resolver_maven_client_mavenclient_default",
+      "src_resolver_maven_client_mavenclient_download_jar",
+      "src_resolver_maven_client_mavenclient_download_jar_with_classifier",
+      "src_resolver_maven_client_mavenclient_fetch_latest_version",
+      "src_resolver_maven_client_mavenclient_metadata_cache_path",
+      "src_resolver_maven_client_mavenclient_new",
+      "src_resolver_maven_client_mavenclient_read_metadata_cache",
+      "src_resolver_maven_client_mavenclient_search_packages",
+      "src_resolver_maven_client_mavenclient_with_repositories",
+      "src_resolver_maven_client_mavenclient_write_metadata_cache",
+      "src_resolver_maven_client_rs_client",
+      "src_resolver_mod_searchresultitem"
+    ],
+    "2": [
+      "frontend_docs_astro_config",
+      "frontend_docs_astro_config_configuredhosts",
+      "frontend_docs_package",
+      "frontend_docs_package_dependencies",
+      "frontend_docs_package_dependencies_astro",
+      "frontend_docs_package_dependencies_fontsource_roboto",
+      "frontend_docs_package_dependencies_remixicon",
+      "frontend_docs_package_devdependencies",
+      "frontend_docs_package_devdependencies_types_node",
+      "frontend_docs_package_engines",
+      "frontend_docs_package_engines_node",
+      "frontend_docs_package_name",
+      "frontend_docs_package_scripts",
+      "frontend_docs_package_scripts_astro",
+      "frontend_docs_package_scripts_build",
+      "frontend_docs_package_scripts_dev",
+      "frontend_docs_package_scripts_preview",
+      "frontend_docs_package_type",
+      "frontend_docs_package_version",
+      "frontend_docs_src_layouts_docslayout",
+      "frontend_docs_src_layouts_docslayout_link",
+      "frontend_docs_src_pages_en_docs_architecture_index",
+      "frontend_docs_src_pages_en_docs_cli_index",
+      "frontend_docs_src_pages_en_docs_configuration_index",
+      "frontend_docs_src_pages_en_docs_contributing_index",
+      "frontend_docs_src_pages_en_docs_quickstart_index",
+      "frontend_docs_src_pages_en_docs_toolchains_index",
+      "frontend_docs_src_pages_en_index",
+      "frontend_docs_src_pages_es_docs_architecture_index",
+      "frontend_docs_src_pages_es_docs_cli_index",
+      "frontend_docs_src_pages_es_docs_configuration_index",
+      "frontend_docs_src_pages_es_docs_contributing_index",
+      "frontend_docs_src_pages_es_docs_quickstart_index",
+      "frontend_docs_src_pages_es_docs_toolchains_index",
+      "frontend_docs_src_pages_es_index",
+      "frontend_docs_src_pages_index",
+      "frontend_docs_src_styles_global",
+      "ref_astro",
+      "ref_fontsource_roboto",
+      "ref_remixicon",
+      "ref_types_node"
+    ],
+    "3": [
+      "github_workflows_joltv_pages",
+      "github_workflows_joltv_pages_build_defaults",
+      "github_workflows_joltv_pages_build_runs_on",
+      "github_workflows_joltv_pages_build_steps",
+      "github_workflows_joltv_pages_concurrency",
+      "github_workflows_joltv_pages_concurrency_cancel_in_progress",
+      "github_workflows_joltv_pages_concurrency_group",
+      "github_workflows_joltv_pages_defaults_run",
+      "github_workflows_joltv_pages_deploy_environment",
+      "github_workflows_joltv_pages_deploy_needs",
+      "github_workflows_joltv_pages_deploy_runs_on",
+      "github_workflows_joltv_pages_deploy_steps",
+      "github_workflows_joltv_pages_env_site_base",
+      "github_workflows_joltv_pages_env_site_url",
+      "github_workflows_joltv_pages_environment_name",
+      "github_workflows_joltv_pages_environment_url",
+      "github_workflows_joltv_pages_jobs",
+      "github_workflows_joltv_pages_jobs_build",
+      "github_workflows_joltv_pages_jobs_deploy",
+      "github_workflows_joltv_pages_name",
+      "github_workflows_joltv_pages_on",
+      "github_workflows_joltv_pages_on_push",
+      "github_workflows_joltv_pages_on_workflow_dispatch",
+      "github_workflows_joltv_pages_permissions",
+      "github_workflows_joltv_pages_permissions_contents",
+      "github_workflows_joltv_pages_permissions_id_token",
+      "github_workflows_joltv_pages_permissions_pages",
+      "github_workflows_joltv_pages_push_branches",
+      "github_workflows_joltv_pages_push_paths",
+      "github_workflows_joltv_pages_run_working_directory",
+      "github_workflows_joltv_pages_steps_env",
+      "github_workflows_joltv_pages_steps_id",
+      "github_workflows_joltv_pages_steps_run",
+      "github_workflows_joltv_pages_steps_uses",
+      "github_workflows_joltv_pages_steps_with",
+      "github_workflows_joltv_pages_with_cache",
+      "github_workflows_joltv_pages_with_cache_dependency_path",
+      "github_workflows_joltv_pages_with_node_version",
+      "github_workflows_joltv_pages_with_path"
+    ],
+    "4": [
+      "deserialize",
+      "digest",
+      "duration",
+      "hashmap",
+      "sha256",
+      "src_resolver_maven_client",
+      "src_resolver_maven_client_caches_pom_metadata_between_requests",
+      "src_resolver_maven_client_dependency",
+      "src_resolver_maven_client_mavenclient_fetch_dependency_tree",
+      "src_resolver_maven_client_mavenclient_fetch_pom",
+      "src_resolver_maven_client_mavenclient_parse_pom_dependencies",
+      "src_resolver_maven_client_mavenclient_resolve_dependencies",
+      "src_resolver_maven_client_mavendoc",
+      "src_resolver_maven_client_mavensearchdocs",
+      "src_resolver_maven_client_mavensearchresponse",
+      "src_resolver_maven_client_pom",
+      "src_resolver_maven_client_resolves_transitive_dependencies_and_skips_non_runtime_scopes",
+      "src_resolver_mod",
+      "src_resolver_mod_dependency",
+      "src_resolver_mod_dependencynode",
+      "src_resolver_mod_test_parse_pom_ignores_dependency_management_and_resolves_properties",
+      "src_resolver_mod_test_parse_pom_xml",
+      "src_resolver_pom_parser",
+      "src_resolver_pom_parser_is_in_dependency",
+      "src_resolver_pom_parser_is_in_project_dependencies",
+      "src_resolver_pom_parser_is_in_properties",
+      "src_resolver_pom_parser_is_parent_group",
+      "src_resolver_pom_parser_is_parent_version",
+      "src_resolver_pom_parser_is_project_group",
+      "src_resolver_pom_parser_is_project_version",
+      "src_resolver_pom_parser_parse_pom_dependencies",
+      "src_resolver_pom_parser_resolve_properties",
+      "systemtime",
+      "tcplistener",
+      "thread"
+    ],
+    "5": [
+      "documentmut",
+      "item",
+      "serialize",
+      "src_core_manifest",
+      "src_core_manifest_joltmanifest",
+      "src_core_manifest_joltmanifest_add_dependency_to_file",
+      "src_core_manifest_joltmanifest_add_member_to_workspace",
+      "src_core_manifest_joltmanifest_create_workspace_file",
+      "src_core_manifest_joltmanifest_find_root_workspace",
+      "src_core_manifest_joltmanifest_is_workspace",
+      "src_core_manifest_joltmanifest_load_from_file",
+      "src_core_manifest_joltmanifest_parse",
+      "src_core_manifest_joltmanifest_parse_dependency_spec",
+      "src_core_manifest_joltmanifest_remove_dependency_from_file",
+      "src_core_manifest_packageconfig",
+      "src_core_manifest_project",
+      "src_core_manifest_repositoryconfig",
+      "src_core_manifest_test_add_and_remove_dev_dependency",
+      "src_core_manifest_test_moving_dependency_between_scopes_removes_stale_entry",
+      "src_core_manifest_test_parse_basic_manifest",
+      "src_core_manifest_test_parse_dependency_with_path",
+      "src_core_manifest_test_parse_manifest_with_package_config",
+      "src_core_manifest_test_parse_manifest_with_windows_package_config",
+      "src_core_manifest_test_parse_manifest_without_dependencies",
+      "src_core_manifest_test_parse_workspace_manifest",
+      "src_core_manifest_test_repository_configuration_parses",
+      "src_core_manifest_windowspackageconfig",
+      "src_core_manifest_workspace",
+      "src_core_mod",
+      "value"
+    ],
+    "6": [
+      "parser",
+      "src_cli_args",
+      "src_cli_args_build_rejects_native_flag_but_keeps_jpackage_option",
+      "src_cli_args_cli",
+      "src_cli_args_commands",
+      "src_cli_args_commands_add",
+      "src_cli_args_commands_build",
+      "src_cli_args_commands_check",
+      "src_cli_args_commands_init",
+      "src_cli_args_commands_install",
+      "src_cli_args_commands_package",
+      "src_cli_args_commands_remove",
+      "src_cli_args_commands_run",
+      "src_cli_args_commands_search",
+      "src_cli_args_commands_sync",
+      "src_cli_args_commands_test",
+      "src_cli_args_commands_verify",
+      "src_cli_args_init_rejects_graalvm_flag",
+      "src_cli_args_parses_run_command_arguments",
+      "src_cli_args_parses_verify_command_options",
+      "src_cli_mod",
+      "subcommand"
+    ],
+    "7": [
+      "docs_specs_v7",
+      "docs_specs_v7_1_1_objetivos_y_cambios",
+      "docs_specs_v7_1_módulo_s_presets_graalvm_y_enriquecimiento_de_plantillas_src_scaffold_src_cli",
+      "docs_specs_v7_2_módulo_arch_arquitectura_modular_de_src",
+      "docs_specs_v7_3_1_visión_y_propósito",
+      "docs_specs_v7_3_2_cli_e_interfaz",
+      "docs_specs_v7_3_3_opciones_de_configuración_en_jolt_toml",
+      "docs_specs_v7_3_4_arquitectura_y_flujo_de_ejecución",
+      "docs_specs_v7_3_módulo_y_formateador_integrado_de_código_java_jolt_fmt",
+      "docs_specs_v7_4_1_visión_y_propósito",
+      "docs_specs_v7_4_2_cli_e_interfaz",
+      "docs_specs_v7_4_3_arquitectura_y_flujo_de_ejecución",
+      "docs_specs_v7_4_módulo_z_generador_y_servidor_local_de_javadoc_jolt_doc",
+      "docs_specs_v7_5_1_visión_y_propósito",
+      "docs_specs_v7_5_2_cli_e_interfaz",
+      "docs_specs_v7_5_3_arquitectura_y_fuentes_de_datos",
+      "docs_specs_v7_5_módulo_aa_auditoría_de_seguridad_y_cves_jolt_audit",
+      "docs_specs_v7_6_matriz_de_versiones_y_plan_de_entrega",
+      "docs_specs_v7_jolt_especificaciones_técnicas_v0_7_1_roadmap_v0_8_0",
+      "docs_specs_v7_parte_1_implementación_en_jolt_v0_7_1",
+      "docs_specs_v7_parte_2_especificaciones_técnicas_para_jolt_v0_8_0"
+    ],
+    "8": [
+      "assertequals",
+      "asserttrue",
+      "org_junit_jupiter_api_test",
+      "templates_cli_src_test_java_maintest",
+      "templates_cli_src_test_java_maintest_maintest",
+      "templates_cli_src_test_java_maintest_maintest_testmainapp",
+      "templates_minimal_src_test_java_apptest",
+      "templates_minimal_src_test_java_apptest_apptest",
+      "templates_minimal_src_test_java_apptest_apptest_testbasic",
+      "templates_spring_src_test_java_springapptest",
+      "templates_spring_src_test_java_springapptest_springapptest",
+      "templates_spring_src_test_java_springapptest_springapptest_testcontext",
+      "templates_swing_src_test_java_swingapptest",
+      "templates_swing_src_test_java_swingapptest_swingapptest",
+      "templates_swing_src_test_java_swingapptest_swingapptest_testcontext",
+      "templates_web_src_test_java_maintest",
+      "templates_web_src_test_java_maintest_maintest",
+      "templates_web_src_test_java_maintest_maintest_testserverloads"
+    ],
+    "9": [
+      "colorfultheme",
+      "input",
+      "isterminal",
+      "select",
+      "src_scaffold_ide_config_ensure_ide_configuration",
+      "src_scaffold_mod",
+      "src_scaffold_mod_init_project",
+      "src_scaffold_mod_javafx_classifier",
+      "src_scaffold_mod_test_cli_template_uses_tui4j_without_picocli",
+      "src_scaffold_mod_test_ensure_ide_configuration_creates_files",
+      "src_scaffold_mod_test_init_project_omits_graalvm_config",
+      "src_scaffold_mod_test_init_project_web_template_has_test",
+      "src_scaffold_mod_test_init_project_with_package",
+      "src_scaffold_mod_test_init_project_workspace",
+      "src_scaffold_mod_test_javafx_template_uses_current_platform_classifier",
+      "src_scaffold_templates",
+      "src_scaffold_templates_available_templates",
+      "src_scaffold_templates_print_available_templates"
+    ],
+    "10": [
+      "com_williamcallahan_tui4j_compat_bubbletea_command",
+      "com_williamcallahan_tui4j_compat_bubbletea_message",
+      "com_williamcallahan_tui4j_compat_bubbletea_model",
+      "com_williamcallahan_tui4j_compat_bubbletea_updateresult",
+      "keypressmessage",
+      "program",
+      "quitmessage",
+      "templates_cli_src_main_java_main",
+      "templates_cli_src_main_java_main_java_override",
+      "templates_cli_src_main_java_main_main",
+      "templates_cli_src_main_java_main_main_init",
+      "templates_cli_src_main_java_main_main_main",
+      "templates_cli_src_main_java_main_main_move",
+      "templates_cli_src_main_java_main_main_select",
+      "templates_cli_src_main_java_main_main_update",
+      "templates_cli_src_main_java_main_main_view"
+    ],
+    "11": [
+      "button",
+      "javafx_application_application",
+      "javafx_stage_stage",
+      "label",
+      "pos",
+      "scene",
+      "templates_javafx_src_main_java_app",
+      "templates_javafx_src_main_java_app_app",
+      "templates_javafx_src_main_java_app_app_main",
+      "templates_javafx_src_main_java_app_app_start",
+      "templates_javafx_src_main_java_app_java_override",
+      "templates_javafx_src_main_java_main",
+      "templates_javafx_src_main_java_main_main",
+      "templates_javafx_src_main_java_main_main_main",
+      "vbox"
+    ],
+    "12": [
+      "docs_specs_v6",
+      "docs_specs_v6_1_módulo_u_detección_multinivel_de_jdks_src_toolchain_rs",
+      "docs_specs_v6_2_módulo_v_compatibilidad_y_control_de_descargas_src_toolchain_rs_src_cli_rs",
+      "docs_specs_v6_3_módulo_w_configuración_graalvm_en_jolt_toml_src_manifest_rs",
+      "docs_specs_v6_4_módulo_x_compilador_nativo_graalvm_src_engine_rs_src_main_rs",
+      "docs_specs_v6_detección_semántica_y_extracción_de_vendor",
+      "docs_specs_v6_esquema_de_configuración",
+      "docs_specs_v6_flujo_de_ejecución",
+      "docs_specs_v6_fuentes_de_escaneo_en_orden_de_prioridad",
+      "docs_specs_v6_jolt_especificaciones_técnicas_fase_6",
+      "docs_specs_v6_prevención_de_descargas_no_solicitadas",
+      "docs_specs_v6_reglas_de_compatibilidad"
+    ],
+    "13": [
+      "agents_skills_openspec_explore_skill",
+      "agents_skills_openspec_explore_skill_check_for_context",
+      "agents_skills_openspec_explore_skill_ending_discovery",
+      "agents_skills_openspec_explore_skill_guardrails",
+      "agents_skills_openspec_explore_skill_handling_different_entry_points",
+      "agents_skills_openspec_explore_skill_openspec_awareness",
+      "agents_skills_openspec_explore_skill_the_stance",
+      "agents_skills_openspec_explore_skill_what_you_don_t_have_to_do",
+      "agents_skills_openspec_explore_skill_what_you_might_do",
+      "agents_skills_openspec_explore_skill_when_a_change_exists",
+      "agents_skills_openspec_explore_skill_when_no_change_exists"
+    ],
+    "14": [
+      "openspec_config",
+      "openspec_config_apply_guidance",
+      "openspec_config_archive_guidance",
+      "openspec_config_context",
+      "openspec_config_operations",
+      "openspec_config_operations_apply",
+      "openspec_config_operations_archive",
+      "openspec_config_rules",
+      "openspec_config_rules_proposal",
+      "openspec_config_rules_tasks",
+      "openspec_config_schema"
+    ],
+    "15": [
+      "agents_workflows_opsx_explore",
+      "agents_workflows_opsx_explore_check_for_context",
+      "agents_workflows_opsx_explore_ending_discovery",
+      "agents_workflows_opsx_explore_guardrails",
+      "agents_workflows_opsx_explore_openspec_awareness",
+      "agents_workflows_opsx_explore_the_stance",
+      "agents_workflows_opsx_explore_what_you_don_t_have_to_do",
+      "agents_workflows_opsx_explore_what_you_might_do",
+      "agents_workflows_opsx_explore_when_a_change_exists",
+      "agents_workflows_opsx_explore_when_no_change_exists"
+    ],
+    "16": [
+      "openspec_specs_toolchain_detection_spec",
+      "openspec_specs_toolchain_detection_spec_purpose",
+      "openspec_specs_toolchain_detection_spec_requirement_control_y_notificación_antes_de_descargar_jdk",
+      "openspec_specs_toolchain_detection_spec_requirement_detección_multinivel_de_jdks_locales",
+      "openspec_specs_toolchain_detection_spec_requirement_evaluación_de_compatibilidad_de_versiones_de_jdk",
+      "openspec_specs_toolchain_detection_spec_requirements",
+      "openspec_specs_toolchain_detection_spec_scenario_detección_exitosa_de_graalvm_u_openjdk_en_path_o_variables_de_entorno",
+      "openspec_specs_toolchain_detection_spec_scenario_jdk_local_compatible_con_la_versión_solicitada",
+      "openspec_specs_toolchain_detection_spec_scenario_notificación_al_usuario_por_falta_de_jdk_compatible",
+      "openspec_specs_toolchain_detection_spec_toolchain_detection_specification"
+    ],
+    "17": [
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_context",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_decisions",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_decisión_1_estructura_installedjdk_y_detección_semántica_de_versiones",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_decisión_2_compatibilidad_de_versiones_mayores_requested",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_decisión_3_notificación_de_instalación_en_lugar_de_descarga_silenciosa",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_decisión_4_esquema_graalvm_en_jolt_toml",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_goals_non_goals",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_design_risks_trade_offs"
+    ],
+    "18": [
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_added_requirements",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_purpose",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_requirement_compilación_de_binario_nativo_con_graalvm",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_requirement_detección_del_ejecutable_native_image",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_requirement_esquema_de_configuración_graalvm_en_jolt_toml",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_scenario_carga_exitosa_de_configuración_graalvm_desde_jolt_toml",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_scenario_compilación_nativa_exitosa",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_graalvm_config_spec_scenario_detección_del_ejecutable_native_image_de_graalvm"
+    ],
+    "19": [
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_added_requirements",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_purpose",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_requirement_control_y_notificación_antes_de_descargar_jdk",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_requirement_detección_multinivel_de_jdks_locales",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_requirement_evaluación_de_compatibilidad_de_versiones_de_jdk",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_scenario_detección_exitosa_de_graalvm_u_openjdk_en_path_o_variables_de_entorno",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_scenario_jdk_local_compatible_con_la_versión_solicitada",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_specs_toolchain_detection_spec_scenario_notificación_al_usuario_por_falta_de_jdk_compatible"
+    ],
+    "20": [
+      "org_springframework_boot_autoconfigure_springbootapplication",
+      "org_springframework_web_bind_annotation_getmapping",
+      "org_springframework_web_bind_annotation_restcontroller",
+      "springapplication",
+      "templates_spring_src_main_java_main",
+      "templates_spring_src_main_java_main_main",
+      "templates_spring_src_main_java_main_main_index",
+      "templates_spring_src_main_java_main_main_main",
+      "templates_spring_src_main_java_main_main_status"
+    ],
+    "21": [
+      "src_core_lockfile_joltlock",
+      "src_core_lockfile_joltlock_add_or_update_package",
+      "src_core_lockfile_joltlock_default",
+      "src_core_lockfile_joltlock_load_from_file",
+      "src_core_lockfile_joltlock_new",
+      "src_core_lockfile_joltlock_remove_package",
+      "src_core_lockfile_joltlock_save_to_file",
+      "src_core_lockfile_lockedpackage",
+      "src_core_lockfile_test_lockfile_serialization"
+    ],
+    "22": [
+      "docs_specs_v5",
+      "docs_specs_v5_1_modulo_r_paquetes_java_y_namespaces_src_scaffold_rs_src_manifest_rs",
+      "docs_specs_v5_2_modulo_s_asistente_interactivo_y_detección_de_contexto_jolt_init",
+      "docs_specs_v5_3_modulo_t_workspaces_multimódulo_y_dependencias_locales_workspace_src_engine_rs_src_main_rs",
+      "docs_specs_v5_capacidades",
+      "docs_specs_v5_capacidades_26",
+      "docs_specs_v5_capacidades_37",
+      "docs_specs_v5_jolt_especificaciones_tecnicas_fase_5"
+    ],
+    "23": [
+      "openspec_specs_architecture_modularity_spec",
+      "openspec_specs_architecture_modularity_spec_architecture_modularity_specification",
+      "openspec_specs_architecture_modularity_spec_purpose",
+      "openspec_specs_architecture_modularity_spec_requirement_organización_modular_de_la_base_de_código_en_subdirectorios",
+      "openspec_specs_architecture_modularity_spec_requirement_punto_de_entrada_unificado_y_despacho_de_comandos",
+      "openspec_specs_architecture_modularity_spec_requirements",
+      "openspec_specs_architecture_modularity_spec_scenario_acceso_coherente_a_apis_entre_módulos",
+      "openspec_specs_architecture_modularity_spec_scenario_enrutamiento_de_subcomandos_cli"
+    ],
+    "24": [
+      "frontend_docs_readme",
+      "frontend_docs_readme_deployment_base_path",
+      "frontend_docs_readme_documentation_map",
+      "frontend_docs_readme_joltv_documentation",
+      "frontend_docs_readme_local_development",
+      "frontend_docs_readme_production_build",
+      "frontend_docs_readme_project_structure"
+    ],
+    "25": [
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_proposal",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_proposal_capabilities",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_proposal_impact",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_proposal_modified_capabilities",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_proposal_new_capabilities",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_proposal_what_changes",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_proposal_why"
+    ],
+    "26": [
+      "awt",
+      "flatdarklaf",
+      "swing",
+      "templates_swing_src_main_java_main",
+      "templates_swing_src_main_java_main_main",
+      "templates_swing_src_main_java_main_main_main"
+    ],
+    "27": [
+      "docs_specs_v4",
+      "docs_specs_v4_1_modulo_q_empaquetado_binario_nativo_multiplataforma_jolt_package",
+      "docs_specs_v4_capacidades",
+      "docs_specs_v4_jolt_especificaciones_tecnicas_fase_4",
+      "docs_specs_v4_tareas_implementadas"
+    ],
+    "28": [
+      "frontend_docs_tsconfig",
+      "frontend_docs_tsconfig_exclude",
+      "frontend_docs_tsconfig_extends",
+      "frontend_docs_tsconfig_include",
+      "ref_astro_tsconfigs_strict"
+    ],
+    "29": [
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_tasks",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_tasks_1_soporte_de_configuración_graalvm_en_jolt_toml",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_tasks_2_detección_inteligente_de_jdks_locales_en_toolchainmanager",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_tasks_3_integración_de_graalvm_native_image_y_comandos_cli",
+      "openspec_changes_archive_2026_09_03_jdk_detection_and_graalvm_tasks_4_verificación_y_pruebas_de_integración"
+    ],
+    "30": [
+      "docs_archive_modulo_p_ide_sync",
+      "docs_archive_modulo_p_ide_sync_modulo_p_comando_jolt_sync_y_autoconfiguracion_de_vs_code_e_ides_java",
+      "docs_archive_modulo_p_ide_sync_problema_resuelto",
+      "docs_archive_modulo_p_ide_sync_solución_técnica_implementada"
+    ],
+    "31": [
+      "javalin",
+      "templates_web_src_main_java_main",
+      "templates_web_src_main_java_main_main",
+      "templates_web_src_main_java_main_main_main"
+    ],
+    "32": [
+      "docs_archive_modulo_q_jpackage_bundler",
+      "docs_archive_modulo_q_jpackage_bundler_funcionalidades_implementadas",
+      "docs_archive_modulo_q_jpackage_bundler_modulo_q_empaquetado_binario_nativo_multiplataforma_jpackage"
+    ],
+    "33": [
+      "docs_archive_modulo_r_java_packages",
+      "docs_archive_modulo_r_java_packages_funcionalidades_implementadas",
+      "docs_archive_modulo_r_java_packages_modulo_r_paquetes_java_y_namespaces_estructurados"
+    ],
+    "34": [
+      "docs_archive_modulo_s_interactive_init_workspace",
+      "docs_archive_modulo_s_interactive_init_workspace_funcionalidades_implementadas",
+      "docs_archive_modulo_s_interactive_init_workspace_modulo_s_asistente_interactivo_de_inicializacion"
+    ],
+    "35": [
+      "docs_archive_modulo_t_multi_module_workspaces",
+      "docs_archive_modulo_t_multi_module_workspaces_funcionalidades_implementadas",
+      "docs_archive_modulo_t_multi_module_workspaces_modulo_t_workspaces_multimodulo_y_dependencias_locales"
+    ],
+    "36": [
+      "docs_archive_modulo_u_windows_nsis_upx",
+      "docs_archive_modulo_u_windows_nsis_upx_funcionalidades_implementadas",
+      "docs_archive_modulo_u_windows_nsis_upx_módulo_u_empaquetado_en_windows_con_upx_y_nsis_windows_installer"
+    ],
+    "37": [
+      "frontend_docs_agents",
+      "frontend_docs_agents_development",
+      "frontend_docs_agents_documentation"
+    ],
+    "38": [
+      "frontend_docs_claude",
+      "frontend_docs_claude_development",
+      "frontend_docs_claude_documentation"
+    ],
+    "39": [
+      "templates_minimal_src_main_java_main",
+      "templates_minimal_src_main_java_main_main",
+      "templates_minimal_src_main_java_main_main_main"
+    ],
+    "40": [
+      "agents_graphify",
+      "gemini_graphify"
+    ],
+    "41": [
+      "benchmark_run_benchmark",
+      "benchmark_run_benchmark_sh__entry"
+    ],
+    "42": [
+      "docs_archive_modulo_a_cli_scaffolding_modulo_a",
+      "docs_specs_modulo_a"
+    ],
+    "43": [
+      "docs_archive_modulo_b_maven_resolver_modulo_b",
+      "docs_specs_modulo_b"
+    ],
+    "44": [
+      "docs_archive_modulo_c_cache_storage_modulo_c",
+      "docs_specs_modulo_c"
+    ],
+    "45": [
+      "docs_archive_modulo_d_toolchain_provisioner_modulo_d",
+      "docs_specs_modulo_d"
+    ],
+    "46": [
+      "docs_archive_modulo_e_build_run_engine_modulo_e",
+      "docs_specs_modulo_e"
+    ],
+    "47": [
+      "docs_archive_modulo_f_i_fatjar_resources_modulo_f",
+      "docs_specs_v2_modulo_f"
+    ],
+    "48": [
+      "docs_archive_modulo_f_i_fatjar_resources_modulo_i",
+      "docs_specs_v2_modulo_i"
+    ],
+    "49": [
+      "docs_archive_modulo_g_unit_testing_modulo_g",
+      "docs_specs_v2_modulo_g"
+    ],
+    "50": [
+      "docs_archive_modulo_h_watch_mode_modulo_h",
+      "docs_specs_v2_modulo_h"
+    ],
+    "51": [
+      "docs_archive_modulo_j_system_project_check_modulo_j",
+      "docs_specs_v2_modulo_j"
+    ],
+    "52": [
+      "docs_archive_modulo_k_lockfile_modulo_k",
+      "docs_specs_v3_modulo_k"
+    ],
+    "53": [
+      "docs_archive_modulo_l_templates_modulo_l",
+      "docs_specs_v3_modulo_l"
+    ],
+    "54": [
+      "docs_archive_modulo_m_remove_dependency_modulo_m",
+      "docs_specs_v3_modulo_m"
+    ],
+    "55": [
+      "docs_archive_modulo_n_search_modulo_n",
+      "docs_specs_v3_modulo_n"
+    ],
+    "56": [
+      "agents_skills_openspec_apply_change_skill"
+    ],
+    "57": [
+      "agents_skills_openspec_archive_change_skill"
+    ],
+    "58": [
+      "agents_skills_openspec_propose_skill"
+    ],
+    "59": [
+      "agents_skills_openspec_sync_specs_skill"
+    ],
+    "60": [
+      "agents_skills_openspec_update_change_skill"
+    ],
+    "61": [
+      "agents_workflows_opsx_apply"
+    ],
+    "62": [
+      "agents_workflows_opsx_archive"
+    ],
+    "63": [
+      "agents_workflows_opsx_propose"
+    ],
+    "64": [
+      "agents_workflows_opsx_sync"
+    ],
+    "65": [
+      "agents_workflows_opsx_update"
+    ],
+    "66": [
+      "benchmark_gradle_test_build"
+    ],
+    "67": [
+      "benchmark_results_benchmark_results"
+    ],
+    "68": [
+      "docs_design_jolt_vision"
+    ],
+    "69": [
+      "docs_plan_fase_1"
+    ],
+    "70": [
+      "docs_plan_fase_2"
+    ],
+    "71": [
+      "docs_plan_fase_3"
+    ],
+    "72": [
+      "docs_plan_fase_4"
+    ],
+    "73": [
+      "pkg_com_example_maven_test"
+    ],
+    "74": [
+      "pkg_jolt"
+    ],
+    "75": [
+      "readme_jolt"
+    ],
+    "76": [
+      "scripts_build_windows_installer"
+    ]
+  },
+  "cohesion": {
+    "0": 0.07645687645687646,
+    "1": 0.07955596669750231,
+    "2": 0.054878048780487805,
+    "3": 0.05263157894736842,
+    "4": 0.09243697478991597,
+    "5": 0.135632183908046,
+    "6": 0.09956709956709957,
+    "7": 0.09523809523809523,
+    "8": 0.16339869281045752,
+    "9": 0.1895424836601307,
+    "10": 0.21666666666666667,
+    "11": 0.1523809523809524,
+    "12": 0.16666666666666666,
+    "13": 0.18181818181818182,
+    "14": 0.18181818181818182,
+    "15": 0.2,
+    "16": 0.2,
+    "17": 0.2222222222222222,
+    "18": 0.2222222222222222,
+    "19": 0.2222222222222222,
+    "20": 0.3333333333333333,
+    "21": 0.3055555555555556,
+    "22": 0.25,
+    "23": 0.25,
+    "24": 0.2857142857142857,
+    "25": 0.2857142857142857,
+    "26": 0.3333333333333333,
+    "27": 0.4,
+    "28": 0.4,
+    "29": 0.4,
+    "30": 0.5,
+    "31": 0.5,
+    "32": 0.6666666666666666,
+    "33": 0.6666666666666666,
+    "34": 0.6666666666666666,
+    "35": 0.6666666666666666,
+    "36": 0.6666666666666666,
+    "37": 0.6666666666666666,
+    "38": 0.6666666666666666,
+    "39": 0.6666666666666666,
+    "40": 1.0,
+    "41": 1.0,
+    "42": 1.0,
+    "43": 1.0,
+    "44": 1.0,
+    "45": 1.0,
+    "46": 1.0,
+    "47": 1.0,
+    "48": 1.0,
+    "49": 1.0,
+    "50": 1.0,
+    "51": 1.0,
+    "52": 1.0,
+    "53": 1.0,
+    "54": 1.0,
+    "55": 1.0,
+    "56": 1.0,
+    "57": 1.0,
+    "58": 1.0,
+    "59": 1.0,
+    "60": 1.0,
+    "61": 1.0,
+    "62": 1.0,
+    "63": 1.0,
+    "64": 1.0,
+    "65": 1.0,
+    "66": 1.0,
+    "67": 1.0,
+    "68": 1.0,
+    "69": 1.0,
+    "70": 1.0,
+    "71": 1.0,
+    "72": 1.0,
+    "73": 1.0,
+    "74": 1.0,
+    "75": 1.0,
+    "76": 1.0
+  },
+  "gods": [
+    {
+      "id": "src_resolver_maven_client_mavenclient",
+      "label": "MavenClient",
+      "degree": 23
+    },
+    {
+      "id": "src_core_cache_cachemanager",
+      "label": "CacheManager",
+      "degree": 22
+    },
+    {
+      "id": "src_core_manifest_joltmanifest",
+      "label": "JoltManifest",
+      "degree": 18
+    },
+    {
+      "id": "src_toolchain_mod_toolchain",
+      "label": "Toolchain",
+      "degree": 16
+    },
+    {
+      "id": "src_cli_args_commands",
+      "label": "Commands",
+      "degree": 15
+    },
+    {
+      "id": "src_toolchain_mod_toolchainmanager",
+      "label": "ToolchainManager",
+      "degree": 12
+    },
+    {
+      "id": "src_resolver_pom_parser_parse_pom_dependencies",
+      "label": "parse_pom_dependencies()",
+      "degree": 12
+    },
+    {
+      "id": "src_scaffold_mod_init_project",
+      "label": "init_project()",
+      "degree": 11
+    },
+    {
+      "id": "src_core_lockfile_joltlock",
+      "label": "JoltLock",
+      "degree": 10
+    },
+    {
+      "id": "src_packaging_jpackage_package_native_app",
+      "label": "package_native_app()",
+      "degree": 9
+    }
+  ],
+  "surprises": [
+    {
+      "source": "test_generate_nsis_script_content()",
+      "target": "generate_nsis_script()",
+      "source_files": [
+        "src/packaging/mod.rs",
+        "src/packaging/nsis.rs"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; peripheral node `test_generate_nsis_script_content()` unexpectedly reaches hub `generate_nsis_script()`"
+    },
+    {
+      "source": "test_parse_version_formats()",
+      "target": "parse_java_major_version()",
+      "source_files": [
+        "src/toolchain/mod.rs",
+        "src/toolchain/detector.rs"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; peripheral node `test_parse_version_formats()` unexpectedly reaches hub `parse_java_major_version()`"
+    },
+    {
+      "source": "AGENTS Graphify Usage",
+      "target": "GEMINI Graphify Usage",
+      "source_files": [
+        "AGENTS.md",
+        "GEMINI.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "package_native_app()",
+      "target": "JoltManifest",
+      "source_files": [
+        "src/packaging/jpackage.rs",
+        "src/core/manifest.rs"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "package_native_app()",
+      "target": "build_standalone_jar()",
+      "source_files": [
+        "src/packaging/jpackage.rs",
+        "src/packaging/jar.rs"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `MavenClient` connect `Joltv documentation` to `maven_client.rs`?",
+      "why": "High betweenness centrality (0.022) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `astro/tsconfigs/strict`, `Add`, `Build` to the rest of the system?",
+      "why": "51 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `MavenClient` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07645687645687646 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `CacheManager` connect `Joltv documentation` to `MavenClient`, `scaffold/mod.rs`?",
+      "why": "High betweenness centrality (0.018) - this node is a cross-community bridge."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Joltv documentation` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07955596669750231 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `DocsLayout.astro` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.054878048780487805 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `manifest.rs` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05263157894736842 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

@@ -22,6 +22,13 @@ El sistema SHALL analizar la versión numérica mayor del JDK instalado contra l
 - **WHEN** el proyecto solicita `java_version = "21"` y el sistema cuenta con Oracle GraalVM o OpenJDK 25 instalado
 - **THEN** el sistema SHALL aceptar y utilizar el JDK 25 local indicando en consola la versión y vendor detectados
 
+### Requirement: GraalVM como toolchain Java estándar
+Una instalación GraalVM compatible SHALL poder utilizarse como cualquier otro JDK, mediante sus herramientas Java estándar (`java`, `javac`, `jar` y `jpackage`). Su detección no habilita compilación con `native-image`.
+
+#### Scenario: Uso de GraalVM para compilar y empaquetar con jpackage
+- **WHEN** el proyecto utiliza una instalación GraalVM compatible y solicita compilación o empaquetado con `jpackage`
+- **THEN** Jolt utiliza las herramientas Java estándar del JDK detectado y no invoca `native-image`
+
 ### Requirement: Control y notificación antes de descargar JDK
 Si no se encuentra un JDK compatible en el sistema anfitrión ni en la caché local de Jolt, el sistema NO SHALL descargar un JDK automáticamente de forma silenciosa. El sistema SHALL notificar al usuario que no se encontró un JDK compatible y brindarle instrucciones para instalarlo o una opción/flag explícita para descargarlo.
 

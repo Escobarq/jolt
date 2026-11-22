@@ -1,7 +1,7 @@
 ---
 import DocsLayout from '../../../../layouts/DocsLayout.astro';
 ---
-<DocsLayout lang="es" title="Configuración" description="Configura proyectos Joltv con jolt.toml." toc={[{ id: 'manifesto', label: 'Manifiesto' }, { id: 'dependencias', label: 'Dependencias' }, { id: 'graalvm', label: 'GraalVM' }, { id: 'empaquetado', label: 'Empaquetado' }]}>
+<DocsLayout lang="es" title="Configuración" description="Configura proyectos Joltv con jolt.toml." toc={[{ id: 'manifesto', label: 'Manifiesto' }, { id: 'dependencias', label: 'Dependencias' }, { id: 'empaquetado', label: 'Empaquetado' }]}>
 	<p class="lead">El archivo <code>jolt.toml</code> describe la identidad del proyecto, la versión de Java, sus dependencias y cómo se empaqueta.</p>
 	<div class="notice"><strong>Recomendación:</strong> conserva <code>jolt.lock</code> en control de versiones para repetir exactamente las resoluciones.</div>
 	<h2 id="manifesto">Manifiesto mínimo</h2>
@@ -24,14 +24,6 @@ package = "com.example"
 [dev-dependencies]
 "org.junit.jupiter:junit-jupiter-api" = "5.11.0"</code></pre>
 	<p>Las dependencias normales se incluyen en el runtime. Las de desarrollo se reservan para pruebas y herramientas.</p>
-	<h2 id="graalvm">GraalVM Native Image</h2>
-	<pre><code>[graalvm]
-enabled = false
-name = "mi-app"
-args = ["--no-fallback", "-H:+ReportExceptionStackTraces"]
-reflection_config = "reflect-config.json"
-resources_config = "resource-config.json"</code></pre>
-	<p>También puedes definir la tabla como <code>[package.graalvm]</code>. La configuración raíz <code>[graalvm]</code> tiene prioridad.</p>
 	<h2 id="empaquetado">Empaquetado</h2>
 	<pre><code>[package]
 type = "nsis"

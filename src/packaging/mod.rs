@@ -1,12 +1,10 @@
 pub mod jar;
 pub mod jpackage;
-pub mod native_image;
 pub mod nsis;
 pub mod upx;
 
 pub use jar::{build_jar, build_standalone_jar};
 pub use jpackage::package_native_app;
-pub use native_image::build_native_image;
 pub use nsis::{find_makensis_binary, generate_nsis_script};
 pub use upx::{compress_with_upx, find_upx_binary};
 

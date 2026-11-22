@@ -19,7 +19,6 @@ pub struct Toolchain {
     pub javac_bin: PathBuf,
     pub jar_bin: PathBuf,
     pub jpackage_bin: PathBuf,
-    pub native_image_bin: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone)]
@@ -32,7 +31,6 @@ pub struct InstalledJdk {
     pub javac_bin: PathBuf,
     pub jar_bin: PathBuf,
     pub jpackage_bin: PathBuf,
-    pub native_image_bin: Option<PathBuf>,
 }
 
 impl From<InstalledJdk> for Toolchain {
@@ -45,7 +43,6 @@ impl From<InstalledJdk> for Toolchain {
             javac_bin: jdk.javac_bin,
             jar_bin: jdk.jar_bin,
             jpackage_bin: jdk.jpackage_bin,
-            native_image_bin: jdk.native_image_bin,
         }
     }
 }
@@ -106,7 +103,6 @@ impl ToolchainManager {
             javac_bin: javac,
             jar_bin: jar,
             jpackage_bin: jpackage,
-            native_image_bin: None,
         })
     }
 

@@ -1,6 +1,9 @@
 # Jolt - Especificaciones Técnicas Fase 6
 
 Este documento detalla la arquitectura y diseño técnico para las funcionalidades de la Fase 6:
+
+> Nota de estado: este documento conserva la especificación histórica de la Fase 6. GraalVM Native Image y la tabla `[graalvm]` ya no son compatibles con el CLI actual; el empaquetado nativo disponible usa `jpackage`.
+
 1. **Detección Inteligente Multinivel de JDKs Locales**
 2. **Compatibilidad Semántica de Versiones Mayores (`major >= requested`)**
 3. **Control Estricto de Auto-Descarga y Prevención de Descargas Silenciosas**

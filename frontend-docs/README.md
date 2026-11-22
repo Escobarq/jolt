@@ -64,9 +64,9 @@ domain root; that causes links and assets to point to a non-existent
 - `/es/` and `/en/`: localized home pages.
 - `docs/quickstart/`: requirements, installation, first project, and next steps.
 - `docs/cli/`: commands, flags, workspaces, builds, and diagnostics.
-- `docs/configuration/`: `jolt.toml`, dependencies, packaging, and GraalVM.
+- `docs/configuration/`: `jolt.toml`, dependencies, and packaging.
 - `docs/architecture/`: Rust modules and execution flow.
-- `docs/toolchains/`: JDK discovery, compatibility, downloads, and Native Image.
+- `docs/toolchains/`: JDK discovery, compatibility, and downloads.
 - `docs/contributing/`: local checks and contribution workflow.
 
 ## Project structure

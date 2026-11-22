@@ -1,0 +1,22 @@
+{
+  "2": "jar.rs",
+  "4": "JoltLock",
+  "9": "joltv-pages.yml",
+  "14": "toolchain/mod.rs",
+  "36": "cli/src/main/java/Main.java",
+  "47": "opsx-explore.md",
+  "53": "openspec-explore/SKILL.md",
+  "54": "Main",
+  "55": "tasks.md",
+  "56": "openspec-apply-change/SKILL.md",
+  "57": "openspec-archive-change/SKILL.md",
+  "58": "openspec-propose/SKILL.md",
+  "59": "openspec-sync-specs/SKILL.md",
+  "60": "openspec-update-change/SKILL.md",
+  "61": "opsx-apply.md",
+  "62": "opsx-archive.md",
+  "63": "opsx-propose.md",
+  "64": "opsx-sync.md",
+  "67": "opsx-update.md",
+  "78": "architecture-modularity Specification"
+}

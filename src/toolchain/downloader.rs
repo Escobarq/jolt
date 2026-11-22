@@ -67,7 +67,6 @@ pub async fn download_and_extract_jdk(
         javac_bin: javac,
         jar_bin: jar,
         jpackage_bin: jpackage,
-        native_image_bin: None,
     })
 }
 

@@ -5,6 +5,5 @@ pub mod manifest;
 pub use cache::CacheManager;
 pub use lockfile::{JoltLock, LockedPackage};
 pub use manifest::{
-    GraalVmConfig, JoltManifest, PackageConfig, Project, RepositoryConfig, WindowsPackageConfig,
-    Workspace,
+    JoltManifest, PackageConfig, Project, RepositoryConfig, WindowsPackageConfig, Workspace,
 };

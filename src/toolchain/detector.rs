@@ -114,16 +114,6 @@ pub fn inspect_jdk_dir(dir: &Path) -> Option<InstalledJdk> {
         PathBuf::from("jpackage")
     };
 
-    let native_image_bin = if bin_dir.join("native-image.cmd").exists() {
-        Some(bin_dir.join("native-image.cmd"))
-    } else if bin_dir.join("native-image.exe").exists() {
-        Some(bin_dir.join("native-image.exe"))
-    } else if bin_dir.join("native-image").exists() {
-        Some(bin_dir.join("native-image"))
-    } else {
-        None
-    };
-
     // Extraer versión desde javac y java
     let javac_out = Command::new(&javac_bin).arg("-version").output().ok()?;
     let stdout = String::from_utf8_lossy(&javac_out.stdout);
@@ -181,7 +171,6 @@ pub fn inspect_jdk_dir(dir: &Path) -> Option<InstalledJdk> {
         javac_bin: clean_path(&javac_bin),
         jar_bin: clean_path(&jar_bin),
         jpackage_bin: clean_path(&jpackage_bin),
-        native_image_bin: native_image_bin.as_ref().map(|p| clean_path(p)),
     })
 }
 
@@ -317,8 +306,7 @@ pub fn find_system_jdk(requested_version: &str) -> Option<Toolchain> {
 
     // 2. Ordenar candidatos:
     //    - Primero: coincidencia exacta de versión
-    //    - Segundo: GraalVM (si existe compatibilidad)
-    //    - Tercero: versión más cercana a la solicitada
+    //    - Segundo: versión más cercana a la solicitada
     compatible.sort_by(|a, b| {
         let a_exact = a.major_version == target_major;
         let b_exact = b.major_version == target_major;
@@ -326,15 +314,6 @@ pub fn find_system_jdk(requested_version: &str) -> Option<Toolchain> {
             return std::cmp::Ordering::Less;
         }
         if !a_exact && b_exact {
-            return std::cmp::Ordering::Greater;
-        }
-
-        let a_graal = a.vendor.contains("GraalVM") || a.native_image_bin.is_some();
-        let b_graal = b.vendor.contains("GraalVM") || b.native_image_bin.is_some();
-        if a_graal && !b_graal {
-            return std::cmp::Ordering::Less;
-        }
-        if !a_graal && b_graal {
             return std::cmp::Ordering::Greater;
         }
 

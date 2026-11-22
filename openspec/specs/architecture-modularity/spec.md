@@ -12,7 +12,7 @@ El sistema SHALL estructurar la lógica interna del binario `jolt` en 8 módulos
 2. `src/cli/`: Definición de comandos, opciones y flags con `clap` (`args.rs`, `mod.rs`).
 3. `src/build/`: Motores de compilación Java (`compiler.rs`), ejecución y modo watch (`runner.rs`) y ejecución de pruebas unitarias (`test_runner.rs`).
 4. `src/resolver/`: Cliente HTTP asíncrono para Maven Central (`maven_client.rs`) y analizador XML de POMs (`pom_parser.rs`).
-5. `src/packaging/`: Motores de empaquetado Fat-JAR (`jar.rs`), GraalVM Native Image (`native_image.rs`), jpackage (`jpackage.rs`), instaladores NSIS para Windows (`nsis.rs`) y compresor de binarios UPX (`upx.rs`).
+5. `src/packaging/`: Motores de empaquetado Fat-JAR (`jar.rs`), jpackage (`jpackage.rs`), instaladores NSIS para Windows (`nsis.rs`) y compresor de binarios UPX (`upx.rs`).
 6. `src/toolchain/`: Detección multinivel de JDKs locales y semántica de versiones (`detector.rs`) y descargador de JDKs Adoptium/Temurin (`downloader.rs`).
 7. `src/scaffold/`: Generador de plantillas de proyectos y workspaces (`templates.rs`) y sincronizador de configuraciones IDE (`ide_config.rs`).
 8. `src/doctor/`: Diagnóstico integral del entorno del sistema y proyectos (`diagnostics.rs`).

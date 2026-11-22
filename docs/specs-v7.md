@@ -2,6 +2,8 @@
 
 Este documento detalla las mejoras y refactorizaciones de arquitectura implementadas en la versión **0.7.1** y establece las especificaciones técnicas completas para los módulos que se desarrollarán en la **versión 0.8.0**:
 
+> Nota de estado: esta especificación conserva el historial de v0.7.1. GraalVM Native Image ya no forma parte del CLI actual; el empaquetado nativo disponible se realiza con `jpackage`.
+
 1. **Implementado en v0.7.1:**
    - **Módulo S+:** Presets preconfigurados de **GraalVM Native Image** en todas las plantillas.
    - **Módulo CLI+:** Soporte del flag `--graalvm` / `--native` en `jolt init` y en el asistente interactivo.

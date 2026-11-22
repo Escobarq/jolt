@@ -2,31 +2,42 @@ schema: spec-driven
 
 # Project context (optional)
 # This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Tech stack: Rust (edition 2024), Java (JDK 8+), Maven Central ecosystem.
+  Project: Jolt — package, dependency and tool manager for Java projects.
+  Current version: 0.7.3 (Cargo.toml). Repository: https://github.com/Escobarq/jolt
+  Language of docs/specs: Spanish.
+  Code conventions:
+    - Rust crate `jolt` with modules: core, cli, build, resolver, packaging,
+      toolchain, scaffold, doctor (see src/main.rs).
+    - Manifest format: jolt.toml ([project], [dependencies], [dev-dependencies],
+      [package], [repositories]); lockfile: jolt.lock.
+    - CLI subcommands: init, add, search, remove, install, build, package,
+      run, test, check, verify.
+    - Native packaging: jpackage (NSIS + UPX on Windows). GraalVM native-image
+      is NOT part of the current CLI (retired; see openspec/specs/graalvm-config/).
+  OpenSpec status:
+    - Implemented specs: architecture-modularity, toolchain-detection.
+    - Retired spec: graalvm-config (superseded by jpackage).
+    - Specified (roadmap v0.8.0, not implemented): java-formatter, javadoc-server,
+      security-audit.
+  Change log: openspec/changes/archive/2026-09-03-jdk-detection-and-graalvm/.
 
 # Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Keep proposals under 500 words
+    - Always include "Why", "What Changes", "Capabilities", "Impact"
+  tasks:
+    - Break tasks into chunks of max 2 hours
+    - Mark every task with [x] / [ ] and verify with tests when applicable
 
 # Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+operations:
+  apply:
+    guidance:
+      - Keep test summaries concise
+  archive:
+    guidance:
+      - Summarize the archive outcome before finishing
+      - Link the archived change from openspec/specs/<name>/spec.md

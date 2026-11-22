@@ -54,9 +54,8 @@ jolt test
 # 5. Verificar dependencias, compilación, pruebas y arranque
 jolt verify
 
-# 6. Compilar Fat-JAR autónomo, Binario Nativo GraalVM o Instalador
+# 6. Compilar Fat-JAR autónomo o instalador nativo
 jolt build --standalone
-jolt build --native            # 🚀 Binario nativo instantáneo con GraalVM Native Image
 jolt build --installer         # 📦 Instalador nativo (.msi / NSIS .exe)
 ```
 
@@ -89,7 +88,7 @@ workspace.
 > ```bash
 > jolt --help
 > jolt <comando> --help    # Ej: jolt build --help, jolt package --help, jolt init --help
-> jolt check               # Diagnostica tu entorno (Java, GraalVM, Rust, NSIS, UPX, Caché)
+> jolt check               # Diagnostica tu entorno (Java, jpackage, Rust, NSIS, UPX, Caché)
 > ```
 
 ---
@@ -119,17 +118,6 @@ package = "com.empresa.app"
 [dev-dependencies]
 "org.junit.jupiter:junit-jupiter-api" = "5.10.2"
 
-# Configuración opcional para GraalVM Native Image
-[graalvm]
-enabled = false # o activar en CLI con: jolt build --native
-name = "mi-app-bin"
-args = [
-    "--no-fallback",
-    "-H:+ReportExceptionStackTraces"
-]
-# reflection_config = "reflect-config.json"
-# resources_config = "resource-config.json"
-
 [package]
 type = "nsis"
 name = "MiAplicacion"
@@ -145,3 +133,14 @@ desktop_shortcut = true
 
 ## 📚 Documentación Técnica y Módulos
 Para especificaciones técnicas detalladas, diseño de arquitectura y especificaciones de módulos, consulta la carpeta [`docs/`](docs/).
+
+## 📖 Documentación Adicional
+
+| Recurso | Contenido |
+|---|---|
+| [`docs/specs.md`](docs/specs.md) | Índice maestro de módulos (A–U) y roadmap v0.8.0 (`jolt fmt`, `jolt doc`, `jolt audit`). |
+| [`docs/design.md`](docs/design.md) | Arquitectura interna de `src/` (8 subsistemas) y flujo de trabajo del CLI. |
+| [`docs/plan.md`](docs/plan.md) | Plan de desarrollo actual, estado del proyecto y comandos del CLI. |
+| [`docs/archive/`](docs/archive/) | Especificaciones archivadas de cada módulo implementado (A–U). |
+| [`openspec/`](openspec/) | Especificaciones OpenSpec, contexto del proyecto y registro de cambios aplicados. |
+| [`graphify-out/`](graphify-out/) | Grafo de conocimiento del proyecto: `GRAPH_REPORT.md`, `graph.json`, `graph.html`. |

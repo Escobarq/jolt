@@ -1,31 +1,28 @@
 # graalvm-config Specification
 
-## Purpose
-Permite configurar parámetros de compilación de binarios nativos con GraalVM Native Image dentro del manifiesto jolt.toml y ejecutarlos mediante Jolt.
+## Status
 
-## Requirements
+**Retirado** (`RETIRADO`). Esta especificación ya no forma parte del CLI actual de Jolt.
 
-### Requirement: Esquema de configuración GraalVM en jolt.toml
-El sistema SHALL permitir la definición de una tabla `[graalvm]` (y opcionalmente `[package.graalvm]`) en `jolt.toml` con opciones para el compilador `native-image`, incluyendo `enabled`, `args`, `main_class`, `name`, `reflection_config` y `resources_config`. Todas las opciones, salvo las listas y cadenas explícitamente configuradas, serán opcionales.
+## Purpose (original)
 
-#### Scenario: Carga exitosa de configuración GraalVM desde jolt.toml
-- **WHEN** un manifiesto `jolt.toml` define `[graalvm]` con `args = ["--no-fallback"]`
-- **THEN** el parser de Jolt deserializa correctamente las opciones en la estructura de manifiesto del proyecto
-- **AND** `JoltManifest::graalvm_config()` prioriza la tabla raíz `[graalvm]` sobre `[package.graalvm]`
+Soportar la sección `[graalvm]` en `jolt.toml` y la compilación de binarios nativos AOT con GraalVM `native-image` (`jolt build --native`), incluyendo configuración de argumentos, clase principal, nombre de binario y archivos de reflexión/recursos.
 
-### Requirement: Detección del ejecutable native-image
-El sistema SHALL buscar el binario `native-image` en las siguientes ubicaciones prioritarias:
-1. Dentro del directorio `bin` del JDK/GraalVM detectado por el ToolchainManager.
-2. En la variable de entorno `GRAALVM_HOME` / `JAVA_HOME`.
-3. En el `PATH` del sistema.
+## Motivo de Retiro
 
-#### Scenario: Detección del ejecutable native-image de GraalVM
-- **WHEN** el usuario solicita una compilación nativa y `native-image` está disponible en el entorno o en el toolchain detectado
-- **THEN** el sistema localiza la ruta absoluta al ejecutable y lo utiliza para invocar la compilación
+El CLI actual de Jolt empaqueta aplicaciones nativas exclusivamente con **jpackage** (`jolt build --package` / `jolt build --installer`, instaladores NSIS + UPX en Windows). La detección multinivel de JDKs y el control de descargas (`--download-jdk`) se mantienen, pero sin integración de `native-image`.
 
-### Requirement: Compilación de binario nativo con GraalVM
-El sistema SHALL proveer la opción de compilar el proyecto a binario nativo invocando `native-image` con el fat JAR o classpath del proyecto y los argumentos configurados en `jolt.toml`.
+- Las pruebas del proyecto verifican explícitamente que `jolt init` **rechaza** el flag `--graalvm` y que los manifiestos generados **no contienen** `[graalvm]`.
+- `docs/specs-v6.md` conserva la especificación histórica de la Fase 6.
+- `docs/specs-v7.md` aclara que GraalVM Native Image ya no forma parte del CLI actual.
 
-#### Scenario: Compilación nativa exitosa
-- **WHEN** el usuario ejecuta `jolt build --native`
-- **THEN** el sistema compila las clases, empaqueta el jar y ejecuta `native-image` produciendo el ejecutable nativo en el directorio `dist/` o `target/`
+## Historial
+
+- Especificado originalmente en: `docs/specs-v6.md` (Módulos V, W, X).
+- Implementado como cambio OpenSpec: `openspec/changes/archive/2026-09-03-jdk-detection-and-graalvm/` (proposal, design, tasks; todas las tareas marcadas `[x]`).
+- Especificación OpenSpec asociada: `openspec/specs/toolchain-detection/spec.md` (detección de JDKs, vigente).
+- Retirado y documentado en: este archivo.
+
+## Reemplazo Actual
+
+Empaquetado nativo: [`docs/archive/modulo-q-jpackage-bundler.md`](../../docs/archive/modulo-q-jpackage-bundler.md) — `jolt build --package` / `--installer` con jpackage, opcionalmente `--upx` y `--add-to-path`.

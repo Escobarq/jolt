@@ -571,7 +571,6 @@ async fn main() {
             package,
             group_id,
             workspace,
-            graalvm,
         } => {
             if *list_templates {
                 scaffold::print_available_templates();
@@ -583,7 +582,6 @@ async fn main() {
                 package.as_deref(),
                 group_id.as_deref(),
                 *workspace,
-                *graalvm,
             ) {
                 eprintln!("[ERROR] Error al inicializar: {}", e);
             }
@@ -920,7 +918,6 @@ async fn main() {
             installer,
             name,
             upx,
-            native,
             download_jdk,
             add_to_path,
             scope,
@@ -969,36 +966,7 @@ async fn main() {
                             .or_else(|| build::detect_main_class(&dir))
                             .unwrap_or_else(|| "Main".to_string());
 
-                        let is_native = *native
-                            || manifest
-                                .graalvm_config()
-                                .and_then(|g| g.enabled)
-                                .unwrap_or(false);
-
-                        if is_native {
-                            println!(
-                                "[INFO] Compilando binario nativo con GraalVM Native Image para '{}'...",
-                                proj.name
-                            );
-                            match packaging::build_native_image(
-                                &dir,
-                                &proj.name,
-                                &proj.version,
-                                &main_class,
-                                toolchain.as_ref(),
-                                manifest.graalvm_config(),
-                            ) {
-                                Ok(bin_path) => println!(
-                                    "[OK] Binario nativo generado exitosamente en: {}",
-                                    bin_path.display()
-                                ),
-                                Err(e) => eprintln!(
-                                    "[ERROR] Error al compilar binario nativo en {}: {}",
-                                    dir.display(),
-                                    e
-                                ),
-                            }
-                        } else if *installer || *package {
+                        if *installer || *package {
                             let pkg_type = if *installer {
                                 if cfg!(target_os = "windows") {
                                     "msi"

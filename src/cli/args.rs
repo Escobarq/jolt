@@ -30,9 +30,6 @@ pub enum Commands {
         /// Inicializa un workspace / monorepo multimódulo
         #[arg(long = "workspace")]
         workspace: bool,
-        /// Habilita la configuración predefinida para GraalVM Native Image
-        #[arg(long = "graalvm", alias = "native")]
-        graalvm: bool,
     },
     /// Añade una dependencia al proyecto actual
     Add {
@@ -92,9 +89,6 @@ pub enum Commands {
         /// Habilita la compresión de ejecutables y librerías con UPX
         #[arg(long = "upx")]
         upx: bool,
-        /// Compila a binario nativo autónomo usando GraalVM Native Image
-        #[arg(long = "native")]
-        native: bool,
         /// Permite descargar automáticamente un JDK (Adoptium Temurin) si no hay uno compatible instalado
         #[arg(long = "download-jdk")]
         download_jdk: bool,
@@ -249,5 +243,16 @@ mod tests {
             }
             command => panic!("expected Run, got {command:?}"),
         }
+    }
+
+    #[test]
+    fn init_rejects_graalvm_flag() {
+        assert!(Cli::try_parse_from(["jolt", "init", "app", "--graalvm"]).is_err());
+    }
+
+    #[test]
+    fn build_rejects_native_flag_but_keeps_jpackage_option() {
+        assert!(Cli::try_parse_from(["jolt", "build", "--native"]).is_err());
+        assert!(Cli::try_parse_from(["jolt", "build", "--package"]).is_ok());
     }
 }
